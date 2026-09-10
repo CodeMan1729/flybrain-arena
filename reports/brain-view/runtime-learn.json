@@ -1,0 +1,695 @@
+{
+  "samples": 137,
+  "game_peak_rss_mb": 396.671875,
+  "brain_peak_rss_mb": 563.609375,
+  "trace": [
+    {
+      "seconds": 0.0,
+      "game_rss_mb": 0.03125,
+      "brain_rss_mb": 562.171875
+    },
+    {
+      "seconds": 0.51,
+      "game_rss_mb": 189.34375,
+      "brain_rss_mb": 562.171875
+    },
+    {
+      "seconds": 1.02,
+      "game_rss_mb": 273.125,
+      "brain_rss_mb": 563.109375
+    },
+    {
+      "seconds": 1.53,
+      "game_rss_mb": 313.828125,
+      "brain_rss_mb": 563.125
+    },
+    {
+      "seconds": 2.04,
+      "game_rss_mb": 313.859375,
+      "brain_rss_mb": 563.125
+    },
+    {
+      "seconds": 2.54,
+      "game_rss_mb": 313.859375,
+      "brain_rss_mb": 563.125
+    },
+    {
+      "seconds": 3.04,
+      "game_rss_mb": 313.890625,
+      "brain_rss_mb": 563.125
+    },
+    {
+      "seconds": 3.54,
+      "game_rss_mb": 313.890625,
+      "brain_rss_mb": 563.125
+    },
+    {
+      "seconds": 4.05,
+      "game_rss_mb": 313.890625,
+      "brain_rss_mb": 563.125
+    },
+    {
+      "seconds": 4.56,
+      "game_rss_mb": 314.859375,
+      "brain_rss_mb": 563.609375
+    },
+    {
+      "seconds": 5.06,
+      "game_rss_mb": 314.890625,
+      "brain_rss_mb": 563.609375
+    },
+    {
+      "seconds": 5.57,
+      "game_rss_mb": 314.875,
+      "brain_rss_mb": 563.609375
+    },
+    {
+      "seconds": 6.08,
+      "game_rss_mb": 319.15625,
+      "brain_rss_mb": 563.609375
+    },
+    {
+      "seconds": 6.59,
+      "game_rss_mb": 322.171875,
+      "brain_rss_mb": 563.609375
+    },
+    {
+      "seconds": 7.1,
+      "game_rss_mb": 322.234375,
+      "brain_rss_mb": 563.609375
+    },
+    {
+      "seconds": 7.61,
+      "game_rss_mb": 322.265625,
+      "brain_rss_mb": 563.609375
+    },
+    {
+      "seconds": 8.11,
+      "game_rss_mb": 346.953125,
+      "brain_rss_mb": 563.609375
+    },
+    {
+      "seconds": 8.62,
+      "game_rss_mb": 364.578125,
+      "brain_rss_mb": 563.609375
+    },
+    {
+      "seconds": 9.13,
+      "game_rss_mb": 364.578125,
+      "brain_rss_mb": 563.609375
+    },
+    {
+      "seconds": 9.64,
+      "game_rss_mb": 364.59375,
+      "brain_rss_mb": 563.609375
+    },
+    {
+      "seconds": 10.14,
+      "game_rss_mb": 364.59375,
+      "brain_rss_mb": 563.609375
+    },
+    {
+      "seconds": 10.64,
+      "game_rss_mb": 364.546875,
+      "brain_rss_mb": 563.609375
+    },
+    {
+      "seconds": 11.15,
+      "game_rss_mb": 364.484375,
+      "brain_rss_mb": 563.609375
+    },
+    {
+      "seconds": 11.66,
+      "game_rss_mb": 364.484375,
+      "brain_rss_mb": 563.609375
+    },
+    {
+      "seconds": 12.16,
+      "game_rss_mb": 364.796875,
+      "brain_rss_mb": 336.53125
+    },
+    {
+      "seconds": 12.67,
+      "game_rss_mb": 364.890625,
+      "brain_rss_mb": 336.53125
+    },
+    {
+      "seconds": 13.18,
+      "game_rss_mb": 364.703125,
+      "brain_rss_mb": 336.53125
+    },
+    {
+      "seconds": 13.69,
+      "game_rss_mb": 364.734375,
+      "brain_rss_mb": 336.53125
+    },
+    {
+      "seconds": 14.19,
+      "game_rss_mb": 364.734375,
+      "brain_rss_mb": 336.53125
+    },
+    {
+      "seconds": 14.7,
+      "game_rss_mb": 364.828125,
+      "brain_rss_mb": 336.53125
+    },
+    {
+      "seconds": 15.21,
+      "game_rss_mb": 364.859375,
+      "brain_rss_mb": 336.53125
+    },
+    {
+      "seconds": 15.72,
+      "game_rss_mb": 364.859375,
+      "brain_rss_mb": 336.53125
+    },
+    {
+      "seconds": 16.23,
+      "game_rss_mb": 364.859375,
+      "brain_rss_mb": 336.53125
+    },
+    {
+      "seconds": 16.74,
+      "game_rss_mb": 364.859375,
+      "brain_rss_mb": 336.53125
+    },
+    {
+      "seconds": 17.25,
+      "game_rss_mb": 365.0625,
+      "brain_rss_mb": 336.546875
+    },
+    {
+      "seconds": 17.76,
+      "game_rss_mb": 365.265625,
+      "brain_rss_mb": 336.5625
+    },
+    {
+      "seconds": 18.26,
+      "game_rss_mb": 365.265625,
+      "brain_rss_mb": 336.5625
+    },
+    {
+      "seconds": 18.77,
+      "game_rss_mb": 365.265625,
+      "brain_rss_mb": 336.5625
+    },
+    {
+      "seconds": 19.27,
+      "game_rss_mb": 365.265625,
+      "brain_rss_mb": 336.5625
+    },
+    {
+      "seconds": 19.77,
+      "game_rss_mb": 365.265625,
+      "brain_rss_mb": 336.5625
+    },
+    {
+      "seconds": 20.28,
+      "game_rss_mb": 373.390625,
+      "brain_rss_mb": 336.5625
+    },
+    {
+      "seconds": 20.79,
+      "game_rss_mb": 373.59375,
+      "brain_rss_mb": 336.5625
+    },
+    {
+      "seconds": 21.3,
+      "game_rss_mb": 373.59375,
+      "brain_rss_mb": 336.5625
+    },
+    {
+      "seconds": 21.81,
+      "game_rss_mb": 373.59375,
+      "brain_rss_mb": 336.5625
+    },
+    {
+      "seconds": 22.31,
+      "game_rss_mb": 373.59375,
+      "brain_rss_mb": 336.5625
+    },
+    {
+      "seconds": 22.82,
+      "game_rss_mb": 373.59375,
+      "brain_rss_mb": 336.5625
+    },
+    {
+      "seconds": 23.32,
+      "game_rss_mb": 373.609375,
+      "brain_rss_mb": 336.5625
+    },
+    {
+      "seconds": 23.82,
+      "game_rss_mb": 373.78125,
+      "brain_rss_mb": 336.5625
+    },
+    {
+      "seconds": 24.33,
+      "game_rss_mb": 373.78125,
+      "brain_rss_mb": 336.5625
+    },
+    {
+      "seconds": 24.84,
+      "game_rss_mb": 382.375,
+      "brain_rss_mb": 336.5625
+    },
+    {
+      "seconds": 25.34,
+      "game_rss_mb": 382.390625,
+      "brain_rss_mb": 336.5625
+    },
+    {
+      "seconds": 25.85,
+      "game_rss_mb": 382.390625,
+      "brain_rss_mb": 336.5625
+    },
+    {
+      "seconds": 26.36,
+      "game_rss_mb": 382.390625,
+      "brain_rss_mb": 336.5625
+    },
+    {
+      "seconds": 26.86,
+      "game_rss_mb": 382.609375,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 27.37,
+      "game_rss_mb": 382.609375,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 27.88,
+      "game_rss_mb": 382.609375,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 28.38,
+      "game_rss_mb": 382.609375,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 28.89,
+      "game_rss_mb": 382.609375,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 29.4,
+      "game_rss_mb": 382.546875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 29.91,
+      "game_rss_mb": 382.59375,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 30.42,
+      "game_rss_mb": 382.59375,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 30.93,
+      "game_rss_mb": 382.609375,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 31.44,
+      "game_rss_mb": 382.78125,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 31.95,
+      "game_rss_mb": 390.28125,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 32.46,
+      "game_rss_mb": 390.28125,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 32.96,
+      "game_rss_mb": 390.28125,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 33.47,
+      "game_rss_mb": 390.28125,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 33.97,
+      "game_rss_mb": 390.296875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 34.48,
+      "game_rss_mb": 390.296875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 34.99,
+      "game_rss_mb": 390.296875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 35.49,
+      "game_rss_mb": 390.40625,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 35.99,
+      "game_rss_mb": 396.0,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 36.5,
+      "game_rss_mb": 396.0,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 37.01,
+      "game_rss_mb": 396.0,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 37.51,
+      "game_rss_mb": 396.0,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 38.01,
+      "game_rss_mb": 396.015625,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 38.52,
+      "game_rss_mb": 396.015625,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 39.03,
+      "game_rss_mb": 396.03125,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 39.54,
+      "game_rss_mb": 396.0625,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 40.05,
+      "game_rss_mb": 396.03125,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 40.55,
+      "game_rss_mb": 396.046875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 41.06,
+      "game_rss_mb": 396.046875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 41.56,
+      "game_rss_mb": 396.046875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 42.07,
+      "game_rss_mb": 396.046875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 42.58,
+      "game_rss_mb": 396.046875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 43.09,
+      "game_rss_mb": 396.046875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 43.59,
+      "game_rss_mb": 396.609375,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 44.1,
+      "game_rss_mb": 396.609375,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 44.61,
+      "game_rss_mb": 396.625,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 45.12,
+      "game_rss_mb": 396.640625,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 45.63,
+      "game_rss_mb": 396.65625,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 46.13,
+      "game_rss_mb": 396.65625,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 46.63,
+      "game_rss_mb": 396.65625,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 47.14,
+      "game_rss_mb": 396.65625,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 47.65,
+      "game_rss_mb": 396.65625,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 48.15,
+      "game_rss_mb": 396.65625,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 48.66,
+      "game_rss_mb": 396.65625,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 49.17,
+      "game_rss_mb": 396.65625,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 49.67,
+      "game_rss_mb": 396.65625,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 50.18,
+      "game_rss_mb": 396.65625,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 50.68,
+      "game_rss_mb": 396.65625,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 51.19,
+      "game_rss_mb": 396.671875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 51.7,
+      "game_rss_mb": 396.671875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 52.2,
+      "game_rss_mb": 374.875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 52.71,
+      "game_rss_mb": 374.875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 53.22,
+      "game_rss_mb": 374.875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 53.73,
+      "game_rss_mb": 374.875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 54.23,
+      "game_rss_mb": 374.875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 54.73,
+      "game_rss_mb": 374.875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 55.23,
+      "game_rss_mb": 374.875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 55.74,
+      "game_rss_mb": 374.875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 56.24,
+      "game_rss_mb": 374.875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 56.75,
+      "game_rss_mb": 374.890625,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 57.26,
+      "game_rss_mb": 374.890625,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 57.76,
+      "game_rss_mb": 374.921875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 58.27,
+      "game_rss_mb": 374.921875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 58.77,
+      "game_rss_mb": 374.921875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 59.28,
+      "game_rss_mb": 374.921875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 59.78,
+      "game_rss_mb": 374.921875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 60.29,
+      "game_rss_mb": 374.921875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 60.79,
+      "game_rss_mb": 374.921875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 61.3,
+      "game_rss_mb": 375.078125,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 61.81,
+      "game_rss_mb": 375.078125,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 62.32,
+      "game_rss_mb": 375.078125,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 62.83,
+      "game_rss_mb": 375.078125,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 63.33,
+      "game_rss_mb": 375.078125,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 63.84,
+      "game_rss_mb": 375.078125,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 64.34,
+      "game_rss_mb": 375.3125,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 64.85,
+      "game_rss_mb": 384.578125,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 65.36,
+      "game_rss_mb": 384.59375,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 65.87,
+      "game_rss_mb": 384.59375,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 66.38,
+      "game_rss_mb": 384.609375,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 66.89,
+      "game_rss_mb": 384.640625,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 67.39,
+      "game_rss_mb": 384.71875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 67.89,
+      "game_rss_mb": 384.71875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 68.4,
+      "game_rss_mb": 384.71875,
+      "brain_rss_mb": 336.71875
+    },
+    {
+      "seconds": 68.91,
+      "game_rss_mb": 384.71875,
+      "brain_rss_mb": 336.71875
+    }
+  ],
+  "game_exit_code": 0,
+  "game_log": "logs/validation/20260910-215732/20260910-215732-game.log",
+  "headless": false
+}

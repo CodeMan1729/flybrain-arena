@@ -2,6 +2,12 @@
 
 ## Sürekli geliştirme
 
+- [x] Kullanıcı tercihi doğrultusunda görselliği öne alan yoğun, döndürülebilir
+  beyin görünümü: 4.096 gerçek soma, 6.000 gerçek bağ, V ile büyük görünüm,
+  yakınlaştırma, hücre grubu renkleri/filtreleri ve nöron seçimi. Küçük
+  panelde dört ölçülmüş çıktı ve zaman grafiği. İlk çizimin FPS kaybı native
+  MultiMesh/toplu çizgilerle giderildi. Kanıt: reports/brain-view/README.md.
+
 - [x] Kullanıcının istediği harita genişletmesi: arşiv ve makine odası,
   iki odayı arkadan bağlayan servis koridoru, yeni mobilyalar ve yönlendirmeler.
   Anahtar arşivde; zafer alanı çıkış kapısının arkasına sınırlandı.

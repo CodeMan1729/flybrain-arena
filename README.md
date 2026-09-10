@@ -13,7 +13,7 @@ Bu klasörde çalıştırılmış bir Godot oyunu, gerçek veri, ayrı Python si
 | Ön eğitim | 48 yapay oyuncu, 576 tur, 8.640 ödüllü olay |
 | Kişiselleşme | Oyun içi hareketler ve isteğe bağlı 1 / 2 / 3 değerlendirmeleri |
 | Çalışma biçimi | Yerel CPU; oyun sırasında yalnızca localhost iletişimi |
-| Son doğrulama | 11 Python/sunucu testi, 15 ayar kontrolü, 42 ses/oynanış kontrolü, 43 tam tur kontrolü geçti |
+| Son doğrulama | 11 Python/sunucu testi, 15 ayar kontrolü, 42 ses/oynanış, 21 beyin görünümü ve 46 tam tur kontrolü geçti |
 
 ![FLYFEAR: odadaki sinek, gerçek sinir etkinliği paneli ve olay değerlendirmesi](reports/learning-v3/feedback-open.png)
 
@@ -55,6 +55,7 @@ Modu terminalden seçmek de mümkündür:
 | E | Anahtar al / çıkış kapısını aç |
 | 1 / 2 / 3 | Öğrenen modda son olayı değerlendir: Etkilemedi / Gerildim / Korktum; 8 saniye içinde, isteğe bağlı |
 | B | Sağ alt köşedeki gerçek nöron etkinliği görünümünü aç/kapat; başlangıçta açık |
+| V | Büyük beyin görünümünü aç/kapat; incelerken oyun duraklar |
 | TAB | Son sinir ölçümü, eylem, puanın kaynağı, FPS ve bellek paneli |
 | ESC | Duraklat / devam; menüde çıkış |
 
@@ -82,7 +83,13 @@ Görüş mesafesi 12 oyun birimi; ileri vektörle noktasal çarpım >0,25 ve duv
 
 Uçuş gövdesi mühendislik kontrolüdür: görünür hedefi takip eder, yaklaşık 2,3 birim mesafeyi korur; L1−L2 yana uçuşu, |L1| hızı, L3+Mi1 yüksekliği etkiler. Çarpışma normalleri engelden uzaklaşmayı sağlar. Sinir etkinliği kapatıldığında uçuş sürüşü durur. Bu, biyolojik böcek aerodinamiği veya öğrenilmiş navigasyon iddiası değildir. **Öğrenilen davranış korku olayı tercihidir; uçuş kontrol kuralı sabittir.** Kanat çırpması kozmetiktir.
 
-Sağ altta veri setinin `somaLocation` alanından alınan **512 gerçek hücrenin** x/y konum izdüşümü ve aralarındaki en güçlü 160'a kadar gerçek işaretli kenar çizilir. Bu sadece gösterim örneklemesidir; hesaplamada tam 166.700 nöron çalışır. Nokta rengi son `state` değerinden, çizgi grafiği ölçülen ortalama |etkinlik|ten gelir. Biyolojik ID'ler ve koordinatlar `hello.info.view` içinde, etkinlikler her karar kaydında yer alır. Yeni ölçüm 2–5 saniyede bir gelir; örnekler arasında sahte nöron hareketi üretilmez. Veri yaşı gösterilir; duraklama/kesintide noktalar griye döner. Çizim ve yaş etiketi en fazla 10 Hz yenilenir.
+Sağ altta `somaLocation` alanından alınan **4.096 gerçek hücre konumu** çizilir. Örnek içindeki en güçlü **6.000 gerçek işaretli bağlantı** taşınır; küçük panel bunların 1.000 çizgisini, büyük görünüm filtre ve kadraja girenlerini çizer. Bu gösterim örneklemesidir; hesaplamada **166.700 nöronluk tam beyin + VNC grafiği** çalışır. Koordinatı bulunan optik lob içi, merkezi beyin içi, görsel projeksiyon ve görsel duyu hücreleri biyolojik ID sırasından deterministik örneklenir. Kaynak eksen oranları korunur; görünümdeki döndürme anatomik yön adı atamaz.
+
+**V ile büyük görünüm:** fareyle sürükle veya ok tuşlarıyla döndür; tekerlek / +/- ile yakınlaştır; Home ile görünümü sıfırla. Nörona tıkla veya N / “En etkin nöron” ile ölçülen |a| değeri en yüksek hücreyi seç. Yan bölümde biyolojik ID, hücre tipi, kaynak sınıfı/tarafı/koordinatı, tam graftaki giriş–çıkış bağlantı sayısı ve son etkinliği görünür. Seçilen hücrenin görünür örnek bağlantılarında mavi oklar girişi, turuncu oklar çıkışı gösterir. Hücre grubu filtresi ve etkinlik / hücre grubu renk seçimi vardır.
+
+V ile açılış oyunu ve beyin kararlarını duraklatır. V ile geri dönüş önceki oynama/duraklama durumunu ve küçük panelin görünürlüğünü korur; ESC duraklama menüsüne döner. İnceleme sırasında görünen etkinlik **son ölçümdür**, yeni ölçüm gibi sunulmaz. Küçük paneldeki L1/L2/L3/Mi1 sayıları ham grup ortalamalarıdır; çubuk ölçeği ±0,2 olarak yazılır. Zaman grafiği son 32 gerçek örnekte tüm ağın ortalama |a| değerini, gerçek örnek zamanları ve belirtilen tepe ölçeğiyle gösterir. Yeni turda eski grafik temizlenir; bağlantı kaybında son örnek açıkça eski olarak işaretlenir.
+
+Nokta renkleri ölçülen model etkinliğini veya kaynak hücre gruplarını gösterir; nöron dalları/zar yüzeyi çizilmez ve biyolojik kayıt iddiası yoktur. Yeni ölçüm 2–5 saniyede bir gelir; örnekler arasında sahte ateşleme animasyonu üretilmez. Godot MultiMesh ve toplu çizgi çizimi kullanılır; panel 10 Hz yenilenir. [Görseller, etkileşim testleri ve performans raporu](reports/brain-view/README.md).
 
 ## Mimari ve güvenli bekleme
 
@@ -168,7 +175,7 @@ Grup sürüşü `0.2 + 0.8 * (girdi + 1) / 2`; diğer hücrelerde doğrudan sür
 
 `wait`, bütçe veya gecikme gibi güvenlik koşullarında üretilir; ödül almayan dördüncü öğrenme eylemi olarak yarışmaz. Bu hücreler doğal “korkutma nöronları” değildir. Olay anlamları bilinçli arayüz tasarımıdır. Işıklar ve sesler bütçe sınırından geçtikten sonra uygulanır.
 
-**Adaptör:** `brain/connectome.py → Connectome`: `info`, `reset()`, `step(normalized[8])`. Sonuç: `output[4]`, `readout[12]`, `view_activity[512]`, etkinlik özeti, gecikme ve RSS. `readout` dört tip ortalamasına ek olarak sekiz bağlam grubu okur: her giriş grubundan L1/L2/L3/Mi1 hücrelerine gelen gerçek bağlantı toplamının mutlak değeri en büyük 32 hücre seçilir. Dört tip ortalaması 0,2 ile ölçeklenir; sekiz downstream grup kendi −1…1 etkinlik ölçeğinde okunur. Önceki sürümde bu sekiz grubu da 0,2'ye bölmek çoğu ölçümü −1'e kırpıyor ve bağlam bilgisini siliyordu; v3 bunu düzeltti. Dış katman, sekiz bağlam değerini `clip(3 * (a + 0.3), -1, 1)` ile merkezler ve ölçekler. Seçilen tam ID'ler `info.context_readout_ids` içindedir. Bu gruplar doğrudan oyuncu telemetrisini veya giriş nöronu sürüşünü kopyalamaz; gerçek kenarlar kaldırılıp ağ sıfırlanınca **12 ham sinir ölçümü de sıfırlanır**. Grupların seçimi mühendislik tasarımıdır. Model değiştirirken kayıt sürümünü değiştirin; eski parametreleri uyumluymuş gibi kullanmayın.
+**Adaptör:** `brain/connectome.py → Connectome`: `info`, `reset()`, `step(normalized[8])`. Sonuç: `output[4]`, `readout[12]`, `view_activity[4096]`, etkinlik özeti, gecikme ve RSS. `readout` dört tip ortalamasına ek olarak sekiz bağlam grubu okur: her giriş grubundan L1/L2/L3/Mi1 hücrelerine gelen gerçek bağlantı toplamının mutlak değeri en büyük 32 hücre seçilir. Dört tip ortalaması 0,2 ile ölçeklenir; sekiz downstream grup kendi −1…1 etkinlik ölçeğinde okunur. Önceki sürümde bu sekiz grubu da 0,2'ye bölmek çoğu ölçümü −1'e kırpıyor ve bağlam bilgisini siliyordu; v3 bunu düzeltti. Dış katman, sekiz bağlam değerini `clip(3 * (a + 0.3), -1, 1)` ile merkezler ve ölçekler. Seçilen tam ID'ler `info.context_readout_ids` içindedir. Bu gruplar doğrudan oyuncu telemetrisini veya giriş nöronu sürüşünü kopyalamaz; gerçek kenarlar kaldırılıp ağ sıfırlanınca **12 ham sinir ölçümü de sıfırlanır**. Grupların seçimi mühendislik tasarımıdır. Model değiştirirken kayıt sürümünü değiştirin; eski parametreleri uyumluymuş gibi kullanmayın.
 
 ## Üç deney modu ve öğrenmenin sınırı
 
@@ -239,7 +246,7 @@ Yeni korku sesleriyle **11 Python/sunucu, 15 ayar, 32 ses/oynanış ve 35 tam tu
 
 Testler `unittest` ve Godot'un kendisini kullanır; ayrı test çerçevesi yok. `tests/gameplay.gd` gerçek Godot ses karışımından yakın/uzak seviye farkını, sağ/sol yönü ve menzil dışı sessizliği ölçer; vızıltının duraklama/devam/tur sonu/odak kaybı davranışını ve ana sesin tam kapatılmasını da sınar. Ses sürümünün [görünür testi](reports/audio-rendered-tests.log) 18/18 geçti. Güncel v3 [tam testinde](reports/learning-v3/full-tests.log) 10 Python/sunucu testi, 20 Godot ses/oynanış kontrolü ve 35 tam tur kontrolü geçti; görünür gerçek tuş → sunucu geri bildirim yolu [ayrıca doğrulandı](reports/learning-v3/rendered-feedback.log). Kapsam: hash kontrollü gerçek veri hazırlama, nöron/kenar/temas sayıları, tam biyolojik ID eşlemesi, gerçek girdi→sinir çıktısı→eylem, bağlantı ablasyonu, sayısal giriş doğrulama, ödülün sınırı ve başlangıç hareketi, tohum tekrarı, parametre kayıt/sıfırlama/bozuk dosya, aynı bütçe, yetkisiz WebSocket/origin reddi, uygulanmış olay onayı ve yinelenen onay, sunucuyu sonlandırma, yeniden bağlantı, 1,85 saniye geciken yanıtı atan **üretim Godot istemcisi**, kesintide çalışan kare döngüsü.
 
-Oyun turu sineğin uçuşunu, duvar çarpışmasını, açık/kapalı görüşünü, 512 ölçümün panele ulaşmasını, duraklamasını ve kalıcı tur kaydını da sınar. Gerçek fizik üzerinden oyuncuyu duvara yürütür, kilitli kapıyı dener, makine odası → arka servis koridoru → arşiv rotasını yürür, anahtarı alır, her efekti ve cooldown'u sınar, duraklatır, socket'i koparır/yeniden bağlar ve anahtarla çıkışı açıp zafer durumuna girer. Efekt zorlamaları yalnızca `--smoke` / `--benchmark` test akışında yapılır ve ödül almamak için geçersiz onay kimliği kullanır. Otomatik rota insan oynanış testi yerine geçmez; temel oyun akışını doğrular.
+Oyun turu sineğin uçuşunu, duvar çarpışmasını, açık/kapalı görüşünü, 4.096 ölçümün panele ulaşmasını, duraklamasını ve kalıcı tur kaydını da sınar. Gerçek fizik üzerinden oyuncuyu duvara yürütür, kilitli kapıyı dener, makine odası → arka servis koridoru → arşiv rotasını yürür, anahtarı alır, her efekti ve cooldown'u sınar, duraklatır, socket'i koparır/yeniden bağlar ve anahtarla çıkışı açıp zafer durumuna girer. Efekt zorlamaları yalnızca `--smoke` / `--benchmark` test akışında yapılır ve ödül almamak için geçersiz onay kimliği kullanır. Otomatik rota insan oynanış testi yerine geçmez; temel oyun akışını doğrular.
 
 ## Proje yapısı
 

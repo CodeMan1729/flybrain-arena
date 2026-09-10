@@ -1,0 +1,10 @@
+Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org
+OpenGL API 4.1 Metal - 90.5 - Compatibility - Using Device: Apple - Apple M4 Pro
+
+UI_READY: actual connectome, isolated session, interactive inspector
+INPUT Left Mouse Button yaw=0.18 pitch=-0.12 zoom=1.0 dragging=false moved=0.0
+INPUT Mouse motion at position ((840.0, 490.0)) with velocity ((0.0, 0.0)) yaw=0.18 pitch=-0.12 zoom=1.0 dragging=true moved=0.0
+INPUT Left Mouse Button yaw=1.86 pitch=0.488 zoom=1.0 dragging=true moved=223.329345703125
+INPUT Mouse motion at position ((630.0, 414.0)) with velocity ((0.0, 0.0)) yaw=1.86 pitch=0.488 zoom=1.0 dragging=false moved=223.329345703125
+INPUT Mouse Wheel Up yaw=1.86 pitch=0.488 zoom=1.0 dragging=false moved=223.329345703125
+INPUT Mouse Wheel Up yaw=1.86 pitch=0.488 zoom=1.12 dragging=false moved=223.329345703125

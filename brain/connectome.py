@@ -101,19 +101,28 @@ class Connectome:
             strength = np.abs(np.asarray(sensory_edges[:,group].sum(axis=1)).ravel())
             self.context_groups.append(receivers[np.argsort(strength)[-32:]])
         # A fixed anatomical sample for display only; all 166,700 cells still simulate.
-        a = feather.read_table(directory / 'annotations.feather', columns=['bodyId','somaLocation','superclass']).to_pydict()
+        a = feather.read_table(directory / 'annotations.feather', columns=['bodyId','somaLocation','superclass','type','somaSide']).to_pydict()
         ids = np.load(directory / 'ids.npy')
-        positions = {body: pos for body,pos,group in zip(a['bodyId'],a['somaLocation'],a['superclass'])
-                     if pos and group in ('ol_intrinsic','cb_intrinsic','ol_sensory','visual_projection')}
-        candidates = np.array([i for i,body in enumerate(ids) if body in positions])
-        self.view_indices = candidates[np.linspace(0,len(candidates)-1,512,dtype=int)]
-        xyz = np.array([positions[ids[i]] for i in self.view_indices],dtype=float)
-        xyz = (xyz-xyz.min(axis=0))/np.maximum(np.ptp(xyz,axis=0),1)
+        rows = {body: i for i,(body,pos,group) in enumerate(zip(a['bodyId'],a['somaLocation'],a['superclass']))
+                if pos and group in ('ol_intrinsic','cb_intrinsic','ol_sensory','visual_projection')}
+        candidates = np.array([i for i,body in enumerate(ids) if body in rows])
+        if not len(candidates): raise ValueError('No annotated brain soma positions')
+        self.view_indices = candidates[np.linspace(0,len(candidates)-1,min(4096,len(candidates)),dtype=int)]
+        selected = [rows[ids[i]] for i in self.view_indices]
+        source_xyz = np.array([a['somaLocation'][i] for i in selected],dtype=float)
+        # Preserve source-axis proportions; display rotation is not an anatomical axis assignment.
+        xyz = (source_xyz-(source_xyz.min(axis=0)+source_xyz.max(axis=0))/2)/max(np.ptp(source_xyz,axis=0).max(),1)
         edges = self.weights[self.view_indices][:,self.view_indices].tocoo()
-        strongest = np.argsort(np.abs(edges.data))[-160:]
+        strongest = np.argsort(np.abs(edges.data))[-6000:]
         self.info = {**self.info, 'view': {'ids':[str(ids[i]) for i in self.view_indices],
                      'xyz':np.round(xyz,4).tolist(), 'edges':[[int(edges.col[k]),int(edges.row[k]),float(edges.data[k])] for k in strongest if edges.data[k]!=0],
-                     'label':'512 actual soma positions; sampled real edges; full graph simulated'}}
+                     'types':[a['type'][i] or 'unknown' for i in selected],
+                     'classes':[a['superclass'][i] for i in selected], 'sides':[a['somaSide'][i] or '?' for i in selected],
+                     'source_xyz':source_xyz.tolist(),
+                     'degree_in':np.diff(self.weights.indptr)[self.view_indices].tolist(),
+                     'degree_out':np.bincount(self.weights.indices,minlength=n)[self.view_indices].tolist(),
+                     'candidate_count':len(candidates),
+                     'label':'Actual annotated brain soma sample and strongest signed edges within sample; full brain + VNC graph simulated'}}
         self.info['context_readout_ids'] = [[str(ids[i]) for i in group] for group in self.context_groups]
 
     def reset(self):

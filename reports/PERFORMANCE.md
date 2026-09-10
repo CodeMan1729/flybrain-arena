@@ -1,5 +1,7 @@
 # FLYFEAR v2 — doğrulama ve öğrenme raporu
 
+Son beyin gösterimi ve görünür ölçüm: [yoğun, döndürülebilir ağ](brain-view/README.md).
+
 Son harita genişletmesi ve görünür ölçüm: [üç oda ve servis koridoru](expanded-map/README.md).
 
 Güncel öğrenme sürümü: [v3 eğitim, doğrudan geri bildirim ve doğrulama](learning-v3/README.md).

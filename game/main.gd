@@ -35,6 +35,7 @@ var silhouette_until := 0.0
 var events: Array[Dictionary] = []
 var elapsed := 0.0
 var frame_times: Array[float] = []
+var brain_view_frame_times: Array[float] = []
 var last_frame_usec := 0
 var hud: Control
 var menu: Control
@@ -60,6 +61,8 @@ var preferences := ConfigFile.new()
 var settings_notice := ""
 var settings_writable := true
 var fullscreen := false
+var brain_was_running := false
+var brain_was_visible := true
 
 func _exit_tree() -> void:
 	if is_instance_valid(ambience):
@@ -456,7 +459,7 @@ func build_ui() -> void:
 	badge = ui_label("",18)
 	badge.position = Vector2(52,84)
 	hud.add_child(badge)
-	var controls := ui_label("W A S D  Hareket     F  El feneri     E  Etkileşim     B  Beyin     TAB  Ölçümler     ESC  Duraklat",18)
+	var controls := ui_label("W A S D  Hareket     F  El feneri     E  Etkileşim     B  Beyin     V  Beyni incele     TAB  Ölçümler     ESC  Duraklat",18)
 	controls.position = Vector2(52,1016)
 	hud.add_child(controls)
 	var cross := ui_label("·",32,Color(0.8,0.86,0.83,0.7))
@@ -486,9 +489,8 @@ func build_ui() -> void:
 	brain_view = Control.new()
 	brain_view.set_script(BrainViewScript)
 	brain_view.director = director
-	brain_view.position = Vector2(1370,656)
-	brain_view.size = Vector2(500,350)
 	hud.add_child(brain_view)
+	brain_view.close_requested.connect(toggle_brain_details)
 	menu = Control.new()
 	menu.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.add_child(menu)
@@ -590,6 +592,7 @@ func start_game() -> void:
 	elapsed = 0
 	events.clear()
 	frame_times.clear()
+	brain_view_frame_times.clear()
 	key_object.visible = true
 	door.position.x = 0
 	player.position = Vector3(2,0.05,3.3)
@@ -630,6 +633,25 @@ func resume_game() -> void:
 	menu.visible = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
+func toggle_brain_details() -> void:
+	if brain_view.expanded:
+		close_brain_details(brain_was_running)
+	elif playing and not completed:
+		brain_was_running=player.active
+		brain_was_visible=brain_view.visible
+		if player.active: pause_game()
+		menu.visible=false
+		brain_view.visible=true
+		brain_view.set_expanded(true)
+
+func close_brain_details(resume_play := false) -> void:
+	brain_view.set_expanded(false)
+	brain_view.visible=brain_was_visible
+	if resume_play: resume_game()
+	else:
+		menu.visible=true
+		start_button.grab_focus()
+
 func clear_effects() -> void:
 	dark_until = 0
 	silhouette_until = 0
@@ -655,13 +677,17 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		match event.physical_keycode:
 			KEY_ESCAPE:
-				if playing and not completed:
+				if brain_view.expanded: close_brain_details()
+				elif playing and not completed:
 					if menu.visible: resume_game()
 					else: pause_game()
 			KEY_TAB:
 				debug_panel.visible = not debug_panel.visible
 			KEY_B:
-				brain_view.visible = not brain_view.visible
+				if brain_view.expanded: close_brain_details()
+				else: brain_view.visible = not brain_view.visible
+			KEY_V:
+				toggle_brain_details()
 			KEY_E:
 				if player.active: interact()
 			KEY_1, KEY_2, KEY_3:
@@ -745,6 +771,8 @@ func _process(delta: float) -> void:
 	var tick := Time.get_ticks_usec()
 	if player.active and elapsed > 2 and last_frame_usec > 0 and (smoke or benchmark):
 		frame_times.append((tick-last_frame_usec)/1000.0)
+	if brain_view.expanded and last_frame_usec>0 and benchmark:
+		brain_view_frame_times.append((tick-last_frame_usec)/1000.0)
 	last_frame_usec = tick
 	if player.active:
 		elapsed += delta
@@ -824,8 +852,27 @@ func automated_run() -> void:
 	await get_tree().create_timer(1).timeout
 	var fly_start := fly.position
 	await get_tree().create_timer(4).timeout
-	if not check(brain_view.points.size()==512 and director.neural.get("view_activity",[]).size()==512,"Live panel receives 512 measured biological neuron samples"): return
+	if not check(brain_view.points.size()==4096 and director.neural.get("view_activity",[]).size()==4096,"Live panel receives 4096 measured biological neuron samples"): return
 	if not check(fly.position.distance_to(fly_start)>0.05,"Physical fly moves with fresh measured neural output"): return
+	toggle_brain_details()
+	if not check(brain_view.expanded and not player.active and not director.running,"Detailed brain inspection pauses gameplay and decisions"): return
+	var original_points: PackedVector2Array=brain_view.points.duplicate()
+	brain_view.yaw+=0.65
+	brain_view.project_points()
+	brain_view.select_peak()
+	if not check(brain_view.points!=original_points and brain_view.selected>=0,"Real soma cloud rotates and a measured neuron can be selected"): return
+	if benchmark: await get_tree().create_timer(2).timeout
+	if DisplayServer.get_name() != "headless":
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png(evidence_dir+"/brain-detail-1080p.png")
+		brain_view.color_choice.select(1)
+		brain_view.queue_redraw()
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png(evidence_dir+"/brain-groups-1080p.png")
+	brain_view.color_choice.select(0)
+	brain_view.reset_view()
+	toggle_brain_details()
+	if not check(not brain_view.expanded and player.active and director.running,"Closing brain inspection restores previous gameplay state"): return
 	if DisplayServer.get_name() != "headless":
 		await aim_at(fly.position)
 		await RenderingServer.frame_post_draw
@@ -959,6 +1006,11 @@ func write_report(passed: bool, failure: String) -> void:
 		result["frame_ms_p50"] = sorted[int(sorted.size()*0.5)]
 		result["frame_ms_p95"] = sorted[int(sorted.size()*0.95)]
 		result["frame_ms_p99"] = sorted[int(sorted.size()*0.99)]
+	if not brain_view_frame_times.is_empty():
+		var total := 0.0
+		for ms in brain_view_frame_times: total+=ms
+		result["brain_view_mean_fps"]=1000.0/(total/brain_view_frame_times.size())
+		result["brain_view_frames"]=brain_view_frame_times.size()
 	var file := FileAccess.open(evidence_dir+("/game-benchmark.json" if benchmark else "/game-smoke.json"),FileAccess.WRITE)
 	file.store_string(JSON.stringify(result,"  "))
 	if benchmark:

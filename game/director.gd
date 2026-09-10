@@ -100,6 +100,7 @@ func _process(_delta: float) -> void:
 		if now() >= next_connect:
 			next_connect = now() + 3
 			socket = WebSocketPeer.new()
+			socket.inbound_buffer_size = 2 * 1024 * 1024 # Bounded anatomical metadata for the detailed viewer.
 			var token := OS.get_environment("FLYFEAR_TOKEN")
 			var port := OS.get_environment("FLYFEAR_PORT")
 			if port.is_empty(): port = "8765"

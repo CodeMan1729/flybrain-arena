@@ -92,6 +92,23 @@ class RealDataTests(unittest.TestCase):
         np.testing.assert_allclose(output1['view_activity'],np.round(b.state[b.view_indices],5),atol=1e-7)
         ids=np.load(ROOT/'data/ids.npy')
         self.assertEqual(b.info['view']['ids'],[str(ids[i]) for i in b.view_indices])
+        view=b.info['view']
+        self.assertEqual(len(set(view['ids'])),4096)
+        self.assertEqual(len(view['edges']),6000)
+        self.assertLess(len(json.dumps(b.info).encode()),1024**2)
+        import pyarrow.feather as feather
+        source=feather.read_table(ROOT/'data/annotations.feather',columns=['bodyId','type','superclass','somaSide','somaLocation']).to_pydict()
+        rows={str(body):i for i,body in enumerate(source['bodyId'])}
+        for i in (0,1024,2048,4095):
+            row=rows[view['ids'][i]]
+            self.assertEqual(view['source_xyz'][i],source['somaLocation'][row])
+            self.assertEqual(view['types'][i],source['type'][row] or 'unknown')
+            self.assertEqual(view['classes'][i],source['superclass'][row])
+            self.assertEqual(view['sides'][i],source['somaSide'][row] or '?')
+            self.assertEqual(view['degree_in'][i],b.weights.getrow(b.view_indices[i]).nnz)
+            self.assertEqual(view['degree_out'][i],np.count_nonzero(b.weights.indices==b.view_indices[i]))
+        span=np.ptp(view['source_xyz'],axis=0)
+        np.testing.assert_allclose(np.ptp(view['xyz'],axis=0),span/span.max(),atol=1e-4)
         for pre,post,w in b.info['view']['edges']:
             self.assertAlmostEqual(w,float(b.weights[b.view_indices[post],b.view_indices[pre]]))
         layer=Readout(123)
