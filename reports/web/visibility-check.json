@@ -1,0 +1,16 @@
+{
+  "test": "isolated production web game, browser visibility transition",
+  "event_id": 13,
+  "action": "steps",
+  "pause_after_feedback_ms": 18.04,
+  "observed_quiet_seconds": 105.4,
+  "messages_after_pause": [],
+  "updates_before": 7,
+  "updates_after": 7,
+  "observed_hidden_state": true,
+  "observed_return_state": "visible; paused menu remains",
+  "pck_sha256": "c953a934987b3cd2f94af5a467c9b38938995629a71760109ce382170bb4f326",
+  "explicit_resume_verified": true,
+  "cancelled_event_received_reward": false,
+  "model_bytes_unchanged": true
+}

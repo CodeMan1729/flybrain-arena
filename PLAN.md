@@ -69,11 +69,21 @@
   üretim kodu değiştirilmedi. Mevcut HUD testine isteğe bağlı iki süreçli
   kontrol eklendi: görünür 3+3, headless 2 ve mevcut 17 ayar kontrolü geçti.
   Kanıt: reports/HUD-LAYOUT.md ve reports/fullscreen-startup-menu.png.
-- [ ] Sıradaki hedef: web sekmesi arka plana alındığında duraklama ve
-  öğrenme penceresinin iptalini, izole web oturumunda uçtan uca doğrula.
-  Kabul: gizli sekmede yeni olay/ödül oluşmaz, dönüşte açık devam gerekir;
-  canlı ortak belleği ve kullanıcının açık oyunlarını teste dahil etme.
-  Yalnızca yeniden üretilen hatayı düzelt.
+- [x] Web görünürlük geçişi, gerçek üretim paketi ve ayrı yerel beyinle
+  doğrulandı: açık tepki penceresinden 18,04 ms sonra pause; 105,40 sn
+  yeni mesaj/ödül yok; görünürlükte menü duraklatılmış kaldı. Yeniden
+  bağlantı paused:true ile açıldı, açık DEVAM ET kararı yeniden başlattı.
+  Mac kilitli olduğundan Chrome görünürlüğü DevTools ile kontrol edildi;
+  fiziksel sekme tıklaması sınanmadı. Eski olayın duraklama/devam sonrası
+  öğrenilememesi mevcut public sunucu testine eklendi ve geçti; 112
+  oynanış kontrolü de geçti. Üretim değişikliği gerekmedi. Kanıt:
+  reports/web/README.md ve reports/web/visibility-check.json.
+- [ ] Sıradaki hedef: web yeniden bağlantı menüsünün yanlış yönlendirmesini
+  düzelt. Bu testte beyin hazır olduğu halde “Beyne bağlanılıyor… Hazır
+  olunca Başlat'a bas” başlığı kaldı; görünen düğme DEVAM ET idi. Kabul:
+  başlık gerçek bağlantı durumuna ve düğmeye uysun; bağlantı kurulması
+  tek başına oyunu başlatmasın; ilk açılış, duraklama ve tur sonu korunsun.
+  Kişisel/canlı bellek yerine izole test kullan.
 
 ## Önceki tamamlanan hedefler
 

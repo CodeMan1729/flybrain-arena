@@ -53,3 +53,44 @@ bir insanı daha fazla korkutacağı veya biyolojik öğrenme olduğu iddia edil
 Tarayıcı konsolunda Godot/Emscripten ana iş parçacığı uyarısı ve pointer-lock geçişlerinde Chromium `UnknownError` kayıtları görüldü. Bu oturumda açılış, hareket, ölçüm, duraklatma ve devam kontrollerini engellemediler; konsolun tamamen hatasız olduğu iddia edilmez.
 
 ![Yeniden bağlantıda korunan öğrenme ve son web menüsü](live-menu.png)
+
+
+## Sekme görünürlüğü ve iptal edilen tepki — 11 Eylül 2026
+
+Üretim web paketi, ayrı geçici öğrenme klasörü kullanan gerçek MaleCNS
+sunucusuna localhost üzerinden bağlandı. Chrome'da görünürlük durumu
+[DevTools odak emülasyonu](https://chromedevtools.github.io/devtools-protocol/tot/Emulation/#method-setFocusEmulationEnabled)
+açılıp kapatılarak kontrollü değiştirildi; `document.hidden` ve
+`document.visibilityState` değerleri doğrudan okundu. Mac kilitliydi;
+fiziksel sekme tıklamasıyla insan kullanım denemesi yapılmadı.
+
+- Uygulanan `steps` olayı için geri bildirim penceresi açıldıktan **18,04 ms**
+  sonra gizlenen sayfa `pause` gönderdi. Bu tek denemenin ölçümüdür.
+- Duraklama sonrasındaki **105,40 saniyelik** gözlemde yeni hareket,
+  karar, uygulama veya ödül mesajı görülmedi. Hizmetin 90 saniyelik boş
+  bağlantı sınırı bu gözlemin içinde kaldı; kesintisiz bağlantı iddiası yoktur.
+- Görünürlük geri geldiğinde menü **DURAKLATILDI / DEVAM ET** olarak kaldı.
+  Kullanıcı işlemiyle yeniden bağlantı kurulunca tur `paused: true` ile
+  açıldı; ayrıca DEVAM ET'e basıldıktan sonra karar akışı başladı.
+- İptal edilen olay ödül almadı. İzole denemenin sayacı **7 → 7** kaldı;
+  model dosyasının baytları değişmedi. Bu sayılar test oturumuna aittir.
+- Hata yeniden üretilemedi; oyun ve sunucu üretim kodu değiştirilmedi.
+
+`tests/test_public.py` içindeki mevcut gerçek sunucu testine şu regresyon
+kontrolü eklendi: uygulanmış olay → duraklatma → dururken kararın reddi →
+dururken ve devamdan hemen sonra eski değerlendirmenin reddi → 23 yeni
+hareket örneğinde eski pencereye ödül yazılmaması → model dosyasının korunması.
+Bu test, ortak öğrenme ve yeniden başlatma kontrolleriyle birlikte geçti.
+Mevcut **112 oynanış kontrolü** de geçti. Semgrep: 43 hedefte 131 kural,
+**0 bulgu**, hata veya uyarı yok.
+
+```sh
+.venv/bin/python -m unittest tests.test_public -v
+./tools/Godot.app/Contents/MacOS/Godot --headless --path game --script ../tests/gameplay.gd
+```
+
+[Ölçüm özeti ve test edilen paket SHA256'sı](visibility-check.json).
+Kişisel ayarlar ve canlı ortak bellek kullanılmadı. Test sekmeleri ve geçici
+sunucu kapatıldı. Web yayınına dosya yüklenmedi.
+
+![Görünürlük testinden sonra açık devam bekleyen izole oyun](paused-after-visibility.png)

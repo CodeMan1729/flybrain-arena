@@ -120,6 +120,34 @@ class PublicTests(unittest.IsolatedAsyncioTestCase):
                         done = await receive(ws, 'finished')
                         self.assertEqual(done['memory']['updates'], 2)
                         self.assertEqual(done['memory']['recent'], [])
+                    # Hiding the web tab cancels both motion and manual feedback, including after resume.
+                    async with connect(uri, origin=origin, proxy=None) as paused:
+                        await receive(paused, 'hello')
+                        await send(paused, 'start', mode='learn', seed=3, interval=2)
+                        await receive(paused, 'started')
+                        await asyncio.sleep(2)
+                        await send(paused, 'decision', id=40, telemetry=inputs[0])
+                        self.assertNotEqual((await receive(paused, 'decision'))['action'], 'wait')
+                        await send(paused, 'applied', id=40, accepted=True, telemetry=inputs[0])
+                        await receive(paused, 'feedback_open')
+                        saved_bytes = (directory / 'learning-v3.json').read_bytes()
+                        await send(paused, 'pause')
+                        await send(paused, 'decision', id=41, telemetry=inputs[0])
+                        with self.assertRaises(asyncio.TimeoutError):
+                            await asyncio.wait_for(paused.recv(), .25)
+                        for kind in ('pause', 'resume'):
+                            await send(paused, kind)
+                            await send(paused, 'feedback', id=40, rating=2)
+                            message = json.loads(await asyncio.wait_for(paused.recv(), 2))
+                            self.assertEqual(message['type'], 'error')
+                        for _ in range(23):
+                            await send(paused, 'telemetry', telemetry=inputs[0])
+                            await asyncio.sleep(.1)
+                        with self.assertRaises(asyncio.TimeoutError):
+                            await asyncio.wait_for(paused.recv(), .25)
+                        await send(paused, 'finish', outcome='quit')
+                        self.assertEqual((await receive(paused, 'finished'))['memory']['updates'], 2)
+                        self.assertEqual((directory / 'learning-v3.json').read_bytes(), saved_bytes)
                 process.terminate()
                 await asyncio.to_thread(process.wait, 10)
                 records = (directory / 'gameplay.jsonl').read_text()
