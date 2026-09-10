@@ -245,8 +245,64 @@ func build_world() -> void:
 	box(Vector3(0,-0.2,-11),Vector3(3,0.4,10),floor_mat)
 	box(Vector3(0,3.2,-11),Vector3(3,0.3,10),dark)
 	for x in [-1.65,1.65]:
-		box(Vector3(x,1.6,-11),Vector3(0.3,3.2,10),concrete)
+		# Side doorways are 2.4 m wide with a continuous floor underneath.
+		box(Vector3(x,1.6,-6.9),Vector3(0.3,3.2,1.8),concrete)
+		box(Vector3(x,1.6,-13.1),Vector3(0.3,3.2,5.8),concrete)
+		box(Vector3(x,2.95,-9),Vector3(0.3,0.5,2.4),concrete)
 	box(Vector3(0,1.6,-16),Vector3(3,3.2,0.3),concrete)
+	# Two furnished side rooms share a rear service passage; the exit stays sealed.
+	for side in [-1,1]:
+		box(Vector3(side*5.65,-0.2,-11),Vector3(8.3,0.4,8),floor_mat)
+		box(Vector3(side*5.65,3.2,-11),Vector3(8.3,0.3,8),dark)
+		box(Vector3(side*9.65,1.6,-11),Vector3(0.3,3.2,8),concrete)
+		box(Vector3(side*5.65,1.6,-7),Vector3(8,3.2,0.3),concrete)
+		for segment in [Vector2(3.225,3.15),Vector2(8.425,2.45)]:
+			box(Vector3(side*segment.x,1.6,-15),Vector3(segment.y,3.2,0.3),concrete)
+		box(Vector3(side*6,2.95,-15),Vector3(2.4,0.5,0.3),concrete)
+		box(Vector3(side*6,-0.2,-16),Vector3(2.4,0.4,2),floor_mat)
+		box(Vector3(side*6,3.2,-16),Vector3(2.4,0.3,2),dark)
+		for edge in [4.65,7.35]:
+			box(Vector3(side*edge,1.6,-16),Vector3(0.3,3.2,2),concrete)
+		box(Vector3(side*5.8,2.94,-10),Vector3(2.0,0.06,0.22),amber if side<0 else teal,false)
+		lamp(Vector3(side*5.8,2.65,-10),Color(0.98,0.56,0.28) if side<0 else Color(0.35,0.68,0.66),1.25,6.5)
+		box(Vector3(side*1.65,0.015,-9),Vector3(0.45,0.02,2.3),brass,false)
+		label3("SERVİS GEÇİDİ",Vector3(side*6,2.85,-14.78),24,Color(0.36,0.79,0.69))
+	box(Vector3(0,-0.2,-18.5),Vector3(14.4,0.4,3),floor_mat)
+	box(Vector3(0,3.2,-18.5),Vector3(14.4,0.3,3),dark)
+	box(Vector3(0,1.6,-20),Vector3(14.7,3.2,0.3),concrete)
+	box(Vector3(0,1.6,-17),Vector3(9.6,3.2,0.3),concrete)
+	for x in [-7.35,7.35]:
+		box(Vector3(x,1.6,-18.5),Vector3(0.3,3.2,3),concrete)
+	for x in [-6,0,6]:
+		box(Vector3(x,0.04,-19.8),Vector3(1.2,0.04,0.08),teal,false)
+		lamp(Vector3(x,1.8,-19.65),Color(0.23,0.56,0.49),0.6,4.2,false)
+		box(Vector3(x,2.95,-18.5),Vector3(0.1,0.12,2.8),metal,false)
+	box(Vector3(0,2.65,-19.7),Vector3(14.2,0.14,0.14),brass,false)
+	label3("← ARŞİV       SERVİS / 03       MAKİNE →",Vector3(0,1.8,-19.8),28)
+	# Archive shelving and folders leave the central aisle and both doors clear.
+	for z in [-11.8,-13.7]:
+		box(Vector3(-9.12,1.05,z),Vector3(0.6,2.1,1.65),metal)
+		for y in [0.4,1.0,1.6]:
+			box(Vector3(-8.77,y,z),Vector3(0.05,0.045,1.55),brass,false)
+			for offset in [-0.5,0.0,0.5]:
+				box(Vector3(-8.79,y+0.21,z+offset),Vector3(0.12,0.37,0.28),brass if offset==0 else floor_mat,false)
+	box(Vector3(-7.4,0.88,-9.5),Vector3(2.2,0.15,1.1),metal)
+	for x in [-8.3,-6.5]:
+		for z in [-9.9,-9.1]: box(Vector3(x,0.42,z),Vector3(0.1,0.85,0.1),metal)
+	box(Vector3(-8,1.02,-9.65),Vector3(0.42,0.1,0.35),floor_mat,false)
+	box(Vector3(-7.4,1.12,-9.82),Vector3(1,0.32,0.05),metal,false)
+	label3("ÇIKIŞ ANAHTARI",Vector3(-7.4,1.13,-9.78),14,Color(0.86,0.65,0.37))
+	label3("ARŞİV / 01",Vector3(-8.4,2.45,-14.79),36,Color(0.86,0.65,0.37))
+	# Original generator cabinets, vents and a cable tray in the machine room.
+	for z in [-10,-12.5]:
+		box(Vector3(8.55,0.75,z),Vector3(1.25,1.5,1.5),metal)
+		for y in [0.5,0.7,0.9,1.1]:
+			box(Vector3(7.91,y,z),Vector3(0.025,0.06,1.15),dark,false)
+		box(Vector3(7.89,1.3,z),Vector3(0.025,0.08,0.12),teal,false)
+	box(Vector3(9.43,2.1,-11.3),Vector3(0.06,0.6,2.1),dark,false)
+	label3("MAKİNE / 02",Vector3(9.36,2.12,-11.3),30).rotation.y=-PI/2
+	box(Vector3(8.8,2.75,-11),Vector3(0.3,0.15,7.5),metal,false)
+	label3("← ARŞİV     ÇIKIŞ ↑     MAKİNE →",Vector3(0,2.68,-7.6),22,Color(0.53,0.84,0.74))
 	for x in range(-5,6,2):
 		box(Vector3(x,0.006,0),Vector3(0.018,0.008,11.7),dark,false)
 	for z in range(-5,6,2):
@@ -260,7 +316,7 @@ func build_world() -> void:
 		box(Vector3(0,3.37,z),Vector3(2.6,0.1,0.28),metal,false)
 		box(Vector3(0,3.30,z),Vector3(2.3,0.025,0.17),amber,false)
 		lamp(Vector3(0,2.9,z),Color(1.0,0.57,0.29),1.6,7.3)
-	for z in [-8,-12]:
+	for z in [-11,-13]:
 		box(Vector3(-1.47,2.55,z),Vector3(0.08,0.12,0.7),teal,false)
 		lamp(Vector3(-1.25,2.3,z),Color(0.25,0.66,0.60),0.9,4.0,false)
 		for x in [-1.43,1.43]:
@@ -282,9 +338,9 @@ func build_world() -> void:
 	label3("KARANTİNA / 09\nGÖZLEM ODASI",Vector3(3.7,1.88,-5.72),47)
 	label3("Ç I K I Ş",Vector3(0,2.77,-14.57),48,Color(0.35,1,0.76))
 	label3("01",Vector3(-3,2.65,-5.8),76,Color(0.61,0.42,0.23))
-	label3("ANAHTAR\n↓",Vector3(-3,1.95,-2.42),29,Color(0.73,0.60,0.35))
+	label3("ANAHTAR ARŞİVDE\nKORİDORDAN SOLA",Vector3(-3,1.95,-2.42),27,Color(0.73,0.60,0.35))
 	key_object = Node3D.new()
-	key_object.position = Vector3(-2.7,1.04,-1.62)
+	key_object.position = Vector3(-7.4,1.04,-9.35)
 	add_child(key_object)
 	var ring := MeshInstance3D.new()
 	var torus := TorusMesh.new()
@@ -295,7 +351,7 @@ func build_world() -> void:
 	key_object.add_child(ring)
 	box(Vector3(0.17,0,0),Vector3(0.28,0.035,0.055),ring.material_override,false,key_object)
 	box(Vector3(0.28,0,-0.05),Vector3(0.05,0.035,0.1),ring.material_override,false,key_object)
-	lamp(Vector3(-2.7,1.5,-1.6),Color(0.95,0.61,0.25),0.35,2.0,false)
+	lamp(Vector3(-7.4,1.5,-9.35),Color(0.95,0.61,0.25),0.35,2.0,false)
 	door = box(Vector3(0,1.35,-14.8),Vector3(2.98,2.7,0.18),metal) as StaticBody3D
 	box(Vector3(0,0.1,0.11),Vector3(0.42,0.2,0.035),brass,false,door)
 	box(Vector3(0.85,-0.1,0.12),Vector3(0.28,0.07,0.07),brass,false,door)
@@ -700,12 +756,12 @@ func _process(delta: float) -> void:
 			var target := base * (1.0-intensity) * 0.12 if elapsed < dark_until else base
 			light.light_energy = move_toward(light.light_energy,target,delta*3)
 		if elapsed >= silhouette_until: silhouette.visible = false
-		if has_key and door_open and player.position.z < -15.2: finish_game()
-	objective.text = "03 / ÇIKIŞA İLERLE" if door_open else ("02 / KORİDORDAKİ ÇIKIŞI AÇ" if has_key else "01 / MASADAKİ ANAHTARI BUL")
+		if has_key and door_open and absf(player.position.x)<1.3 and player.position.z < -15.2 and player.position.z > -16: finish_game()
+	objective.text = "03 / ÇIKIŞA İLERLE" if door_open else ("02 / KORİDORDAKİ ÇIKIŞI AÇ" if has_key else "01 / ARŞİVDEKİ ANAHTARI BUL")
 	prompt.text = ""
 	if not has_key and can_interact(key_object.global_position): prompt.text = "[ E ]   ANAHTARI AL"
 	elif can_interact(Vector3(0,1.35,-14.68)):
-		prompt.text = "[ E ]   ÇIKIŞI AÇ" if has_key else "KİLİTLİ · Masadaki anahtarı bul"
+		prompt.text = "[ E ]   ÇIKIŞI AÇ" if has_key else "KİLİTLİ · Arşivdeki anahtarı bul"
 	var scope := "TAM GRAF" if not director.info.get("subnetwork",false) else "KÜÇÜLTÜLMÜŞ ALT AĞ"
 	var data_ready: bool = not director.info.is_empty()
 	badge.text = "%s  /  %s  /  %s" % [MODE_NAMES[mode_choice.selected],scope if data_ready else "VERİ BAĞLI DEĞİL","BAĞLI" if director.connected else "GÜVENLİ BEKLEME"]
@@ -817,8 +873,22 @@ func automated_run() -> void:
 	await aim_at(Vector3(0,1.35,-14.68))
 	interact()
 	if not check(not door_open,"Exit stays locked without key"): return
-	if not check(await walk_to(Vector3(0,0,0)),"Return through corridor"): return
-	if not check(await walk_to(Vector3(-2.65,0,-0.1)),"Reach key table"): return
+	if not check(await walk_to(Vector3(0,0,-9)),"Return to side-room junction"): return
+	if not check(await walk_to(Vector3(6,0,-9)),"Enter machine room through side doorway"): return
+	if DisplayServer.get_name() != "headless":
+		await aim_at(Vector3(9,1.4,-11.5))
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png(evidence_dir+"/machine-room-1080p.png")
+	if not check(await walk_to(Vector3(6,0,-18.5)),"Walk from machine room into rear service corridor"): return
+	if not check(await walk_to(Vector3(0,0,-18.5)),"Reach rear passage behind sealed exit"): return
+	if DisplayServer.get_name() != "headless":
+		await aim_at(Vector3(-6,1.5,-18.5))
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png(evidence_dir+"/service-corridor-1080p.png")
+	if not check(await walk_to(Vector3(-6,0,-18.5)),"Cross rear corridor with collisions"): return
+	if not check(await walk_to(Vector3(-6,0,-12)),"Enter archive through rear doorway"): return
+	if not check(await walk_to(Vector3(-5.5,0,-7.9)),"Navigate archive aisle around furniture"): return
+	if not check(await walk_to(Vector3(-7.4,0,-7.9)) and player.is_on_floor(),"Reach archive key table on continuous floor"): return
 	await aim_at(key_object.global_position)
 	interact()
 	if not check(has_key and not key_object.visible,"E interaction collects key"): return
@@ -858,11 +928,13 @@ func automated_run() -> void:
 	resume_game()
 	if benchmark:
 		await get_tree().create_timer(25).timeout
-	await aim_at(Vector3(0,1.5,-5))
+	await aim_at(Vector3(-7.5,1.4,-11.8))
 	if DisplayServer.get_name() != "headless":
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png(evidence_dir+"/game-1080p.png")
-	if not check(await walk_to(Vector3(0,0,0)),"Leave key table"): return
+	if not check(await walk_to(Vector3(-3.3,0,-7.9)),"Leave archive key table"): return
+	if not check(await walk_to(Vector3(-3.3,0,-9)),"Reach archive side doorway"): return
+	if not check(await walk_to(Vector3(0,0,-9)),"Return from archive to exit corridor"): return
 	if not check(await walk_to(Vector3(0,0,-12.7)),"Reach exit with key"): return
 	await aim_at(Vector3(0,1.35,-14.68))
 	interact()

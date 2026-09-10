@@ -39,6 +39,7 @@ func _ready() -> void:
 	torch.spot_angle = 32
 	torch.spot_attenuation = 1.25
 	torch.shadow_enabled = true
+	torch.shadow_reverse_cull_face = true # Closed meshes avoid flashlight shadow stripes on Metal.
 	camera.add_child(torch)
 
 func _unhandled_input(event: InputEvent) -> void:

@@ -2,6 +2,12 @@
 
 ## Sürekli geliştirme
 
+- [x] Kullanıcının istediği harita genişletmesi: arşiv ve makine odası,
+  iki odayı arkadan bağlayan servis koridoru, yeni mobilyalar ve yönlendirmeler.
+  Anahtar arşivde; zafer alanı çıkış kapısının arkasına sınırlandı.
+  Gerçek fizik rotası ve yeni geçit/duvar kontrolleri eklendi.
+  Kanıt: reports/expanded-map/README.md.
+
 - [x] Kullanıcının istediği korku sesi geliştirmesi: özgün nefes, gıcırtı ve
   tok vuruşlar mevcut işitsel olay ailesine eklendi. Art arda aynı klip yok;
   tohum klip/konum/tonu tekrar üretir. Bütçe, kazanç sınırı, sessizlik,

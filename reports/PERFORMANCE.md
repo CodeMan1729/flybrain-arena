@@ -1,5 +1,7 @@
 # FLYFEAR v2 — doğrulama ve öğrenme raporu
 
+Son harita genişletmesi ve görünür ölçüm: [üç oda ve servis koridoru](expanded-map/README.md).
+
 Güncel öğrenme sürümü: [v3 eğitim, doğrudan geri bildirim ve doğrulama](learning-v3/README.md).
 
 Son oyun/sinek bakımı ve güncel ölçüm: [kritik düzeltmeler](critical/README.md). Aşağıdaki v2 tablosu tarihsel ölçümdür.

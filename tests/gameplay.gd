@@ -24,7 +24,7 @@ func run_checks() -> void:
 	game.settings_path = ""
 	root.add_child(game)
 	game.director.set_process(false)
-	game.player.position=Vector3(-2.7,0,0.2)
+	game.player.position=Vector3(-7.4,0,-7.9)
 	game.player.camera.look_at(game.key_object.global_position)
 	await physics_frame
 	await physics_frame
@@ -40,6 +40,28 @@ func run_checks() -> void:
 	await physics_frame
 	game.interact()
 	verify(game.has_key,"Key can be collected after obstacle is removed")
+	game.player.active=true
+	game.door_open=true
+	for location in [Vector3(0,0,-18.5),Vector3(-6,0,-15.5),Vector3(6,0,-15.5)]:
+		game.player.position=location
+		game._process(0)
+		verify(not game.completed,"Open exit cannot trigger victory in service passage: "+str(location))
+	game.player.active=false
+	game.door_open=false
+	game.fly.set_physics_process(false)
+	for side in [-1,1]:
+		game.fly.position=Vector3(0,1.6,-9)
+		var hit=game.fly.move_and_collide(Vector3(side*4,0,0))
+		verify(hit==null,"Fly fits through side-room doorway: "+str(side))
+		game.fly.position=Vector3(side*6,1.6,-14)
+		hit=game.fly.move_and_collide(Vector3(0,0,-4.5))
+		verify(hit==null,"Fly fits through rear service doorway: "+str(side))
+	game.fly.position=Vector3(0,1.6,-18.5)
+	verify(game.fly.move_and_collide(Vector3(0,0,-3))!=null,"Rear wall contains fly")
+	game.player.position=Vector3(0,0,-18.5)
+	verify(game.player.move_and_collide(Vector3(0,0,-3))!=null,"Rear wall contains player")
+	game.player.position=Vector3(0,0,-18.5)
+	verify(game.player.move_and_collide(Vector3(0,0,4))!=null,"Rear passage cannot bypass sealed exit wall")
 
 	game.ambience.stop()
 	game.fly.set_physics_process(false)

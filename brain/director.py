@@ -14,7 +14,7 @@ def normalize(t):
         if isinstance(value, bool) or not isinstance(value, (float,int)) or not math.isfinite(value):
             raise ValueError(f'Invalid telemetry: {key}')
         return value
-    # World bounds: room x [-6,6], z [-6,6]; corridor z [-16,-6].
+    # Fixed sensory scales; fly vision supplies relative x and relative z minus 5.
     values = [number('x')/6, (number('z')+5)/11, number('look_x'), number('look_z'), number('look_y'),
               2*number('speed')/3.2-1, 2*number('pause_seconds')/3-1, 2*number('retreat')/3.2-1]
     return np.clip(values,-1,1).astype(np.float32)

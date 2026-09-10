@@ -1,0 +1,46 @@
+Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org
+OpenGL API 4.1 Metal - 90.5 - Compatibility - Using Device: Apple - Apple M4 Pro
+
+CHECK: Godot received real connectome manifest
+CHECK: Live panel receives 512 measured biological neuron samples
+CHECK: Physical fly moves with fresh measured neural output
+CHECK: Fly sees unobstructed player inside visual field
+CHECK: Wall blocks fly vision and player telemetry to brain
+CHECK: Physical fly collides with room wall
+CHECK: Physical keyboard movement: W
+CHECK: Physical keyboard movement: A
+CHECK: Physical keyboard movement: S
+CHECK: Physical keyboard movement: D
+CHECK: Room wall prevents walking through collision
+CHECK: Walk to room center
+CHECK: Navigate corridor with collisions
+CHECK: Exit stays locked without key
+CHECK: Return to side-room junction
+CHECK: Enter machine room through side doorway
+CHECK: Walk from machine room into rear service corridor
+CHECK: Reach rear passage behind sealed exit
+CHECK: Cross rear corridor with collisions
+CHECK: Enter archive through rear doorway
+CHECK: Navigate archive aisle around furniture
+CHECK: Reach archive key table on continuous floor
+CHECK: E interaction collects key
+CHECK: Effect dispatch: lights
+CHECK: Effect dispatch: steps
+CHECK: Footstep source is behind player
+CHECK: Effect dispatch: silhouette
+CHECK: Silhouette is visible
+CHECK: Local cooldown rejects event spam
+CHECK: ESC pause cancels effects and decisions
+CHECK: Pause freezes physical fly
+CHECK: WebSocket disconnect safely waits; game remains active
+CHECK: Automatic localhost reconnect
+CHECK: Reconnect during pause preserves round and stays paused
+CHECK: Leave archive key table
+CHECK: Reach archive side doorway
+CHECK: Return from archive to exit corridor
+CHECK: Reach exit with key
+CHECK: E interaction opens exit with key
+CHECK: Walk through open exit
+CHECK: Playable route reaches victory
+CHECK: Victory persists round history and acknowledges save
+CHECK: Input to actual neural output to game decision
