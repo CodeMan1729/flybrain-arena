@@ -21,6 +21,7 @@ func sound_levels(capture: AudioEffectCapture) -> Vector2:
 
 func run_checks() -> void:
 	var game = load("res://main.tscn").instantiate()
+	game.settings_path = ""
 	root.add_child(game)
 	game.director.set_process(false)
 	game.player.position=Vector3(-2.7,0,0.2)

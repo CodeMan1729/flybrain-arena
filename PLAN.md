@@ -1,5 +1,22 @@
 # FLYFEAR tamamlanan geliştirme hedefi
 
+## Sürekli geliştirme
+
+- [x] Kalıcı oyuncu ayarları: ses, efekt yoğunluğu, fare hassasiyeti, karar
+  aralığı, mod, tohum ve tam ekran tercihi yeniden açılışta korunuyor.
+  Bozuk dosya yedeksiz ezilmiyor; başarısız yazma önceki kaydı koruyor;
+  geçersiz değerler güvenli sınırlarda; otomatik testler kişisel ayarlardan
+  izole. 10 Python testi + 15 ayar + 20 oynanış + 35 tam tur kontrolü geçti.
+  Ayrı iki görünür süreçte tam ekran, sessizlik ve menü değerleri doğrulandı.
+  Kanıt: reports/settings-tests.log ve reports/settings-fullscreen.png.
+- [x] Kişisel oturumun kapanışında değişen reports/manual-run.log Git
+  kapsamından çıkarıldı; dosya yerelde korundu.
+- [ ] Sıradaki hedef: beyin panelinde uzun metinlerin sağ kenardan taşmasını
+  1080p ve tam ekranda doğrula, gerçek ölçümleri kaybetmeden düzelt; görüntü
+  ve taşma kontrolüyle sınayıp yayımla.
+
+## Önceki tamamlanan hedefler
+
 - [x] Gerçek MaleCNS tam grafiği, yerel bağımsız Godot/Python akışı korundu.
 - [x] Downstream sinir özellikleriyle ödüle duyarlı dış karar katmanı; eş bütçe ve dondurulmuş değerlendirme.
 - [x] Sekiz tohum, ayrı eğitim/değerlendirme girdileri, ödülsüz/karıştırılmış ödül, retention/reset ve özellik ablasyonu.

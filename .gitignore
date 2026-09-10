@@ -8,6 +8,7 @@ data/*.npy
 game/.godot/
 __pycache__/
 logs/
+reports/manual-run.log
 *.tmp
 *.py[cod]
 .DS_Store

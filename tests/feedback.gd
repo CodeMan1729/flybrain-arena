@@ -5,6 +5,7 @@ func _initialize() -> void:
 
 func run_check() -> void:
 	var game = load("res://main.tscn").instantiate()
+	game.settings_path = ""
 	root.add_child(game)
 	game.decision_interval=2
 	var deadline := Time.get_ticks_msec()+12000

@@ -51,6 +51,11 @@ var smoke := false
 var benchmark := false
 var evidence_dir := ""
 var smoke_checks: Array[String] = []
+var settings_path := "user://settings.cfg"
+var preferences := ConfigFile.new()
+var settings_notice := ""
+var settings_writable := true
+var fullscreen := false
 
 func _exit_tree() -> void:
 	if is_instance_valid(ambience):
@@ -68,12 +73,16 @@ func _ready() -> void:
 	var args := OS.get_cmdline_user_args()
 	smoke = "--smoke" in args
 	benchmark = "--benchmark" in args
+	if smoke or benchmark: settings_path = ""
+	load_settings()
+	set_volume(volume)
 	evidence_dir = ProjectSettings.globalize_path("res://../reports")
 	build_world()
 	player = CharacterBody3D.new()
 	player.set_script(PlayerScript)
 	player.name = "Player"
 	add_child(player)
+	player.sensitivity = setting_number("sensitivity",0.002,0.0007,0.004)
 	player.position = Vector3(2.0, 0.08, 3.3)
 	player.rotation.y = 0.15
 	director = Node.new()
@@ -95,11 +104,46 @@ func _ready() -> void:
 		if arg.begins_with("--mode="):
 			var selected := MODES.find(arg.trim_prefix("--mode="))
 			if selected >= 0: mode_choice.select(selected)
-	set_volume(volume)
+	if fullscreen: DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 	if smoke or benchmark:
 		DisplayServer.window_set_size(Vector2i(1920, 1080))
 		get_window().content_scale_size = Vector2i(1920, 1080)
 		call_deferred("automated_run")
+
+func setting_number(key: String, fallback: float, low: float, high: float) -> float:
+	var value: Variant = preferences.get_value("settings",key,fallback)
+	if not (value is float or value is int) or not is_finite(float(value)): return fallback
+	return clampf(float(value),low,high)
+
+func load_settings() -> void:
+	if settings_path.is_empty(): return
+	var error := preferences.load(settings_path)
+	if error != OK and error != ERR_FILE_NOT_FOUND:
+		preferences.clear()
+		var backup := settings_path + ".broken-" + str(Time.get_unix_time_from_system())
+		settings_writable = DirAccess.copy_absolute(settings_path,backup) == OK
+		settings_notice = "Ayarlar açılamadı; yedek alındı, varsayılanlar kullanılıyor." if settings_writable else "Ayarlar açılamadı ve yedeklenemedi; önceki dosya korunuyor, değişiklikler bu oturum için geçerli."
+	volume = setting_number("volume",0.45,0,0.7)
+	intensity = setting_number("intensity",0.65,0,1)
+	decision_interval = setting_number("interval",3,2,5)
+	var saved_fullscreen: Variant = preferences.get_value("settings","fullscreen",false)
+	fullscreen = saved_fullscreen is bool and saved_fullscreen
+
+func save_settings() -> Error:
+	if settings_path.is_empty() or not settings_writable: return ERR_UNAVAILABLE
+	var values := {"volume":volume,"intensity":intensity,"sensitivity":player.sensitivity,
+		"interval":decision_interval,"mode":MODES[mode_choice.selected],"seed":int(seed_box.value),"fullscreen":fullscreen}
+	for key in values: preferences.set_value("settings",key,values[key])
+	var temporary := settings_path + ".tmp"
+	var error := preferences.save(temporary)
+	if error == OK: error = DirAccess.rename_absolute(temporary,settings_path)
+	settings_notice = "" if error == OK else "Ayarlar kaydedilemedi; önceki kayıt korundu. Değişiklikler bu oturum için geçerli."
+	return error
+
+func toggle_fullscreen() -> void:
+	fullscreen = DisplayServer.window_get_mode() != DisplayServer.WINDOW_MODE_FULLSCREEN
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if fullscreen else DisplayServer.WINDOW_MODE_WINDOWED)
+	save_settings()
 
 func material(color: Color, emission := 0.0) -> StandardMaterial3D:
 	var mat := StandardMaterial3D.new()
@@ -414,7 +458,9 @@ func build_ui() -> void:
 	mode_choice = OptionButton.new()
 	mode_choice.custom_minimum_size = Vector2(530,48)
 	for text in MODE_NAMES: mode_choice.add_item(text)
-	mode_choice.select(2)
+	var saved_mode: Variant = preferences.get_value("settings","mode","learn")
+	mode_choice.select(MODES.find(saved_mode) if saved_mode in MODES else 2)
+	mode_choice.item_selected.connect(func(_index): save_settings())
 	column.add_child(mode_choice)
 	start_button = button("BAŞLAT     →", start_game,column)
 	button("AYARLAR",func(): settings.visible = not settings.visible; science_note.visible = not settings.visible; memory_text.visible = not settings.visible,column)
@@ -425,19 +471,20 @@ func build_ui() -> void:
 	settings.custom_minimum_size.x = 560
 	settings.add_theme_constant_override("separation",12)
 	menu.add_child(settings)
-	settings.add_child(ui_label("AYARLAR / YEREL DENEY",26,Color(0.88,0.76,0.54)))
+	settings.add_child(ui_label("AYARLAR / OTOMATİK KAYIT",26,Color(0.88,0.76,0.54)))
 	add_slider("Ses · 0 = tamamen sessiz",0,0.7,volume,set_volume)
 	add_slider("Efekt yoğunluğu · 0 = olaylar kapalı",0,1,intensity,func(v): intensity=v)
-	add_slider("Karar aralığı · saniye (yeni turda)",2,5,3,func(v): decision_interval=v)
-	add_slider("Fare hassasiyeti",0.0007,0.004,0.002,func(v): player.sensitivity=v)
+	add_slider("Karar aralığı · saniye (yeni turda)",2,5,decision_interval,func(v): decision_interval=v)
+	add_slider("Fare hassasiyeti",0.0007,0.004,player.sensitivity,func(v): player.sensitivity=v)
 	settings.add_child(ui_label("Tohum · yeni turda uygulanır",18))
 	seed_box = SpinBox.new()
 	seed_box.max_value = 4294967295
-	seed_box.value = 42
+	seed_box.value = setting_number("seed",42,0,4294967295)
+	seed_box.value_changed.connect(func(_value): save_settings())
 	settings.add_child(seed_box)
 	button("Öğrenilen karar katmanını kaydet",func(): director.send({"type":"save"}),settings)
 	button("Öğrenilen karar katmanını sıfırla",func(): director.send({"type":"reset"}),settings)
-	button("Tam ekran / pencere",func(): DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED if DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN else DisplayServer.WINDOW_MODE_FULLSCREEN),settings)
+	button("Tam ekran / pencere",toggle_fullscreen,settings)
 	settings.visible = false
 	memory_text = ui_label("",20)
 	memory_text.position = Vector2(850,345)
@@ -464,10 +511,10 @@ func add_slider(text: String, low: float, high: float, value: float, callback: C
 	var slider := HSlider.new()
 	slider.min_value = low
 	slider.max_value = high
-	slider.step = (high-low)/100
+	slider.step = 0.0001 if high < 0.01 else 0.01
 	slider.value = value
 	slider.custom_minimum_size = Vector2(530,24)
-	slider.value_changed.connect(func(v): label.text=format % [text,v]; callback.call(v))
+	slider.value_changed.connect(func(v): label.text=format % [text,v]; callback.call(v); save_settings())
 	settings.add_child(slider)
 
 func start_game() -> void:
@@ -651,6 +698,7 @@ func _process(delta: float) -> void:
 	var data_ready: bool = not director.info.is_empty()
 	badge.text = "%s  /  %s  /  %s" % [MODE_NAMES[mode_choice.selected],scope if data_ready else "VERİ BAĞLI DEĞİL","BAĞLI" if director.connected else "GÜVENLİ BEKLEME"]
 	notice.text = "MaleCNS v1.0  ·  %s  ·  %s nöron  ·  %s" % [scope,str(director.info.get("neurons","—")),director.reason]
+	if not settings_notice.is_empty(): notice.text = settings_notice
 	feedback_text.text = ""
 	if player.active and director.feedback_id >= 0 and director.now() < director.feedback_until:
 		feedback_text.text = director.feedback_status if not director.feedback_status.is_empty() else "%s · İstersen değerlendir:  1 Etkilemedi   2 Gerildim   3 Korktum" % ACTION_NAMES.get(director.feedback_action,"")

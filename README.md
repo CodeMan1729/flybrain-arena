@@ -13,7 +13,7 @@ Bu klasörde çalıştırılmış bir Godot oyunu, gerçek veri, ayrı Python si
 | Ön eğitim | 48 yapay oyuncu, 576 tur, 8.640 ödüllü olay |
 | Kişiselleşme | Oyun içi hareketler ve isteğe bağlı 1 / 2 / 3 değerlendirmeleri |
 | Çalışma biçimi | Yerel CPU; oyun sırasında yalnızca localhost iletişimi |
-| Son doğrulama | 10 Python/sunucu testi, 20 Godot kontrolü, 35 tam tur kontrolü geçti |
+| Son doğrulama | 10 Python/sunucu testi, 15 ayar kontrolü, 20 oynanış kontrolü, 35 tam tur kontrolü geçti |
 
 ![FLYFEAR: odadaki sinek, gerçek sinir etkinliği paneli ve olay değerlendirmesi](reports/learning-v3/feedback-open.png)
 
@@ -61,6 +61,10 @@ Modu terminalden seçmek de mümkündür:
 **Sineği kendine göre eğitmek için:** öğrenen modda oyna. Bir olay seni etkilediğinde veya etkilemediğinde 1 / 2 / 3 ile değerlendirebilirsin. Değerlendirme vermediğinde hareket tepkisi otomatik kullanılır. Her geçerli örnek yerelde kaydedilir; oyunu kapatıp açmak öğrenmeyi silmez. Ana menüdeki kişisel örnek sayısı ile 8.640 yapay ön eğitim olayı ayrı gösterilir. Ön eğitim, senin gerçek korkularının önceden bilindiği anlamına gelmez.
 
 Ayarlar: ses, efekt yoğunluğu, fare hassasiyeti, 2–5 saniye karar aralığı, tohum, tam ekran/pencere; öğrenilen karar parametrelerini kaydet/sıfırla. Mod, tohum ve karar aralığı yeni turda uygulanır. Varsayılan karar aralığı **3 saniye**. Yoğunluk 0 iken korku olayları uygulanmaz. Menüdeki sayılayıcılar klavyeyle de kullanılabilir; odak görünürdür.
+
+**Ayarlar otomatik saklanır:** ses, efekt yoğunluğu, fare hassasiyeti, karar aralığı, mod, tohum ve tam ekran tercihi değiştirildiğinde yerel `user://settings.cfg` dosyasına yazılır. macOS üzerinde bu dosya `~/Library/Application Support/Godot/app_userdata/FLYFEAR/settings.cfg` içindedir; proje ve kişisel öğrenme belleğinden ayrıdır. Yeniden açılışta sessizlik tercihi sesler başlamadan uygulanır. Komut satırındaki `--mode=` o açılışın mod seçimini öncelikli belirler; yalnızca oyunu açmak kayıtlı ayarları değiştirmez.
+
+[Godot ConfigFile](https://docs.godotengine.org/en/4.5/classes/class_configfile.html) kullanılır; yeni bağımlılık yoktur. Kayıt önce aynı klasörde geçici dosyaya yazılıp yeniden adlandırılır. Bozuk dosya değiştirilmeden önce `.broken-<zaman>` yedeği alınır; yedeklenemiyorsa üzerine yazılmaz. Sayısal değerler güvenli sınırlarda tutulur, yanlış türler ve NaN/sonsuz değerler varsayılana döner. Okuma/yazma sorunu menüde görünür; oyun mevcut oturum ayarlarıyla devam eder. Bu kayıt yöntemi dosya değiştirme sırasında önceki kaydı korur; güç kesintisine karşı fiziksel diske yazım garantisi verilmez.
 
 Tek oda + kısa koridor; prosedürel duvar/floor malzemeleri, temel geometriden özgün mobilya, anahtar ve siluet. Harici ücretli varlık yok. `tools/generate_audio.py` üç özgün PCM sesi yeniden üretir: oda uğultusu, arkadan ayak sesleri ve sineğin kesintisiz vızıltısı. Vızıltı sineğin fiziksel konumundan gelir; [Godot'un 3B sesi](https://docs.godotengine.org/en/4.5/classes/class_audiostreamplayer3d.html) yön ve uzaklığa göre duyulur, 12 metre dışında susar. Uçuş hızına göre tonu hafifçe değişir; duraklatma, pencere odağı kaybı ve tur sonunda kesilir. Ambiyansa küçük hoparlörlerde de duyulabilen üst harmonikler eklendi; ayak sesleri belirginleştirildi. Ayarlar → Ses tüm sesleri birlikte kontrol eder; 0 tam sessizdir. Ses örnekleri ±0,18 tam ölçekle sınırlandırılır; ana ses ve kaynak kazançları da sınırlıdır. Bu yazılım kazancı sınırıdır, donanımdaki kulaklık/speaker ses basıncı ölçülmedi. Işık olayı odanın ana aydınlatmasını yumuşakça kısar; el feneri oyuncunun kontrolünde, koridorun acil ışıkları açık kalır.
 
@@ -188,7 +192,7 @@ Kısa fare dönüşleri, 10 Hz örnekler arasında kaybolmaması için son 120 m
 
 **Tur geçmişi:** `logs/sessions/rounds.json`, başlangıç/bitiş UTC, süre, mod/tohum, uygulanan olay, geçerli ödül sayısı/toplamı, başlangıç/bitiş öğrenme sayacı ve sonucu saklar. Ana menü toplam tur/güncelleme ve son üç turun sonuçlarını gösterir. Bağlantı kesintisi aynı tur kimliğiyle devam eder; yeniden bağlanma fazladan bir oyun sayılmaz. Tamamlanmamış tepki pencereleri iptal sebebiyle loglanır. Ayrıntılı `.jsonl` günlüğü korunur; çöken süreçte yarım kalan turun özetine göre daha güncel olabilir.
 
-Test ve sentetik deney kayıtları ayrı tutulur: görünür/headless testlerin her biri `logs/validation/<zaman>/` altında temiz bellekle başlar. Deney raporları oyuncu belleği olarak yüklenmez. Ses/yoğunluk gibi diğer ayarlar yalnızca açık uygulama süresince tutulur.
+Test ve sentetik deney kayıtları ayrı tutulur: görünür/headless tam tur testleri `logs/validation/<zaman>/` altında temiz bellekle başlar. Deney raporları oyuncu belleği olarak yüklenmez. `--smoke` / `--benchmark` ve doğrudan oyun testleri kişisel ayar dosyasını okumaz veya yazmaz; varsayılan tercihleri kullanır. Ayar testi yalnızca kendisine ait geçici dosyalarla çalışır.
 
 ### Ardışık eğitim ve bağımsız sınama
 
@@ -220,6 +224,8 @@ TAB panelindeki bellek: beyin **RSS**, oyun ise Godot **heap** sayacıdır; ayn�
 ./run.sh --benchmark --mode=fixed    # görünür 1920×1080, sabit model, ölçümlü tam tur
 ./run.sh --benchmark --mode=learn   # görünür 1920×1080, öğrenen katman, tam tur
 ```
+
+`tests/settings.gd` menü sinyalleriyle otomatik kaydı, yeniden açılışta gerçek oyun ayarlarını, sınır/tür doğrulamasını, bozuk dosyanın yedeklenmesini, yazma hatasında önceki kaydın korunmasını ve kişisel ayar izolasyonunu sınar. 15 ayar kontrolü ile mevcut 10 Python/sunucu, 20 ses/oynanış ve 35 tam tur kontrolü geçti. Ayrıca iki ayrı görünür Godot süreciyle gerçek tam ekran, sessizlik ve tüm menü değerlerinin korunduğu doğrulandı. [Son test çıktısı](reports/settings-tests.log), [tam ekran ayarlar görüntüsü](reports/settings-fullscreen.png). Bozuk dosya ve başarısız yedekleme senaryolarında Godot'un iki beklenen `ERROR` satırı görünür; testler dosyanın korunmasını ayrıca doğrular.
 
 Testler `unittest` ve Godot'un kendisini kullanır; ayrı test çerçevesi yok. `tests/gameplay.gd` gerçek Godot ses karışımından yakın/uzak seviye farkını, sağ/sol yönü ve menzil dışı sessizliği ölçer; vızıltının duraklama/devam/tur sonu/odak kaybı davranışını ve ana sesin tam kapatılmasını da sınar. Ses sürümünün [görünür testi](reports/audio-rendered-tests.log) 18/18 geçti. Güncel v3 [tam testinde](reports/learning-v3/full-tests.log) 10 Python/sunucu testi, 20 Godot ses/oynanış kontrolü ve 35 tam tur kontrolü geçti; görünür gerçek tuş → sunucu geri bildirim yolu [ayrıca doğrulandı](reports/learning-v3/rendered-feedback.log). Kapsam: hash kontrollü gerçek veri hazırlama, nöron/kenar/temas sayıları, tam biyolojik ID eşlemesi, gerçek girdi→sinir çıktısı→eylem, bağlantı ablasyonu, sayısal giriş doğrulama, ödülün sınırı ve başlangıç hareketi, tohum tekrarı, parametre kayıt/sıfırlama/bozuk dosya, aynı bütçe, yetkisiz WebSocket/origin reddi, uygulanmış olay onayı ve yinelenen onay, sunucuyu sonlandırma, yeniden bağlantı, 1,85 saniye geciken yanıtı atan **üretim Godot istemcisi**, kesintide çalışan kare döngüsü.
 
