@@ -846,7 +846,7 @@ func _process(delta: float) -> void:
 	feedback_text.text = ""
 	if player.active and director.feedback_id >= 0 and director.now() < director.feedback_until:
 		feedback_text.text = director.feedback_status if not director.feedback_status.is_empty() else "%s · İstersen değerlendir:  1 Etkilemedi   2 Gerildim   3 Korktum" % ACTION_NAMES.get(director.feedback_action,"")
-	if memory_text.is_visible_in_tree():
+	if memory_text.is_visible_in_tree() and not director.memory.is_empty():
 		var saved: Dictionary = director.memory
 		memory_text.text = ("ORTAK ÖĞRENME / TÜM OYUNCULAR\n\n%d oyun bölümü · %d öğrenme örneği\n" if OS.has_feature("web") else "KALICI ÖĞRENME / BU MAC\n\n%d kayıtlı tur · %d kişisel öğrenme örneği\n") % [int(saved.get("rounds",0)),int(saved.get("updates",0))]
 		var feedback_counts: Dictionary = saved.get("feedback_counts",{})
@@ -859,6 +859,9 @@ func _process(delta: float) -> void:
 		var reaction_means: Array = saved.get("mean_reaction",[0,0,0])
 		var reaction_counts: Array = saved.get("counts",[0,0,0])
 		memory_text.text += "\nGözlenen tepki / örnek sayısı\nIşık %.2f / %d · Ses %.2f / %d · Siluet %.2f / %d" % [reaction_means[0],int(reaction_counts[0]),reaction_means[1],int(reaction_counts[1]),reaction_means[2],int(reaction_counts[2])]
+		if not director.connected: memory_text.text = memory_text.text.insert(memory_text.text.find("\n")+1,"Bağlantı yok · Son alınan kayıt")
+	elif memory_text.is_visible_in_tree():
+		memory_text.text = "ÖĞRENME BELLEĞİ\n\nBeyne bağlanılıyor…\nKayıtlı öğrenme bilgileri henüz alınmadı."
 	if not debug_panel.is_visible_in_tree(): return
 	var output: Array = director.neural.get("output",[0,0,0,0])
 	debug_text.text = "ÖLÇÜMLER / TAB\n%s · biyolojik doğrulama yok\n\nEtkinlik: boyutsuz sayısal model\nL1 %.4f   L2 %.4f\nL3 %.4f   Mi1 %.4f\nEtkin nöron: %s  |  Ort. |a|: %.4f\n\nEylem: %s\n%s: %.3f / 1\nOlay: %d / 5 (60 sn)  ·  Kalıcı bellek: %d\nFPS: %d  |  Beyin: %.1f ms\nİstek/yanıt: %.1f ms\nBeyin RSS: %.1f MiB  |  Oyun heap: %.1f MiB\n%s" % [scope,output[0],output[1],output[2],output[3],str(director.neural.get("active_neurons","—")),director.neural.get("mean_abs",0),ACTION_NAMES.get(director.action,"Bekle"),"Oyuncu değerlendirmesi" if director.reward_source == "rating" else "Hareket tepkisi",director.reward,events.size(),director.updates,Engine.get_frames_per_second(),director.neural.get("latency_ms",0),director.rtt_ms,director.neural.get("rss_mb",0),OS.get_static_memory_usage()/1048576.0,director.reason]

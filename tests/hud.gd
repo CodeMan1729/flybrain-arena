@@ -14,6 +14,22 @@ func check_layout() -> void:
     game.set_volume(0)
     game.ambience.stop()
     game.ambience.stream=null
+    game._process(0.1)
+    var memory_ok: bool='bağlanılıyor' in game.memory_text.text and not '0' in game.memory_text.text
+    game.director.connected=true
+    game.director.memory={'rounds':0,'updates':0,'prior_events':8640}
+    game._process(0.1)
+    memory_ok=memory_ok and '0 kişisel öğrenme örneği' in game.memory_text.text and '8640' in game.memory_text.text
+    game.director.memory.updates=27
+    game.director.connected=false
+    game._process(0.1)
+    memory_ok=memory_ok and '27 kişisel öğrenme örneği' in game.memory_text.text and 'Son alınan kayıt' in game.memory_text.text
+    game.director.memory.updates=28
+    game.director.connected=true
+    game._process(0.1)
+    memory_ok=memory_ok and '28 kişisel öğrenme örneği' in game.memory_text.text and not 'Son alınan kayıt' in game.memory_text.text
+    print(('PASS: ' if memory_ok else 'FAIL: ')+'Learning display distinguishes unavailable, real zero, retained offline and refreshed data')
+    game.director.connected=false
     game.hud.visible=true
     game.menu.visible=false
     game.debug_panel.visible=true
@@ -43,4 +59,4 @@ func check_layout() -> void:
         if fullscreen:
             passed=passed and DisplayServer.window_get_mode() in [DisplayServer.WINDOW_MODE_FULLSCREEN,DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN]
             print(('PASS: ' if passed else 'FAIL: ')+'Native fullscreen mode is active')
-    await game.quit_game(0 if passed else 1)
+    await game.quit_game(0 if passed and memory_ok else 1)

@@ -54,10 +54,18 @@
   ve oyunun tam ekran geçişinde metin/boyut/görünür satır kontrolleri geçti;
   112 oynanış ve 24 beyin görünümü kontrolü de geçti. Web dosyaları beyin
   hizmeti yeniden başlatılmadan güncellendi. Kanıt: reports/HUD-LAYOUT.md.
-- [ ] Sıradaki hedef: web açılışında ilk beyin yanıtından önce ortak bellek
-  ve ön eğitim sayaçlarının yanıltıcı sıfır göstermesini düzelt. Kabul:
-  henüz alınmayan değerler “bağlanılıyor” durumundadır; ilk gerçek bellek
-  geldiğinde sayılar görünür, bağlantı kesilince son kayıt sıfırlanmaz.
+- [x] Öğrenme bilgileri henüz alınmamışken yanıltıcı sıfırlar kaldırıldı.
+  Menü “Beyne bağlanılıyor” gösterir; gerçek sıfır geldiğinde sıfır görünür.
+  Kesintide son sayılar korunur ve mevcut başlık boşluğuna “Son alınan
+  kayıt” etiketi yerleşir; yeniden bağlantıda güncel sayılar gösterilir.
+  Dört durumun geçişi mevcut tests/hud.gd üretim arayüzü kontrolüne eklendi
+  ve geçti; panel yerleşimi ile 17 ayar kontrolü de geçti. Web paketi
+  doğrulanarak öğrenme hizmeti yeniden başlatılmadan yayımlandı; canlı
+  menüdeki sayılar sağlık özetine uydu. Semgrep: 200 kural, 0 bulgu.
+- [ ] Sıradaki hedef: kayıtlı tam ekran tercihiyle doğrudan açılışı, menüden
+  tam ekrana geçişten ayrı doğrula. Kabul: ilk açılışta menü/HUD yazıları
+  eksiksiz görünür, ayar kişisel dosyalara dokunmadan iki ayrı süreçte
+  korunur; hata yeniden üretilemezse gereksiz üretim kodu değişikliği yapma.
 
 ## Önceki tamamlanan hedefler
 
