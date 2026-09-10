@@ -13,7 +13,7 @@ Bu klasörde çalıştırılmış bir Godot oyunu, gerçek veri, ayrı Python si
 | Ön eğitim | 48 yapay oyuncu, 576 tur, 8.640 ödüllü olay |
 | Kişiselleşme | Oyun içi hareketler ve isteğe bağlı 1 / 2 / 3 değerlendirmeleri |
 | Çalışma biçimi | Yerel CPU; oyun sırasında yalnızca localhost iletişimi |
-| Son doğrulama | 11 Python/sunucu testi, 15 ayar kontrolü, 45 ses/oynanış, 24 beyin görünümü ve 46 tam tur kontrolü geçti |
+| Son doğrulama | 11 Python/sunucu testi, 15 ayar kontrolü, 112 ses/oynanış ve anahtar arama, 24 beyin görünümü ve 48 tam tur kontrolü geçti |
 
 Son [genel performans optimizasyonu](reports/optimization/README.md): daha hızlı
 beyin yükleme, daha düşük bellek, değişiklik olduğunda yenilenen ağ çizimi ve
@@ -49,7 +49,7 @@ Modu terminalden seçmek de mümkündür:
 ## Oynanış ve Türkçe arayüz
 
 1. Menüden modu seç ve **Başlat**'a bas. Başlangıç modu **Beyin + öğrenen karar katmanı**dır. Yeni tur kayıtlı belleği kullanır.
-2. Ana odadan koridora gir; sol kapıdan **Arşiv** odasına geç. Masadaki anahtara bak ve **E** ile al. Anahtar/kapı etkileşiminde arada katı engel bulunmaması gerekir.
+2. **Gözlem odasındaki masa, arşiv masası ve makine odasındaki dolabın üstünü ara.** Anahtar bu üç konumdan birindedir. Yaklaşıp anahtara bak ve **E** ile al. Anahtar/kapı etkileşiminde arada katı engel bulunmaması gerekir.
 3. Ana koridora dön, sondaki çıkış kapısına yaklaş, **E** ile aç ve dışarı yürü. Sağdaki makine odası ile arka servis koridoru, arşive ikinci bir yol sağlar.
 
 | Tuş | İşlev |
@@ -63,6 +63,8 @@ Modu terminalden seçmek de mümkündür:
 | TAB | Son sinir ölçümü, eylem, puanın kaynağı, FPS ve bellek paneli |
 | ESC | Duraklat / devam; menüde çıkış |
 
+**Değişken anahtar araması:** aynı tohumla oynanan yeni turlarda anahtarın yeri art arda tekrarlanmaz. Aynı tohum aynı konum dizisini üretir; uygulamayı yeniden açmak veya yeni turda farklı tohum kullanmak diziyi baştan başlatır. Duraklama, devam ve beyin bağlantısının yenilenmesi mevcut anahtarın yerini değiştirmez. Anahtarın sıcak renkli küçük ışığı onu takip eder ve alındığında söner. Olay sesleri ayrı rastgele sayı akışını kullanır. Üç yerleşimin de gerçek fizik üzerinden oynanıp bitirildiği [doğrulama raporu](reports/KEY-SEARCH.md).
+
 **Sineği kendine göre eğitmek için:** öğrenen modda oyna. Bir olay seni etkilediğinde veya etkilemediğinde 1 / 2 / 3 ile değerlendirebilirsin. Değerlendirme vermediğinde hareket tepkisi otomatik kullanılır. Her geçerli örnek yerelde kaydedilir; oyunu kapatıp açmak öğrenmeyi silmez. Ana menüdeki kişisel örnek sayısı ile 8.640 yapay ön eğitim olayı ayrı gösterilir. Ön eğitim, senin gerçek korkularının önceden bilindiği anlamına gelmez.
 
 Ayarlar: ses, efekt yoğunluğu, fare hassasiyeti, 2–5 saniye karar aralığı, tohum, tam ekran/pencere; öğrenilen karar parametrelerini kaydet/sıfırla. Mod, tohum ve karar aralığı yeni turda uygulanır. Varsayılan karar aralığı **3 saniye**. Yoğunluk 0 iken korku olayları uygulanmaz. Menüdeki sayılayıcılar klavyeyle de kullanılabilir; odak görünürdür.
@@ -71,7 +73,7 @@ Ayarlar: ses, efekt yoğunluğu, fare hassasiyeti, 2–5 saniye karar aralığı
 
 [Godot ConfigFile](https://docs.godotengine.org/en/4.5/classes/class_configfile.html) kullanılır; yeni bağımlılık yoktur. Kayıt önce aynı klasörde geçici dosyaya yazılıp yeniden adlandırılır. Bozuk dosya değiştirilmeden önce `.broken-<zaman>` yedeği alınır; yedeklenemiyorsa üzerine yazılmaz. Sayısal değerler güvenli sınırlarda tutulur, yanlış türler ve NaN/sonsuz değerler varsayılana döner. Okuma/yazma sorunu menüde görünür; oyun mevcut oturum ayarlarıyla devam eder. Bu kayıt yöntemi dosya değiştirme sırasında önceki kaydı korur; güç kesintisine karşı fiziksel diske yazım garantisi verilmez.
 
-**Üç oda ve bağlantılı koridorlar:** gözlem odası, raflı arşiv, jeneratörlü makine odası, ana çıkış koridoru ve iki yan odayı arkadan bağlayan servis geçidi. Anahtar arşiv masasındadır; oda tabelaları ve acil aydınlatma rotayı gösterir. Çıkış arka geçitten duvarla ayrıdır; zafer yalnızca anahtarla açılan kapının hemen ardında tetiklenir. Oyuncu ve sinek aynı katı geometride hareket eder. Prosedürel duvar/zemin malzemeleri, temel geometriden özgün mobilya, anahtar ve siluet kullanılır. [Yeni harita, görüntüler ve ölçüm](reports/expanded-map/README.md). Harici ücretli varlık yok.
+**Üç oda ve bağlantılı koridorlar:** gözlem odası, raflı arşiv, jeneratörlü makine odası, ana çıkış koridoru ve iki yan odayı arkadan bağlayan servis geçidi. Anahtar üç odadaki önceden doğrulanmış yüzeylerden birindedir; oda tabelaları ve acil aydınlatma rotayı gösterir. Çıkış arka geçitten duvarla ayrıdır; zafer yalnızca anahtarla açılan kapının hemen ardında tetiklenir. Oyuncu ve sinek aynı katı geometride hareket eder. Prosedürel duvar/zemin malzemeleri, temel geometriden özgün mobilya, anahtar ve siluet kullanılır. [Yeni harita, görüntüler ve ölçüm](reports/expanded-map/README.md). Harici ücretli varlık yok.
 
  `tools/generate_audio.py` altı özgün PCM sesi yeniden üretir: oda uğultusu, ayak sesleri, sineğin kesintisiz vızıltısı, boğuk nefes, gıcırtı ve düzensiz tok vuruşlar. İnsan sesi kaydı veya hazır ses örneği kullanılmaz. Vızıltı sineğin fiziksel konumundan gelir; [Godot'un 3B sesi](https://docs.godotengine.org/en/4.5/classes/class_audiostreamplayer3d.html) yön ve uzaklığa göre duyulur, 12 metre dışında susar. Uçuş hızına göre tonu hafifçe değişir; duraklatma, pencere odağı kaybı ve tur sonunda kesilir. Ambiyansa küçük hoparlörlerde de duyulabilen üst harmonikler eklendi. Ayarlar → Ses tüm sesleri birlikte kontrol eder; 0 tam sessizdir. Ses örnekleri ±0,18 tam ölçekle sınırlandırılır; ana ses ve kaynak kazançları da sınırlıdır. Bu yazılım kazancı sınırıdır, donanımdaki kulaklık/speaker ses basıncı ölçülmedi. Işık olayı odanın ana aydınlatmasını yumuşakça kısar; el feneri oyuncunun kontrolünde, koridorun acil ışıkları açık kalır.
 
@@ -250,7 +252,7 @@ Yeni korku sesleriyle **11 Python/sunucu, 15 ayar, 32 ses/oynanış ve 35 tam tu
 
 Testler `unittest` ve Godot'un kendisini kullanır; ayrı test çerçevesi yok. `tests/gameplay.gd` gerçek Godot ses karışımından yakın/uzak seviye farkını, sağ/sol yönü ve menzil dışı sessizliği ölçer; vızıltının duraklama/devam/tur sonu/odak kaybı davranışını ve ana sesin tam kapatılmasını da sınar. Ses sürümünün [görünür testi](reports/audio-rendered-tests.log) 18/18 geçti. Güncel v3 [tam testinde](reports/learning-v3/full-tests.log) 10 Python/sunucu testi, 20 Godot ses/oynanış kontrolü ve 35 tam tur kontrolü geçti; görünür gerçek tuş → sunucu geri bildirim yolu [ayrıca doğrulandı](reports/learning-v3/rendered-feedback.log). Kapsam: hash kontrollü gerçek veri hazırlama, nöron/kenar/temas sayıları, tam biyolojik ID eşlemesi, gerçek girdi→sinir çıktısı→eylem, bağlantı ablasyonu, sayısal giriş doğrulama, ödülün sınırı ve başlangıç hareketi, tohum tekrarı, parametre kayıt/sıfırlama/bozuk dosya, aynı bütçe, yetkisiz WebSocket/origin reddi, uygulanmış olay onayı ve yinelenen onay, sunucuyu sonlandırma, yeniden bağlantı, 1,85 saniye geciken yanıtı atan **üretim Godot istemcisi**, kesintide çalışan kare döngüsü.
 
-Oyun turu sineğin uçuşunu, duvar çarpışmasını, açık/kapalı görüşünü, 4.096 ölçümün panele ulaşmasını, duraklamasını ve kalıcı tur kaydını da sınar. Gerçek fizik üzerinden oyuncuyu duvara yürütür, kilitli kapıyı dener, makine odası → arka servis koridoru → arşiv rotasını yürür, anahtarı alır, her efekti ve cooldown'u sınar, duraklatır, socket'i koparır/yeniden bağlar ve anahtarla çıkışı açıp zafer durumuna girer. Efekt zorlamaları yalnızca `--smoke` / `--benchmark` test akışında yapılır ve ödül almamak için geçersiz onay kimliği kullanır. Otomatik rota insan oynanış testi yerine geçmez; temel oyun akışını doğrular.
+Oyun turu sineğin uçuşunu, duvar çarpışmasını, açık/kapalı görüşünü, 4.096 ölçümün panele ulaşmasını, duraklamasını ve kalıcı tur kaydını da sınar. Gerçek fizik üzerinden oyuncuyu duvara yürütür, kilitli kapıyı dener, makine odası → arka servis koridoru → arşiv rotasını yürür, o tur seçilen konumdaki anahtarı alır, her efekti ve cooldown'u sınar, duraklatır, socket'i koparır/yeniden bağlar ve anahtarla çıkışı açıp zafer durumuna girer. Efekt zorlamaları yalnızca `--smoke` / `--benchmark` test akışında yapılır ve ödül almamak için geçersiz onay kimliği kullanır. Otomatik rota insan oynanış testi yerine geçmez; temel oyun akışını doğrular.
 
 ## Proje yapısı
 

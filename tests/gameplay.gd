@@ -218,4 +218,78 @@ func run_checks() -> void:
 	verify(not game.player.active and not game.fly.active and not game.director.running and game.menu.visible,"Window focus loss pauses player, fly and event decisions")
 	verify(not game.fly.buzz.playing,"Focus loss also stops fly buzz")
 	verify(not game.footsteps.playing,"Focus loss also cancels scare audio")
+	await key_search_checks(game)
 	await game.quit_game(0 if failures.is_empty() else 1)
+
+func key_search_checks(game: Node) -> void:
+	var sequence := []
+	for pass_index in 2:
+		# Changing seed restarts the layout stream through the normal new-round path.
+		game.seed_box.value=43
+		game.finish_game()
+		game.start_game()
+		game.seed_box.value=42
+		for round_index in 12:
+			game.finish_game()
+			game.start_game()
+			if pass_index==0: sequence.append(game.key_slot)
+			else: verify(game.key_slot==sequence[round_index],"Seed reproduces key location in round "+str(round_index+1))
+	var no_repeats := true
+	for index in range(1,sequence.size()): no_repeats = no_repeats and sequence[index]!=sequence[index-1]
+	verify(no_repeats and [0,1,2].all(func(slot): return slot in sequence),"New rounds vary across all three rooms without consecutive repeats")
+	var sound_state: int=game.sound_rng.state
+	game.place_key()
+	verify(game.sound_rng.state==sound_state,"Key placement never consumes the scare-sound random stream")
+	var routes := [
+		[Vector3(0,0,0),Vector3(0,0,-9),Vector3(-3.3,0,-9),Vector3(-3.3,0,-7.9),Vector3(-7.4,0,-7.9)],
+		[Vector3(0,0,0),Vector3(-2.8,0,-0.2)],
+		[Vector3(0,0,0),Vector3(0,0,-9),Vector3(6,0,-9),Vector3(7,0,-9.7)]
+	]
+	var visited := []
+	for _round in 24:
+		game.finish_game()
+		game.start_game()
+		var slot: int=game.key_slot
+		if slot in visited: continue
+		visited.append(slot)
+		verify(not game.has_key and not game.door_open and game.door.position.x==0 and game.key_object.visible,"New round restores key and locks exit: "+str(slot))
+		var location: Vector3=game.key_object.position
+		var layout_state: int=game.key_rng.state
+		game.pause_game()
+		game.start_game()
+		verify(game.key_object.position==location and game.key_rng.state==layout_state,"Resume preserves the uncollected key and layout stream: "+str(slot))
+		for point in routes[slot]:
+			var reached: bool=await game.walk_to(point)
+			verify(reached,"Physical route to key "+str(slot)+": "+str(point))
+			if not reached: return
+		await game.aim_at(game.key_object.global_position)
+		verify(game.player.is_on_floor() and game.can_interact(game.key_object.global_position),"Key surface is reachable with an unobstructed interaction ray: "+str(slot))
+		game.ui_clock=0.1
+		game._process(0)
+		verify(game.prompt.text.contains("ANAHTARI AL") and game.objective.text.contains("ODALARDAKİ"),"Search objective and E prompt match the new placement: "+str(slot))
+		var light: OmniLight3D=game.key_object.get_child(game.key_object.get_child_count()-1)
+		verify(light.is_visible_in_tree() and light.global_position.is_equal_approx(location+Vector3(0,0.46,0)),"Key glow follows the selected surface: "+str(slot))
+		if DisplayServer.get_name()!="headless":
+			await RenderingServer.frame_post_draw
+			game.get_viewport().get_texture().get_image().save_png(game.evidence_dir+"/key-location-"+str(slot)+".png")
+		var interaction := InputEventKey.new()
+		interaction.physical_keycode=KEY_E
+		interaction.pressed=true
+		game._unhandled_input(interaction)
+		verify(game.has_key and not game.key_object.visible and not light.is_visible_in_tree(),"E collects key and hides its glow: "+str(slot))
+		game.pause_game()
+		game.start_game()
+		verify(game.has_key and not game.key_object.visible and game.key_rng.state==layout_state,"Resume preserves the collected key: "+str(slot))
+		var return_route: Array=routes[slot].duplicate()
+		return_route.reverse()
+		return_route.append(Vector3(0,0,-12.7))
+		for point in return_route:
+			var reached: bool=await game.walk_to(point)
+			verify(reached,"Return route with key "+str(slot)+": "+str(point))
+			if not reached: return
+		await game.aim_at(Vector3(0,1.35,-14.68))
+		game._unhandled_input(interaction)
+		verify(game.door_open,"Key from each room opens the exit: "+str(slot))
+		verify(await game.walk_to(Vector3(0,0,-15.6)) and game.completed,"Physical route reaches victory with key: "+str(slot))
+		if visited.size()==3: break
+	verify(visited.size()==3,"Completed a real physics route for every key location")

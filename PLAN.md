@@ -2,6 +2,11 @@
 
 ## Sürekli geliştirme
 
+- [x] Üç odada değişken anahtar araması: doğrulanmış yüzeylerden seçim,
+  aynı tohumla tekrar üretim, ardışık tekrarı engelleme, devamda konumun
+  korunması ve anahtarla birlikte taşınıp sönen ışık. Her konumdan gerçek
+  fizik ile çıkışa ulaşma kontrolü: reports/KEY-SEARCH.md.
+
 - [x] Genel performans optimizasyonu: ağ çizimini değişikliklerde yenile;
   HUD yazılarını 10 Hz güncelle; yalnızca gösterilecek anatomik kayıtları
   Python nesnelerine dönüştür; bağlantı derecesindeki büyük geçici kopyayı

@@ -8,6 +8,8 @@ const ACTION_NAMES := {"lights":"Işık kesintisi", "steps":"Arkadan gelen ses",
 const SCARE_SOUNDS := ["steps", "breath", "creak", "knock"]
 const MODE_NAMES := ["Rastgele seçim · kontrol", "Sabit bağlantı modeli", "Beyin + öğrenen karar katmanı"]
 const MODES := ["random", "fixed", "learn"]
+# ponytail: three hand-checked surfaces; add validated spots when the map grows.
+const KEY_SPOTS := [Vector3(-7.4,1.04,-9.35), Vector3(-2.8,1.04,-1.65), Vector3(8.3,1.59,-9.7)]
 
 var player: CharacterBody3D
 var director: Node
@@ -15,6 +17,9 @@ var fly: CharacterBody3D
 var brain_view: Control
 var memory_text: Label
 var key_object: Node3D
+var key_rng := RandomNumberGenerator.new()
+var key_seed := -1
+var key_slot := -1
 var door: StaticBody3D
 var silhouette: Node3D
 var footsteps: AudioStreamPlayer3D
@@ -192,7 +197,7 @@ func label3(text: String, pos: Vector3, size := 44, color := Color(0.58, 0.7, 0.
 	add_child(label)
 	return label
 
-func lamp(pos: Vector3, color: Color, energy: float, distance: float, part_of_room := true) -> void:
+func lamp(pos: Vector3, color: Color, energy: float, distance: float, part_of_room := true) -> OmniLight3D:
 	var light := OmniLight3D.new()
 	light.position = pos
 	light.light_color = color
@@ -201,6 +206,7 @@ func lamp(pos: Vector3, color: Color, energy: float, distance: float, part_of_ro
 	light.set_meta("base_energy", energy)
 	add_child(light)
 	if part_of_room: room_lights.append(light)
+	return light
 
 func build_world() -> void:
 	var env := WorldEnvironment.new()
@@ -295,7 +301,7 @@ func build_world() -> void:
 		for z in [-9.9,-9.1]: box(Vector3(x,0.42,z),Vector3(0.1,0.85,0.1),metal)
 	box(Vector3(-8,1.02,-9.65),Vector3(0.42,0.1,0.35),floor_mat,false)
 	box(Vector3(-7.4,1.12,-9.82),Vector3(1,0.32,0.05),metal,false)
-	label3("ÇIKIŞ ANAHTARI",Vector3(-7.4,1.13,-9.78),14,Color(0.86,0.65,0.37))
+	label3("TESLİM MASASI",Vector3(-7.4,1.13,-9.78),14,Color(0.86,0.65,0.37))
 	label3("ARŞİV / 01",Vector3(-8.4,2.45,-14.79),36,Color(0.86,0.65,0.37))
 	# Original generator cabinets, vents and a cable tray in the machine room.
 	for z in [-10,-12.5]:
@@ -342,9 +348,9 @@ func build_world() -> void:
 	label3("KARANTİNA / 09\nGÖZLEM ODASI",Vector3(3.7,1.88,-5.72),47)
 	label3("Ç I K I Ş",Vector3(0,2.77,-14.57),48,Color(0.35,1,0.76))
 	label3("01",Vector3(-3,2.65,-5.8),76,Color(0.61,0.42,0.23))
-	label3("ANAHTAR ARŞİVDE\nKORİDORDAN SOLA",Vector3(-3,1.95,-2.42),27,Color(0.73,0.60,0.35))
+	label3("ANAHTAR KAYIP\nODALARI ARA",Vector3(-3,1.85,-5.78),27,Color(0.73,0.60,0.35))
 	key_object = Node3D.new()
-	key_object.position = Vector3(-7.4,1.04,-9.35)
+	key_object.position = KEY_SPOTS[0]
 	add_child(key_object)
 	var ring := MeshInstance3D.new()
 	var torus := TorusMesh.new()
@@ -355,7 +361,7 @@ func build_world() -> void:
 	key_object.add_child(ring)
 	box(Vector3(0.17,0,0),Vector3(0.28,0.035,0.055),ring.material_override,false,key_object)
 	box(Vector3(0.28,0,-0.05),Vector3(0.05,0.035,0.1),ring.material_override,false,key_object)
-	lamp(Vector3(-7.4,1.5,-9.35),Color(0.95,0.61,0.25),0.35,2.0,false)
+	lamp(Vector3(0,0.46,0),Color(0.95,0.61,0.25),0.35,2.0,false).reparent(key_object,false)
 	door = box(Vector3(0,1.35,-14.8),Vector3(2.98,2.7,0.18),metal) as StaticBody3D
 	box(Vector3(0,0.1,0.11),Vector3(0.42,0.2,0.035),brass,false,door)
 	box(Vector3(0.85,-0.1,0.12),Vector3(0.28,0.07,0.07),brass,false,door)
@@ -517,7 +523,7 @@ func build_ui() -> void:
 	column.position = Vector2(110,335)
 	column.add_theme_constant_override("separation",12)
 	menu.add_child(column)
-	menu_title = ui_label("Anahtarı bul. Koridorun sonuna ulaş.",22,Color(0.88,0.69,0.42))
+	menu_title = ui_label("Üç odada anahtarı ara. Çıkışa ulaş.",22,Color(0.88,0.69,0.42))
 	column.add_child(menu_title)
 	column.add_child(ui_label("DENEY MODU",15))
 	mode_choice = OptionButton.new()
@@ -582,6 +588,18 @@ func add_slider(text: String, low: float, high: float, value: float, callback: C
 	slider.value_changed.connect(func(v): label.text=format % [text,v]; callback.call(v); save_settings())
 	settings.add_child(slider)
 
+func place_key() -> void:
+	# A separate stream keeps layout choices from changing scare-sound randomness.
+	if key_seed != int(seed_box.value):
+		key_seed = int(seed_box.value)
+		key_rng.seed = key_seed
+		key_slot = -1
+	var next := key_rng.randi_range(0,KEY_SPOTS.size()-1 if key_slot<0 else KEY_SPOTS.size()-2)
+	if key_slot>=0 and next>=key_slot: next+=1
+	key_slot = next
+	key_object.position = KEY_SPOTS[key_slot]
+	key_object.visible = true
+
 func start_game() -> void:
 	if playing and not completed:
 		resume_game()
@@ -594,7 +612,7 @@ func start_game() -> void:
 	events.clear()
 	frame_times.clear()
 	brain_view_frame_times.clear()
-	key_object.visible = true
+	place_key()
 	door.position.x = 0
 	player.position = Vector3(2,0.05,3.3)
 	player.rotation = Vector3(0,0.15,0)
@@ -789,11 +807,11 @@ func _process(delta: float) -> void:
 	ui_clock+=delta
 	if ui_clock<0.1: return
 	ui_clock=0
-	objective.text = "03 / ÇIKIŞA İLERLE" if door_open else ("02 / KORİDORDAKİ ÇIKIŞI AÇ" if has_key else "01 / ARŞİVDEKİ ANAHTARI BUL")
+	objective.text = "03 / ÇIKIŞA İLERLE" if door_open else ("02 / KORİDORDAKİ ÇIKIŞI AÇ" if has_key else "01 / ODALARDAKİ ANAHTARI BUL")
 	prompt.text = ""
 	if not has_key and can_interact(key_object.global_position): prompt.text = "[ E ]   ANAHTARI AL"
 	elif can_interact(Vector3(0,1.35,-14.68)):
-		prompt.text = "[ E ]   ÇIKIŞI AÇ" if has_key else "KİLİTLİ · Arşivdeki anahtarı bul"
+		prompt.text = "[ E ]   ÇIKIŞI AÇ" if has_key else "KİLİTLİ · Odalarda anahtarı ara"
 	var scope := "TAM GRAF" if not director.info.get("subnetwork",false) else "KÜÇÜLTÜLMÜŞ ALT AĞ"
 	var data_ready: bool = not director.info.is_empty()
 	badge.text = "%s  /  %s  /  %s" % [MODE_NAMES[mode_choice.selected],scope if data_ready else "VERİ BAĞLI DEĞİL","BAĞLI" if director.connected else "GÜVENLİ BEKLEME"]
@@ -922,12 +940,23 @@ func automated_run() -> void:
 	player.auto_walk = false
 	if not check(player.position.x < 5.7,"Room wall prevents walking through collision"): return
 	if not check(await walk_to(Vector3(0,0,0)),"Walk to room center"): return
+	if key_slot==1:
+		if not check(await walk_to(Vector3(-2.8,0,-0.2)),"Search observation-room table"): return
+		await aim_at(key_object.global_position)
+		interact()
+		if not check(await walk_to(Vector3(0,0,0)),"Return from observation table"): return
 	if not check(await walk_to(Vector3(0,0,-12.7)),"Navigate corridor with collisions"): return
 	await aim_at(Vector3(0,1.35,-14.68))
-	interact()
-	if not check(not door_open,"Exit stays locked without key"): return
+	if not has_key:
+		interact()
+		if not check(not door_open,"Exit stays locked without key"): return
 	if not check(await walk_to(Vector3(0,0,-9)),"Return to side-room junction"): return
 	if not check(await walk_to(Vector3(6,0,-9)),"Enter machine room through side doorway"): return
+	if key_slot==2:
+		if not check(await walk_to(Vector3(7,0,-9.7)),"Search machine-room cabinet"): return
+		await aim_at(key_object.global_position)
+		interact()
+		if not check(await walk_to(Vector3(6,0,-9)),"Return from machine cabinet"): return
 	if DisplayServer.get_name() != "headless":
 		await aim_at(Vector3(9,1.4,-11.5))
 		await RenderingServer.frame_post_draw
@@ -942,8 +971,9 @@ func automated_run() -> void:
 	if not check(await walk_to(Vector3(-6,0,-12)),"Enter archive through rear doorway"): return
 	if not check(await walk_to(Vector3(-5.5,0,-7.9)),"Navigate archive aisle around furniture"): return
 	if not check(await walk_to(Vector3(-7.4,0,-7.9)) and player.is_on_floor(),"Reach archive key table on continuous floor"): return
-	await aim_at(key_object.global_position)
-	interact()
+	if key_slot==0:
+		await aim_at(key_object.global_position)
+		interact()
 	if not check(has_key and not key_object.visible,"E interaction collects key"): return
 	# Exercise every original effect through the production dispatch and local gate.
 	for effect in ["lights","steps","silhouette"]:
@@ -1008,6 +1038,7 @@ func write_report(passed: bool, failure: String) -> void:
 	var sum := 0.0
 	for v in sorted: sum+=v
 	var result := {"passed":passed,"failure":failure,"checks":smoke_checks,"renderer":RenderingServer.get_video_adapter_name(),"display":DisplayServer.get_name(),"viewport":str(get_viewport().get_visible_rect().size),"frames":sorted.size(),"elapsed_seconds":elapsed,"mean_fps":1000.0/(sum/maxi(1,sorted.size())),"godot_version":Engine.get_version_info(),"last_neural":director.neural,"mode":director.mode,"headless":DisplayServer.get_name()=="headless"}
+	result["key_slot"] = key_slot
 	if not sorted.is_empty():
 		result["frame_ms_p50"] = sorted[int(sorted.size()*0.5)]
 		result["frame_ms_p95"] = sorted[int(sorted.size()*0.95)]
