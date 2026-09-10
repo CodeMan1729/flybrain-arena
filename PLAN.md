@@ -62,10 +62,18 @@
   ve geçti; panel yerleşimi ile 17 ayar kontrolü de geçti. Web paketi
   doğrulanarak öğrenme hizmeti yeniden başlatılmadan yayımlandı; canlı
   menüdeki sayılar sağlık özetine uydu. Semgrep: 200 kural, 0 bulgu.
-- [ ] Sıradaki hedef: kayıtlı tam ekran tercihiyle doğrudan açılışı, menüden
-  tam ekrana geçişten ayrı doğrula. Kabul: ilk açılışta menü/HUD yazıları
-  eksiksiz görünür, ayar kişisel dosyalara dokunmadan iki ayrı süreçte
-  korunur; hata yeniden üretilemezse gereksiz üretim kodu değişikliği yapma.
+- [x] Kayıtlı tam ekran tercihiyle doğrudan açılış iki bağımsız görünür
+  Godot sürecinde doğrulandı. İlk süreç tercihi üretim yoluyla kaydetti;
+  ikinci süreç dosyayı açılışta yükledi. Menü/HUD yazıları eksiksiz, sessiz
+  ayar korunmuş ve dosya baytları değişmemişti. Hata yeniden üretilemedi;
+  üretim kodu değiştirilmedi. Mevcut HUD testine isteğe bağlı iki süreçli
+  kontrol eklendi: görünür 3+3, headless 2 ve mevcut 17 ayar kontrolü geçti.
+  Kanıt: reports/HUD-LAYOUT.md ve reports/fullscreen-startup-menu.png.
+- [ ] Sıradaki hedef: web sekmesi arka plana alındığında duraklama ve
+  öğrenme penceresinin iptalini, izole web oturumunda uçtan uca doğrula.
+  Kabul: gizli sekmede yeni olay/ödül oluşmaz, dönüşte açık devam gerekir;
+  canlı ortak belleği ve kullanıcının açık oyunlarını teste dahil etme.
+  Yalnızca yeniden üretilen hatayı düzelt.
 
 ## Önceki tamamlanan hedefler
 

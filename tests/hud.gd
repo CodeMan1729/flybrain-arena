@@ -5,15 +5,43 @@ func _initialize() -> void:
     check_layout.call_deferred()
 
 func check_layout() -> void:
-    var fullscreen: bool='--fullscreen-check' in OS.get_cmdline_user_args()
+    var args := OS.get_cmdline_user_args()
+    var fullscreen: bool='--fullscreen-check' in args
     DisplayServer.window_set_size(Vector2i(1920,1080))
     var game=load('res://main.tscn').instantiate()
     game.settings_path=''
+    for arg in args:
+        if arg.begins_with('--saved-fullscreen-check='):
+            game.settings_path=arg.trim_prefix('--saved-fullscreen-check=')
+    var reopening: bool=not game.settings_path.is_empty() and FileAccess.file_exists(game.settings_path)
+    var saved_settings := FileAccess.get_file_as_bytes(game.settings_path) if reopening else PackedByteArray()
     root.add_child(game)
     game.director.set_process(false)
+    var startup_ok: bool=not reopening or (game.fullscreen and game.volume==0)
     game.set_volume(0)
     game.ambience.stop()
     game.ambience.stream=null
+    if not game.settings_path.is_empty():
+        if not reopening:
+            await create_timer(1).timeout
+            game.toggle_fullscreen() # First process saves through the real menu path; the second loads it in _ready.
+        await create_timer(2).timeout
+        startup_ok=startup_ok and game.fullscreen and DisplayServer.window_get_mode()==DisplayServer.WINDOW_MODE_FULLSCREEN
+        var stored := ConfigFile.new()
+        startup_ok=startup_ok and stored.load(game.settings_path)==OK
+        startup_ok=startup_ok and stored.get_value('settings','fullscreen',false)==true and stored.get_value('settings','volume',-1)==0
+        startup_ok=startup_ok and AudioServer.is_bus_mute(0)
+        for label in game.menu.find_children('*','Label',true,false):
+            if label.is_visible_in_tree():
+                startup_ok=startup_ok and game.get_viewport().get_visible_rect().encloses(label.get_global_rect())
+                startup_ok=startup_ok and label.get_visible_line_count()==label.get_line_count()
+        startup_ok=startup_ok and game.start_button.is_visible_in_tree() and game.start_button.text=='BAŞLAT'
+        startup_ok=startup_ok and ('bağlanılıyor' in game.memory_text.text)
+        if reopening: startup_ok=startup_ok and FileAccess.get_file_as_bytes(game.settings_path)==saved_settings
+        print(('PASS: ' if startup_ok else 'FAIL: ')+('Saved fullscreen cold start' if reopening else 'Fullscreen preference saved')+'; menu text fits and mute is retained')
+        if DisplayServer.get_name()!='headless':
+            await RenderingServer.frame_post_draw
+            startup_ok=game.get_viewport().get_texture().get_image().save_png(game.settings_path+'-menu.png')==OK and startup_ok
     game._process(0.1)
     var memory_ok: bool='bağlanılıyor' in game.memory_text.text and not '0' in game.memory_text.text
     game.director.connected=true
@@ -55,8 +83,9 @@ func check_layout() -> void:
     print(('PASS: ' if passed else 'FAIL: ')+'Every diagnostic value is visible, inside the screen, above the brain view')
     if DisplayServer.get_name()!='headless':
         await RenderingServer.frame_post_draw
-        passed=game.get_viewport().get_texture().get_image().save_png('res://../reports/hud-'+('fullscreen' if fullscreen else '1080p')+'.png')==OK and passed
+        var screenshot_path: String=game.settings_path+'-hud.png' if not game.settings_path.is_empty() else 'res://../reports/hud-'+('fullscreen' if fullscreen else '1080p')+'.png'
+        passed=game.get_viewport().get_texture().get_image().save_png(screenshot_path)==OK and passed
         if fullscreen:
             passed=passed and DisplayServer.window_get_mode() in [DisplayServer.WINDOW_MODE_FULLSCREEN,DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN]
             print(('PASS: ' if passed else 'FAIL: ')+'Native fullscreen mode is active')
-    await game.quit_game(0 if passed and memory_ok else 1)
+    await game.quit_game(0 if passed and memory_ok and startup_ok else 1)
