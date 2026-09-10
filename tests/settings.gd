@@ -9,11 +9,13 @@ func verify(condition: bool, description: String) -> void:
 func open_game(path: String) -> Node:
 	var game = load("res://main.tscn").instantiate()
 	game.settings_path = path
+	game.research_modes = true # Exercise saved legacy research preferences in the isolated fixture.
 	root.add_child(game)
 	game.director.set_process(false)
 	return game
 
 func close_game(game: Node) -> void:
+	game.pause_game()
 	game.ambience.stop()
 	game.ambience.stream = null
 	await create_timer(0.1).timeout
@@ -82,6 +84,17 @@ func run_checks() -> void:
 	await close_game(game)
 	game = open_game(directory)
 	verify(not game.settings_writable and game.save_settings()==ERR_UNAVAILABLE,"Failed backup prevents overwriting unreadable settings")
+	await close_game(game)
+	config = ConfigFile.new()
+	config.set_value("settings","mode","fixed")
+	config.save(path)
+	game = load("res://main.tscn").instantiate()
+	game.settings_path = path
+	root.add_child(game)
+	game.director.set_process(false)
+	verify(not game.mode_choice.visible and game.mode_choice.selected==2,"Normal play ignores old fixed/random preferences and hides control modes")
+	game.start_game()
+	verify(game.director.mode=="learn","Normal rounds always start reward learning")
 	await close_game(game)
 	for name in DirAccess.get_files_at(directory): DirAccess.remove_absolute(directory.path_join(name))
 	DirAccess.remove_absolute(directory)

@@ -69,6 +69,8 @@ var settings_writable := true
 var fullscreen := false
 var brain_was_running := false
 var brain_was_visible := true
+var research_modes := false
+var web_pause_callback: JavaScriptObject
 
 func _exit_tree() -> void:
 	if is_instance_valid(ambience):
@@ -86,6 +88,7 @@ func _ready() -> void:
 	var args := OS.get_cmdline_user_args()
 	smoke = "--smoke" in args
 	benchmark = "--benchmark" in args
+	research_modes = (research_modes or smoke or benchmark) and not OS.has_feature("web")
 	if smoke or benchmark: settings_path = ""
 	load_settings()
 	set_volume(volume)
@@ -109,15 +112,20 @@ func _ready() -> void:
 	add_child(fly)
 	fly.reset_body()
 	build_ui()
+	if OS.has_feature("web"):
+		web_pause_callback = JavaScriptBridge.create_callback(func(_args):
+			if player.active: pause_game()
+		)
+		JavaScriptBridge.get_interface("window").flyfearPause = web_pause_callback
 	if not smoke and not benchmark:
 		get_window().focus_exited.connect(func():
 			if player.active: pause_game()
 		)
 	for arg in args:
-		if arg.begins_with("--mode="):
+		if research_modes and arg.begins_with("--mode="):
 			var selected := MODES.find(arg.trim_prefix("--mode="))
 			if selected >= 0: mode_choice.select(selected)
-	if fullscreen: DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+	if fullscreen and not OS.has_feature("web"): DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 	if smoke or benchmark:
 		DisplayServer.window_set_size(Vector2i(1920, 1080))
 		get_window().content_scale_size = Vector2i(1920, 1080)
@@ -525,17 +533,18 @@ func build_ui() -> void:
 	menu.add_child(column)
 	menu_title = ui_label("Üç odada anahtarı ara. Çıkışa ulaş.",22,Color(0.88,0.69,0.42))
 	column.add_child(menu_title)
-	column.add_child(ui_label("DENEY MODU",15))
+	column.add_child(ui_label("DENEY MODU" if research_modes else "ÖĞRENME HER TURDA AÇIK",15))
 	mode_choice = OptionButton.new()
 	mode_choice.custom_minimum_size = Vector2(530,48)
 	for text in MODE_NAMES: mode_choice.add_item(text)
 	var saved_mode: Variant = preferences.get_value("settings","mode","learn")
-	mode_choice.select(MODES.find(saved_mode) if saved_mode in MODES else 2)
+	mode_choice.select(MODES.find(saved_mode) if research_modes and saved_mode in MODES else 2)
+	mode_choice.visible = research_modes
 	mode_choice.item_selected.connect(func(_index): save_settings())
 	column.add_child(mode_choice)
-	start_button = button("BAŞLAT     →", start_game,column)
+	start_button = button("BAŞLAT", start_game,column)
 	button("AYARLAR",func(): settings.visible = not settings.visible; science_note.visible = not settings.visible; memory_text.visible = not settings.visible,column)
-	button("ÇIKIŞ",quit_game,column)
+	button("ANA SAYFA" if OS.has_feature("web") else "ÇIKIŞ",quit_game,column)
 	column.add_child(ui_label("WASD / Fare · E etkileşim · F el feneri",17))
 	settings = VBoxContainer.new()
 	settings.position = Vector2(850,340)
@@ -553,16 +562,19 @@ func build_ui() -> void:
 	seed_box.value = setting_number("seed",42,0,4294967295)
 	seed_box.value_changed.connect(func(_value): save_settings())
 	settings.add_child(seed_box)
-	button("Öğrenilen karar katmanını kaydet",func(): director.send({"type":"save"}),settings)
-	button("Öğrenilen karar katmanını sıfırla",func(): director.send({"type":"reset"}),settings)
+	if not OS.has_feature("web"):
+		button("Öğrenilen karar katmanını kaydet",func(): director.send({"type":"save"}),settings)
+		button("Öğrenilen karar katmanını sıfırla",func(): director.send({"type":"reset"}),settings)
 	button("Tam ekran / pencere",toggle_fullscreen,settings)
 	settings.visible = false
 	memory_text = ui_label("",20)
 	memory_text.position = Vector2(850,345)
 	menu.add_child(memory_text)
 	var science := ui_label("GERÇEK VERİ. TASARLANMIŞ EŞLEME.\n\nMaleCNS v1.0 bağlantıları üzerinde sayısal sinir etkinliği.\nSinek oyuncuyu yönetmez; odadaki olayları seçer.\nÖğrenme, beyin üzerine eklenen karar katmanındadır.\nTepki puanı korkunun kesin ölçüsü değildir.\n\nTamamen yerel · Kamera ve mikrofon kullanılmaz.",21)
+	if OS.has_feature("web"):
+		science.text = "HER OYUN ORTAK ÖĞRENMEYE KATILIR.\n\nOyun içi hareketlerin ve 1 / 2 / 3 değerlendirmelerin\nkimlik bilgisi olmadan öğrenme için kaydedilir.\nBaşlat'a basarak bu katkıyla oynamayı seçersin.\nKamera, mikrofon ve gerçek konum kullanılmaz.\n\nSinir ağı gerçek bağlantı verisinden hesaplanır.\nÖğrenme dış karar katmanındadır; korku garantisi yoktur."
 	science_note = science
-	science.position = Vector2(850,800)
+	science.position = Vector2(850,720 if OS.has_feature("web") else 800)
 	menu.add_child(science)
 	notice = ui_label("Beyin verisi yükleniyor…",17,Color(0.49,0.72,0.66))
 	notice.position = Vector2(110,974)
@@ -601,6 +613,10 @@ func place_key() -> void:
 	key_object.visible = true
 
 func start_game() -> void:
+	if OS.has_feature("web") and not director.connected:
+		director.connect_requested = true
+		menu_title.text = "Beyne bağlanılıyor… Hazır olunca Başlat'a bas."
+		return
 	if playing and not completed:
 		resume_game()
 		return
@@ -622,7 +638,7 @@ func start_game() -> void:
 	player.active = true
 	fly.reset_body()
 	fly.active = true
-	director.mode = MODES[mode_choice.selected]
+	director.mode = MODES[mode_choice.selected] if research_modes else "learn"
 	director.interval = decision_interval
 	director.seed_value = int(seed_box.value)
 	sound_rng.seed = director.seed_value
@@ -640,12 +656,16 @@ func pause_game() -> void:
 	clear_effects()
 	menu.visible = true
 	menu_title.text = "DURAKLATILDI · Odada zaman bekler."
-	start_button.text = "DEVAM ET     →"
+	start_button.text = "DEVAM ET"
 	mode_choice.disabled = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	start_button.grab_focus()
 
 func resume_game() -> void:
+	if OS.has_feature("web") and not director.connected:
+		director.connect_requested = true
+		menu_title.text = "Beyne yeniden bağlanılıyor…"
+		return
 	player.active = true
 	fly.active = true
 	director.resume_session()
@@ -690,7 +710,9 @@ func quit_game(exit_code := 0) -> void:
 	while director.ending and director.connected and Time.get_ticks_msec()<deadline:
 		await get_tree().process_frame
 	await get_tree().create_timer(0.1).timeout
-	get_tree().quit(exit_code)
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("window.location.assign('/')")
+	else: get_tree().quit(exit_code)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
@@ -780,13 +802,16 @@ func finish_game() -> void:
 	clear_effects()
 	menu.visible = true
 	menu_title.text = "ÇIKIŞ AÇILDI · Odadan çıktın.  %d sn" % int(elapsed)
-	start_button.text = "YENİ TUR     →"
+	start_button.text = "YENİ TUR"
 	mode_choice.disabled = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	start_button.grab_focus()
 
 func _process(delta: float) -> void:
 	if not is_instance_valid(player): return
+	if OS.has_feature("web") and player.active and not director.connected:
+		pause_game()
+		menu_title.text = "Bağlantı kesildi. Beyin hazır olunca devam edebilirsin."
 	var tick := Time.get_ticks_usec()
 	if player.active and elapsed > 2 and last_frame_usec > 0 and (smoke or benchmark):
 		frame_times.append((tick-last_frame_usec)/1000.0)
@@ -822,13 +847,14 @@ func _process(delta: float) -> void:
 		feedback_text.text = director.feedback_status if not director.feedback_status.is_empty() else "%s · İstersen değerlendir:  1 Etkilemedi   2 Gerildim   3 Korktum" % ACTION_NAMES.get(director.feedback_action,"")
 	if memory_text.is_visible_in_tree():
 		var saved: Dictionary = director.memory
-		memory_text.text = "KALICI ÖĞRENME / BU MAC\n\n%d kayıtlı tur · %d kişisel öğrenme örneği\n" % [int(saved.get("rounds",0)),int(saved.get("updates",0))]
+		memory_text.text = ("ORTAK ÖĞRENME / TÜM OYUNCULAR\n\n%d oyun bölümü · %d öğrenme örneği\n" if OS.has_feature("web") else "KALICI ÖĞRENME / BU MAC\n\n%d kayıtlı tur · %d kişisel öğrenme örneği\n") % [int(saved.get("rounds",0)),int(saved.get("updates",0))]
 		var feedback_counts: Dictionary = saved.get("feedback_counts",{})
-		memory_text.text += "%d doğrudan değerlendirme · %d hareket tepkisi\n%d yapay eğitim olayıyla başlangıç\n\nSON TURLAR\n" % [int(feedback_counts.get("rating",0)),int(feedback_counts.get("motion",0)),int(saved.get("prior_events",0))]
+		memory_text.text += "%d doğrudan değerlendirme · %d hareket tepkisi\n%d yapay eğitim olayıyla başlangıç\n\n" % [int(feedback_counts.get("rating",0)),int(feedback_counts.get("motion",0)),int(saved.get("prior_events",0))]
+		if not OS.has_feature("web"): memory_text.text += "SON TURLAR\n"
 		for item in saved.get("recent",[]).slice(-3):
 			var mean_score: float = float(item.get("reward_sum",0))/maxi(1,int(item.get("rewards",0)))
 			memory_text.text += "%s · %d sn · %d olay · tepki %.2f\n" % [{"won":"Çıkış","quit":"Çıkıldı","connection_lost":"Kesinti","restarted":"Yeniden"}.get(item.get("outcome",""),"Tur"),int(item.get("seconds",0)),int(item.get("events",0)),mean_score]
-		if saved.get("recent",[]).is_empty(): memory_text.text += "Henüz tamamlanmış tur yok.\n"
+		if saved.get("recent",[]).is_empty() and not OS.has_feature("web"): memory_text.text += "Henüz tamamlanmış tur yok.\n"
 		var reaction_means: Array = saved.get("mean_reaction",[0,0,0])
 		var reaction_counts: Array = saved.get("counts",[0,0,0])
 		memory_text.text += "\nGözlenen tepki / örnek sayısı\nIşık %.2f / %d · Ses %.2f / %d · Siluet %.2f / %d" % [reaction_means[0],int(reaction_counts[0]),reaction_means[1],int(reaction_counts[1]),reaction_means[2],int(reaction_counts[2])]
@@ -837,6 +863,8 @@ func _process(delta: float) -> void:
 	debug_text.text = "ÖLÇÜMLER / TAB\n%s · biyolojik doğrulama yok\n\nEtkinlik: boyutsuz sayısal model\nL1 %.4f   L2 %.4f\nL3 %.4f   Mi1 %.4f\nEtkin nöron: %s  |  Ort. |a|: %.4f\n\nEylem: %s\n%s: %.3f / 1\nOlay: %d / 5 (60 sn)  ·  Kalıcı bellek: %d\n\nFPS: %d  |  Beyin: %.1f ms\nİstek/yanıt: %.1f ms\nBeyin RSS: %.1f MiB  |  Oyun heap: %.1f MiB\n%s" % [scope,output[0],output[1],output[2],output[3],str(director.neural.get("active_neurons","—")),director.neural.get("mean_abs",0),ACTION_NAMES.get(director.action,"Bekle"),"Oyuncu değerlendirmesi" if director.reward_source == "rating" else "Hareket tepkisi",director.reward,events.size(),director.updates,Engine.get_frames_per_second(),director.neural.get("latency_ms",0),director.rtt_ms,director.neural.get("rss_mb",0),OS.get_static_memory_usage()/1048576.0,director.reason]
 	if director.neural.is_empty():
 		debug_text.text = "ÖLÇÜMLER / TAB\nHenüz sinir etkinliği ölçülmedi.\n\nFPS: %d\n%s\n\nTepki puanı, korkunun kesin ölçüsü değildir." % [Engine.get_frames_per_second(),director.reason]
+	elif OS.has_feature("web"):
+		debug_text.text = debug_text.text.replace("Oyun heap: 0.0 MiB", "Web: ölçülmüyor")
 	debug_text.text += "\nSinek görüşü: " + ("OYUNCUYU GÖRÜYOR" if fly.visible_player else "ARAMA / GÖRÜŞ KAPALI")
 
 func check(condition: bool, description: String) -> bool:

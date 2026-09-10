@@ -1,19 +1,21 @@
 # FLYFEAR
 
-macOS ARM64 üzerinde yerel çalışan, birinci şahıs korku oyunu prototipi. İnsan anahtarı bulup koridordaki kilitli çıkışı açar. **Odada fiziksel bir sinek uçar, oyuncuyu görüş alanıyla izler; gerçek bağlantı verisinden türetilen simülasyon uçuşunu etkiler ve korku olaylarını seçer.** Varsayılan öğrenen karar katmanı deneyimlerini bu Mac üzerinde kalıcı saklar.
+**[Tarayıcıda oyna → furkancakir.dev/flyfear/](https://furkancakir.dev/flyfear/)**
+
+Tarayıcıda ve macOS ARM64 üzerinde çalışan birinci şahıs korku oyunu prototipi. İnsan anahtarı bulup koridordaki kilitli çıkışı açar. **Odada fiziksel bir sinek uçar, oyuncuyu görüş alanıyla izler; gerçek bağlantı verisinden türetilen simülasyon uçuşunu etkiler ve korku olaylarını seçer.** Normal oyunda öğrenme her zaman açıktır. Web oyuncuları sunucudaki ortak karar katmanını günceller; masaüstü sürümü deneyimlerini kendi Mac’inde saklar.
 
 Bu klasörde çalıştırılmış bir Godot oyunu, gerçek veri, ayrı Python simülasyonu, testler ve ölçüm raporları vardır. Ekran görüntüsü: [1080p oyun](reports/game-1080p.png). Güncel öğrenme: [v3 eğitim ve doğrulama raporu](reports/learning-v3/README.md). Önceki ölçümler: [performans raporu](reports/PERFORMANCE.md).
 
 | Proje özeti | Durum |
 |---|---|
-| Platform | macOS ARM64; Apple M4 Pro / 24 GB üzerinde doğrulandı |
+| Platform | WebGL 2 tarayıcı + klavye/fare; ayrıca macOS ARM64 |
 | Oyun motoru | Godot 4.5.2, hafif 3B, birinci şahıs |
 | Beyin verisi | MaleCNS v1.0; 166.700 nöron, 25.582.938 yönlü bağlantı |
 | Öğrenme | Sinir çıktılarından olay seçen, ödülle güncellenen dış karar katmanı v3 |
 | Ön eğitim | 48 yapay oyuncu, 576 tur, 8.640 ödüllü olay |
 | Kişiselleşme | Oyun içi hareketler ve isteğe bağlı 1 / 2 / 3 değerlendirmeleri |
-| Çalışma biçimi | Yerel CPU; oyun sırasında yalnızca localhost iletişimi |
-| Son doğrulama | 11 Python/sunucu testi, 15 ayar kontrolü, 112 ses/oynanış ve anahtar arama, 24 beyin görünümü ve 48 tam tur kontrolü geçti |
+| Çalışma biçimi | Web: HTTPS/WSS ve sunucuda CPU; masaüstü: yalnızca localhost |
+| Son doğrulama | 12 Python/sunucu testi, 17 ayar kontrolü, 112 ses/oynanış ve anahtar arama, 24 beyin görünümü ve 48 tam tur kontrolü geçti |
 
 Son [genel performans optimizasyonu](reports/optimization/README.md): daha hızlı
 beyin yükleme, daha düşük bellek, değişiklik olduğunda yenilenen ağ çizimi ve
@@ -21,7 +23,15 @@ daha küçük sinir ölçümü mesajları. Tam grafiğin dinamiği ve öğrenme 
 
 ![FLYFEAR: odadaki sinek, gerçek sinir etkinliği paneli ve olay değerlendirmesi](reports/learning-v3/feedback-open.png)
 
-## Başlatma
+## Web sürümü
+
+Kurulumsuz oyun: **https://furkancakir.dev/flyfear/**. Güncel, WebGL 2 ve SharedArrayBuffer destekleyen bir masaüstü tarayıcı, klavye ve fare gerekir. Dokunmatik kontroller eklenmedi. İlk sıkıştırılmış indirme yaklaşık 9 MiB. İnternet bağlantısı oyun boyunca gereklidir.
+
+166.700 nöronun tamamı sunucuda hesaplanır. Oyuncular aynı bağlantı grafiğini kullanır fakat her birinin sinir durumu ayrıdır; geçerli hareket tepkileri ve isteğe bağlı değerlendirmeler aynı kalıcı karar katmanını günceller. Yeniden bağlantı, yeni ziyaretçi ve hizmet yeniden başlatması ortak modeli silmez. Öğrenmenin ilerlemesi her turda daha güçlü korku garantisi değildir.
+
+Başlatmadan önce veri kullanımı açıklanır. Ham hareket akışı, IP, e-posta veya tarayıcı kimliği oyun günlüğüne yazılmaz; kamera ve mikrofon kullanılmaz. Ayrıntılı olay kayıtları yaklaşık 20 MB ile sınırlıdır; öğrenilmiş model korunur. [Veri kullanımı](https://furkancakir.dev/flyfear/privacy.html), [web kurulumu ve sınırlar](web/README.md), [yayın doğrulaması](reports/web/README.md).
+
+## Yerel başlatma
 
 macOS ARM64 üzerinde ilk kurulum için terminalde:
 
@@ -34,21 +44,21 @@ cd flyfear
 
 Sonraki açılışlarda proje klasöründe `./run.sh` yeterlidir; eksik kurulum varsa başlatıcı `./setup.sh` çağırır. Kurulum macOS ARM64 ve [uv](https://docs.astral.sh/uv/getting-started/installation/) gerektirir. Doğrulanan uv: **0.9.15**. Python 3.12.12 uv ile kurulur; mevcut sistem Python'u değiştirilmez. Proje `.venv` kullanır. Godot yalnızca `tools/Godot.app` içine indirilir; `/Applications` değiştirilmez.
 
-İlk indirme yaklaşık **1,11 GB veri + 162 MB Godot arşivi + Python paketleri**; kurulu klasör yaklaşık 1,9 GB. Yeniden kurulum mevcut ham veriyi silmez, SHA256 denetler. Tam grafiğin hazırlanması bu makinede yaklaşık 41 saniye sürdü. Kurulumda internet gerekir; **oyun sırasında ağ hedefi yalnızca `127.0.0.1`**. API hesabı, ücretli hizmet, CUDA, LLM veya bulut hesaplama gerekmez.
+İlk indirme yaklaşık **1,11 GB veri + 162 MB Godot arşivi + Python paketleri**; kurulu klasör yaklaşık 1,9 GB. Yeniden kurulum mevcut ham veriyi silmez, SHA256 denetler. Tam grafiğin hazırlanması bu makinede yaklaşık 41 saniye sürdü. Kurulumda internet gerekir; **yerel sürümde oyun sırasında ağ hedefi yalnızca `127.0.0.1`**. API hesabı, ücretli hizmet, CUDA, LLM veya bulut hesaplama gerekmez.
 
 `run.sh` tek beyin ve tek Godot süreci başlatır. İkinci başlatmayı dosya kilidiyle engeller. Boş localhost portu ve her çalıştırmaya özel rastgele erişim anahtarı üretir; anahtar günlükte tutulmaz. Oyun kapanınca yalnızca başlattığı alt süreçleri temizler. Veri/model yüklenmezse nedenini yazıp durur; gerçek entegrasyon yerine gizli rastgele ağ çalıştırmaz.
 
-Modu terminalden seçmek de mümkündür:
+Normal menüde yalnızca öğrenen oyun vardır; eski sabit/rastgele tercihi de öğrenen moda geçirilir. Kontrol koşulları yalnızca yerel araştırma testlerinde açılır:
 
 ```sh
-./run.sh --mode=learn   # Ön eğitim ve kişisel öğrenme; varsayılan
-./run.sh --mode=fixed   # Öğrenmeyen sabit sinir politikası
-./run.sh --mode=random  # Rastgele olay seçimiyle kontrol koşulu
+./run.sh                            # Her turda öğrenen normal oyun
+./run.sh --benchmark --mode=fixed    # Araştırma kontrolü
+./run.sh --benchmark --mode=random   # Araştırma kontrolü
 ```
 
 ## Oynanış ve Türkçe arayüz
 
-1. Menüden modu seç ve **Başlat**'a bas. Başlangıç modu **Beyin + öğrenen karar katmanı**dır. Yeni tur kayıtlı belleği kullanır.
+1. **Başlat**’a bas. Her tur **Beyin + öğrenen karar katmanı** ile oynanır ve kayıtlı öğrenmeyi kullanır.
 2. **Gözlem odasındaki masa, arşiv masası ve makine odasındaki dolabın üstünü ara.** Anahtar bu üç konumdan birindedir. Yaklaşıp anahtara bak ve **E** ile al. Anahtar/kapı etkileşiminde arada katı engel bulunmaması gerekir.
 3. Ana koridora dön, sondaki çıkış kapısına yaklaş, **E** ile aç ve dışarı yürü. Sağdaki makine odası ile arka servis koridoru, arşive ikinci bir yol sağlar.
 
@@ -65,11 +75,11 @@ Modu terminalden seçmek de mümkündür:
 
 **Değişken anahtar araması:** aynı tohumla oynanan yeni turlarda anahtarın yeri art arda tekrarlanmaz. Aynı tohum aynı konum dizisini üretir; uygulamayı yeniden açmak veya yeni turda farklı tohum kullanmak diziyi baştan başlatır. Duraklama, devam ve beyin bağlantısının yenilenmesi mevcut anahtarın yerini değiştirmez. Anahtarın sıcak renkli küçük ışığı onu takip eder ve alındığında söner. Olay sesleri ayrı rastgele sayı akışını kullanır. Üç yerleşimin de gerçek fizik üzerinden oynanıp bitirildiği [doğrulama raporu](reports/KEY-SEARCH.md).
 
-**Sineği kendine göre eğitmek için:** öğrenen modda oyna. Bir olay seni etkilediğinde veya etkilemediğinde 1 / 2 / 3 ile değerlendirebilirsin. Değerlendirme vermediğinde hareket tepkisi otomatik kullanılır. Her geçerli örnek yerelde kaydedilir; oyunu kapatıp açmak öğrenmeyi silmez. Ana menüdeki kişisel örnek sayısı ile 8.640 yapay ön eğitim olayı ayrı gösterilir. Ön eğitim, senin gerçek korkularının önceden bilindiği anlamına gelmez.
+**Sineği eğitmek için:** normal oyunu oyna. Bir olay seni etkilediğinde veya etkilemediğinde 1 / 2 / 3 ile değerlendirebilirsin. Değerlendirme vermediğinde hareket tepkisi otomatik kullanılır. Her geçerli örnek web’de ortak sunucu belleğine, masaüstünde yerel belleğe kaydedilir; oyunu kapatıp açmak öğrenmeyi silmez. Ana menüdeki kişisel örnek sayısı ile 8.640 yapay ön eğitim olayı ayrı gösterilir. Ön eğitim, senin gerçek korkularının önceden bilindiği anlamına gelmez.
 
-Ayarlar: ses, efekt yoğunluğu, fare hassasiyeti, 2–5 saniye karar aralığı, tohum, tam ekran/pencere; öğrenilen karar parametrelerini kaydet/sıfırla. Mod, tohum ve karar aralığı yeni turda uygulanır. Varsayılan karar aralığı **3 saniye**. Yoğunluk 0 iken korku olayları uygulanmaz. Menüdeki sayılayıcılar klavyeyle de kullanılabilir; odak görünürdür.
+Ayarlar: ses, efekt yoğunluğu, fare hassasiyeti, 2–5 saniye karar aralığı, tohum, tam ekran/pencere; masaüstünde kişisel karar parametrelerini kaydet/sıfırla. Web oyuncuları ortak modeli sıfırlayamaz. Tohum ve karar aralığı yeni turda uygulanır. Varsayılan karar aralığı **3 saniye**. Yoğunluk 0 iken korku olayları uygulanmaz. Menüdeki sayılayıcılar klavyeyle de kullanılabilir; odak görünürdür.
 
-**Ayarlar otomatik saklanır:** ses, efekt yoğunluğu, fare hassasiyeti, karar aralığı, mod, tohum ve tam ekran tercihi değiştirildiğinde yerel `user://settings.cfg` dosyasına yazılır. macOS üzerinde bu dosya `~/Library/Application Support/Godot/app_userdata/FLYFEAR/settings.cfg` içindedir; proje ve kişisel öğrenme belleğinden ayrıdır. Yeniden açılışta sessizlik tercihi sesler başlamadan uygulanır. Komut satırındaki `--mode=` o açılışın mod seçimini öncelikli belirler; yalnızca oyunu açmak kayıtlı ayarları değiştirmez.
+**Ayarlar otomatik saklanır:** ses, efekt yoğunluğu, fare hassasiyeti, karar aralığı, mod, tohum ve tam ekran tercihi değiştirildiğinde yerel `user://settings.cfg` dosyasına yazılır. macOS üzerinde bu dosya `~/Library/Application Support/Godot/app_userdata/FLYFEAR/settings.cfg` içindedir; proje ve kişisel öğrenme belleğinden ayrıdır. Yeniden açılışta sessizlik tercihi sesler başlamadan uygulanır. Araştırma testlerindeki `--mode=` o açılışın kontrol koşulunu belirler; yalnızca oyunu açmak kayıtlı ayarları değiştirmez.
 
 [Godot ConfigFile](https://docs.godotengine.org/en/4.5/classes/class_configfile.html) kullanılır; yeni bağımlılık yoktur. Kayıt önce aynı klasörde geçici dosyaya yazılıp yeniden adlandırılır. Bozuk dosya değiştirilmeden önce `.broken-<zaman>` yedeği alınır; yedeklenemiyorsa üzerine yazılmaz. Sayısal değerler güvenli sınırlarda tutulur, yanlış türler ve NaN/sonsuz değerler varsayılana döner. Okuma/yazma sorunu menüde görünür; oyun mevcut oturum ayarlarıyla devam eder. Bu kayıt yöntemi dosya değiştirme sırasında önceki kaydı korur; güç kesintisine karşı fiziksel diske yazım garantisi verilmez.
 

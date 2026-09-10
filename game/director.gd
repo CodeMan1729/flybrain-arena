@@ -8,7 +8,7 @@ var connected := false
 var session_ready := false
 var running := false
 var interval := 3.0
-var mode := "fixed"
+var mode := "learn"
 var seed_value := 42
 var info := {}
 var neural := {}
@@ -34,6 +34,8 @@ var feedback_id := -1
 var feedback_until := 0.0
 var feedback_action := ""
 var feedback_status := ""
+var connect_requested := true
+var response_deadline := 5.0 if OS.has_feature("web") else 1.5
 
 func rate_event(rating: int) -> void:
 	if running and mode == "learn" and feedback_id >= 0 and now() < feedback_until and feedback_status.is_empty():
@@ -89,6 +91,7 @@ func _process(_delta: float) -> void:
 	var state := socket.get_ready_state()
 	if state == WebSocketPeer.STATE_CLOSED:
 		if connected:
+			connect_requested = running
 			feedback_id = -1
 			connected = false
 			session_ready = false
@@ -97,18 +100,23 @@ func _process(_delta: float) -> void:
 			last_neural_time = -1
 			reason = "Bağlantı kesildi · güvenli bekleme"
 			status_changed.emit()
-		if now() >= next_connect:
+		if now() >= next_connect and (not OS.has_feature("web") or connect_requested or running):
 			next_connect = now() + 3
 			socket = WebSocketPeer.new()
 			socket.inbound_buffer_size = 2 * 1024 * 1024 # Bounded anatomical metadata for the detailed viewer.
-			var token := OS.get_environment("FLYFEAR_TOKEN")
-			var port := OS.get_environment("FLYFEAR_PORT")
-			if port.is_empty(): port = "8765"
-			socket.connect_to_url("ws://127.0.0.1:%s/%s" % [port, token])
+			if OS.has_feature("web"):
+				var address: String = JavaScriptBridge.eval("new URL('ws', location.href).href.replace(/^http/, 'ws')")
+				socket.connect_to_url(address)
+			else:
+				var token := OS.get_environment("FLYFEAR_TOKEN")
+				var port := OS.get_environment("FLYFEAR_PORT")
+				if port.is_empty(): port = "8765"
+				socket.connect_to_url("ws://127.0.0.1:%s/%s" % [port, token])
 		return
 	if state != WebSocketPeer.STATE_OPEN:
 		return
 	connected = true
+	connect_requested = false
 	while socket.get_available_packet_count() > 0:
 		var data = JSON.parse_string(socket.get_packet().get_string_from_utf8())
 		if not data is Dictionary: continue
@@ -125,6 +133,7 @@ func _process(_delta: float) -> void:
 				if int(data.id) == feedback_id: feedback_status = "Geri bildirimin alındı."
 			"hello":
 				info = data.get("info", {})
+				if info.get("learning_only",false): mode = "learn"
 				reason = "Gerçek bağlantı verisi hazır"
 				if has_round: start_session(false)
 			"started":
@@ -134,7 +143,7 @@ func _process(_delta: float) -> void:
 				if data.get("id", -2) != pending_id or pending_id < 0 or not running: continue
 				rtt_ms = (now() - last_request) * 1000
 				pending_id = -1
-				if rtt_ms > 1500:
+				if rtt_ms > response_deadline*1000:
 					action = "wait"
 					reason = "Gecikmiş karar atlandı"
 					continue
@@ -159,7 +168,7 @@ func _process(_delta: float) -> void:
 				action = "wait"
 				reason = data.get("message", "Beyin hatası")
 		status_changed.emit()
-	if pending_id >= 0 and now()-last_request > 1.5:
+	if pending_id >= 0 and now()-last_request > response_deadline:
 		pending_id = -1
 		action = "wait"
 		reason = "Simülasyon zaman aşımı · bekleme"

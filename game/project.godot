@@ -20,3 +20,4 @@ environment/defaults/default_clear_color=Color(0.008, 0.014, 0.022, 1)
 
 [audio]
 driver/enable_input=false
+general/default_playback_type.web=1

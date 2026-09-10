@@ -2,6 +2,12 @@
 
 ## Sürekli geliştirme
 
+- [x] Tarayıcıda oynanabilir Godot sürümü ve HTTPS/WSS yayını.
+  Normal masaüstü/web oyunu her turda öğrenir; web ziyaretçileri ayrı
+  sinir durumlarıyla ortak kalıcı karar katmanını günceller. İki istemci,
+  yeniden başlatma, veri sınırları ve canlı oyun doğrulandı.
+  Kanıt: reports/web/README.md. Kalıcı adres: https://furkancakir.dev/flyfear/.
+
 - [x] Üç odada değişken anahtar araması: doğrulanmış yüzeylerden seçim,
   aynı tohumla tekrar üretim, ardışık tekrarı engelleme, devamda konumun
   korunması ve anahtarla birlikte taşınıp sönen ışık. Her konumdan gerçek

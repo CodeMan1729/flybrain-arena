@@ -17,3 +17,7 @@ reports/manual-run.log
 .env.*
 *.pem
 *.key
+
+build/
+*.tpz
+tools/*.partial

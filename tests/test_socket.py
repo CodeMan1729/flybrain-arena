@@ -21,7 +21,7 @@ class SocketTests(unittest.IsolatedAsyncioTestCase):
         token='integration-test-token-42'
         with tempfile.TemporaryDirectory() as tmp:
             output=open(Path(tmp)/'server.log','w')
-            proc=subprocess.Popen([sys.executable,'-m','brain.server','--port',str(port),'--logs',tmp],
+            proc=subprocess.Popen([sys.executable,'-m','brain.server','--port',str(port),'--logs',tmp,'--allow-control'],
                 cwd=ROOT,env={**os.environ,'FLYFEAR_TOKEN':token},stdout=output,stderr=output)
             async def receive(ws,kind):
                 for _ in range(20):

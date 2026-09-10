@@ -18,6 +18,8 @@ try:fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
 except BlockingIOError:raise SystemExit('FLYFEAR zaten çalışıyor. Açık oyuna dönün.')
 args=sys.argv[1:]
 testing='--smoke' in args or '--benchmark' in args
+if not testing and any(a.startswith('--mode=') and a!='--mode=learn' for a in args):
+    raise SystemExit('Normal oyun her turda öğrenir. Kontrol modları yalnızca --benchmark / --smoke testlerinde kullanılabilir.')
 headless='--headless' in args
 log_dir=ROOT/'logs'/('validation' if testing else 'sessions')
 stamp=time.strftime('%Y%m%d-%H%M%S')
@@ -30,7 +32,7 @@ server_log=log_dir/f'{stamp}-brain.log'; game_log=log_dir/f'{stamp}-game.log'
 server=None;game=None;measurements=[];exit_code=1
 try:
     with server_log.open('w') as output:
-        server=subprocess.Popen([str(ROOT/'.venv/bin/python'),'-m','brain.server','--port',str(port),'--logs',str(log_dir)],env=env,stdout=output,stderr=output)
+        server=subprocess.Popen([str(ROOT/'.venv/bin/python'),'-m','brain.server','--port',str(port),'--logs',str(log_dir)]+(['--allow-control'] if testing else []),env=env,stdout=output,stderr=output)
     deadline=time.monotonic()+20
     while '"ready": true' not in server_log.read_text():
         if server.poll() is not None:raise RuntimeError(server_log.read_text())

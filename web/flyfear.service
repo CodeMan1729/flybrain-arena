@@ -1,0 +1,38 @@
+[Unit]
+Description=FLYFEAR shared learning service
+After=network.target
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+[Service]
+Type=simple
+User=flyfear
+Group=flyfear
+WorkingDirectory=/opt/flyfear
+EnvironmentFile=/etc/flyfear.env
+Environment=OPENBLAS_NUM_THREADS=1
+Environment=OMP_NUM_THREADS=1
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/flyfear/.venv/bin/python -m brain.server --port 8765 --logs /var/lib/flyfear --max-clients 8
+Restart=always
+RestartSec=5
+TimeoutStopSec=20
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+ReadWritePaths=/var/lib/flyfear
+MemoryMax=1500M
+CPUQuota=200%
+TasksMax=32
+LimitNOFILE=256
+
+[Install]
+WantedBy=multi-user.target

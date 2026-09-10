@@ -83,7 +83,7 @@ class Readout:
             raise ValueError('Invalid measured neural features')
         # Fixed gain/centering for downstream means around -0.3; learned coefficients still use real activity.
         return np.r_[out[:4],np.clip(3*(out[4:]+.3),-1,1),1.]
-    def choose(self, mode, neural, allowed=None, explore=True):
+    def choose(self, mode, neural, allowed=None, explore=True, rng=None):
         if mode not in ('random','fixed','learn'): raise ValueError('Unknown mode')
         x = self.features(neural)
         allowed = ACTIONS[:3] if allowed is None else allowed
@@ -101,7 +101,7 @@ class Readout:
             p/=p.sum()
             if explore: p=.9*p+.1*mask/mask.sum()
         p/=p.sum()
-        return ACTIONS[int(self.rng.choice(3,p=p))],x,[*p.tolist(),0.]
+        return ACTIONS[int((self.rng if rng is None else rng).choice(3,p=p))],x,[*p.tolist(),0.]
     def update(self, action, x, reward, source='motion'):
         x=np.asarray(x,dtype=float)
         if source not in self.feedback_counts or action not in ACTIONS[:3] or x.shape!=(self.SIZE,) or not np.isfinite(x).all() or np.any(np.abs(x)>1.001) or not math.isfinite(reward) or not 0<=reward<=1:
