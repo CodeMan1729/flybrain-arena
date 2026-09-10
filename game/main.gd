@@ -498,6 +498,7 @@ func build_ui() -> void:
 	panel_style.bg_color = Color(0.015,0.032,0.04,0.94)
 	debug_panel.add_theme_stylebox_override("panel",panel_style)
 	debug_text = ui_label("",19)
+	debug_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	debug_panel.add_child(debug_text)
 	hud.add_child(debug_panel)
 	debug_panel.visible = false
@@ -860,9 +861,9 @@ func _process(delta: float) -> void:
 		memory_text.text += "\nGözlenen tepki / örnek sayısı\nIşık %.2f / %d · Ses %.2f / %d · Siluet %.2f / %d" % [reaction_means[0],int(reaction_counts[0]),reaction_means[1],int(reaction_counts[1]),reaction_means[2],int(reaction_counts[2])]
 	if not debug_panel.is_visible_in_tree(): return
 	var output: Array = director.neural.get("output",[0,0,0,0])
-	debug_text.text = "ÖLÇÜMLER / TAB\n%s · biyolojik doğrulama yok\n\nEtkinlik: boyutsuz sayısal model\nL1 %.4f   L2 %.4f\nL3 %.4f   Mi1 %.4f\nEtkin nöron: %s  |  Ort. |a|: %.4f\n\nEylem: %s\n%s: %.3f / 1\nOlay: %d / 5 (60 sn)  ·  Kalıcı bellek: %d\n\nFPS: %d  |  Beyin: %.1f ms\nİstek/yanıt: %.1f ms\nBeyin RSS: %.1f MiB  |  Oyun heap: %.1f MiB\n%s" % [scope,output[0],output[1],output[2],output[3],str(director.neural.get("active_neurons","—")),director.neural.get("mean_abs",0),ACTION_NAMES.get(director.action,"Bekle"),"Oyuncu değerlendirmesi" if director.reward_source == "rating" else "Hareket tepkisi",director.reward,events.size(),director.updates,Engine.get_frames_per_second(),director.neural.get("latency_ms",0),director.rtt_ms,director.neural.get("rss_mb",0),OS.get_static_memory_usage()/1048576.0,director.reason]
+	debug_text.text = "ÖLÇÜMLER / TAB\n%s · biyolojik doğrulama yok\n\nEtkinlik: boyutsuz sayısal model\nL1 %.4f   L2 %.4f\nL3 %.4f   Mi1 %.4f\nEtkin nöron: %s  |  Ort. |a|: %.4f\n\nEylem: %s\n%s: %.3f / 1\nOlay: %d / 5 (60 sn)  ·  Kalıcı bellek: %d\nFPS: %d  |  Beyin: %.1f ms\nİstek/yanıt: %.1f ms\nBeyin RSS: %.1f MiB  |  Oyun heap: %.1f MiB\n%s" % [scope,output[0],output[1],output[2],output[3],str(director.neural.get("active_neurons","—")),director.neural.get("mean_abs",0),ACTION_NAMES.get(director.action,"Bekle"),"Oyuncu değerlendirmesi" if director.reward_source == "rating" else "Hareket tepkisi",director.reward,events.size(),director.updates,Engine.get_frames_per_second(),director.neural.get("latency_ms",0),director.rtt_ms,director.neural.get("rss_mb",0),OS.get_static_memory_usage()/1048576.0,director.reason]
 	if director.neural.is_empty():
-		debug_text.text = "ÖLÇÜMLER / TAB\nHenüz sinir etkinliği ölçülmedi.\n\nFPS: %d\n%s\n\nTepki puanı, korkunun kesin ölçüsü değildir." % [Engine.get_frames_per_second(),director.reason]
+		debug_text.text = "ÖLÇÜMLER / TAB\nHenüz sinir etkinliği ölçülmedi.\nFPS: %d\n%s\n\nTepki puanı, korkunun kesin ölçüsü değildir." % [Engine.get_frames_per_second(),director.reason]
 	elif OS.has_feature("web"):
 		debug_text.text = debug_text.text.replace("Oyun heap: 0.0 MiB", "Web: ölçülmüyor")
 	debug_text.text += "\nSinek görüşü: " + ("OYUNCUYU GÖRÜYOR" if fly.visible_player else "ARAMA / GÖRÜŞ KAPALI")

@@ -47,9 +47,17 @@
   Kanıt: reports/settings-tests.log ve reports/settings-fullscreen.png.
 - [x] Kişisel oturumun kapanışında değişen reports/manual-run.log Git
   kapsamından çıkarıldı; dosya yerelde korundu.
-- [ ] Sıradaki hedef: beyin panelinde uzun metinlerin sağ kenardan taşmasını
-  1080p ve tam ekranda doğrula, gerçek ölçümleri kaybetmeden düzelt; görüntü
-  ve taşma kontrolüyle sınayıp yayımla.
+- [x] TAB ölçüm panelinde sağ kenar taşması yeniden üretildi ve düzeltildi.
+  Yerleşik satır kaydırma, bütün sayıları ve durum mesajını korur; bir boş
+  satır kaldırılarak alt beyin görünümüyle çakışma önlendi. Başlangıçta
+  562 px genişleyen panel artık 510 px sınırında. Headless, 1080p pencere
+  ve oyunun tam ekran geçişinde metin/boyut/görünür satır kontrolleri geçti;
+  112 oynanış ve 24 beyin görünümü kontrolü de geçti. Web dosyaları beyin
+  hizmeti yeniden başlatılmadan güncellendi. Kanıt: reports/HUD-LAYOUT.md.
+- [ ] Sıradaki hedef: web açılışında ilk beyin yanıtından önce ortak bellek
+  ve ön eğitim sayaçlarının yanıltıcı sıfır göstermesini düzelt. Kabul:
+  henüz alınmayan değerler “bağlanılıyor” durumundadır; ilk gerçek bellek
+  geldiğinde sayılar görünür, bağlantı kesilince son kayıt sıfırlanmaz.
 
 ## Önceki tamamlanan hedefler
 
