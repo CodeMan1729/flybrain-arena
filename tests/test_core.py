@@ -2,12 +2,24 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+import wave
 import numpy as np
 from scipy import sparse
 from brain.connectome import Connectome, ROOT, ACTIONS
 from brain.director import Budget, Readout, movement, normalize, reaction
 
 class CoreTests(unittest.TestCase):
+    def test_original_scare_assets_are_bounded_and_non_silent(self):
+        for name in ('breath','creak','knock'):
+            with self.subTest(sound=name), wave.open(str(ROOT/'game/audio'/f'{name}.wav')) as sound:
+                self.assertEqual((sound.getnchannels(),sound.getsampwidth(),sound.getframerate()),(1,2,22050))
+                pcm=np.frombuffer(sound.readframes(sound.getnframes()),dtype='<i2').astype(float)/32767
+            self.assertTrue(1.5<len(pcm)/22050<=2)
+            self.assertLessEqual(np.max(np.abs(pcm)),.18)
+            self.assertGreater(np.sqrt(np.mean(pcm*pcm)),.015)
+            self.assertLess(abs(np.mean(pcm)),.002)
+            self.assertLess(np.max(np.abs(pcm[[0,-1]])),.001)
+
     def test_normalization_and_boundary(self):
         t={'x':6,'z':-16,'look_x':1,'speed':3.2,'pause_seconds':3,'retreat':3.2}
         np.testing.assert_allclose(normalize(t),[1,-1,1,0,0,1,1,1])

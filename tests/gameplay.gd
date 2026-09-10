@@ -10,10 +10,10 @@ func verify(condition: bool, text: String) -> void:
 func _initialize() -> void:
 	run_checks.call_deferred()
 
-func sound_levels(capture: AudioEffectCapture) -> Vector2:
+func sound_levels(capture: AudioEffectCapture, duration := 0.18) -> Vector2:
 	await create_timer(0.12).timeout # Let the audio mixer update the source position.
 	capture.clear_buffer()
-	await create_timer(0.18).timeout
+	await create_timer(duration).timeout
 	var frames := capture.get_buffer(capture.get_frames_available())
 	var energy := Vector2.ZERO
 	for frame in frames: energy += frame*frame
@@ -47,7 +47,7 @@ func run_checks() -> void:
 	game.player.rotation=Vector3.ZERO
 	game.player.camera.rotation=Vector3.ZERO
 	var capture := AudioEffectCapture.new()
-	capture.buffer_length=0.5
+	capture.buffer_length=2.5
 	AudioServer.add_bus_effect(0,capture)
 	verify(not game.fly.buzz.playing,"Fly buzz is silent before play")
 	game.fly.active=true
@@ -74,6 +74,61 @@ func run_checks() -> void:
 	verify(not AudioServer.is_bus_mute(0) and AudioServer.get_bus_volume_db(0)<0,"Volume restores bounded game audio")
 	game.finish_game()
 	verify(not game.fly.buzz.playing,"Round completion stops fly buzz")
+
+	game.player.active=true
+	game.events.clear()
+	game.elapsed=100
+	game.sound_rng.seed=42
+	game.last_sound=-1
+	var sequence: Array = []
+	var heard := {}
+	var bounded := true
+	var behind := true
+	var no_repeats := true
+	var previous_sound := -1
+	for _event in 12:
+		game.elapsed+=16.1
+		game.apply_action("steps",-1)
+		no_repeats = no_repeats and game.last_sound!=previous_sound
+		previous_sound=game.last_sound
+		behind = behind and (game.footsteps.position-game.player.position).dot(game.player.global_basis.z)>2
+		bounded = bounded and game.footsteps.max_db<=-6 and game.footsteps.volume_db<=-6 and game.footsteps.stream.get_length()/game.footsteps.pitch_scale<2
+		sequence.append([game.last_sound,game.footsteps.position-game.player.position,game.footsteps.pitch_scale])
+		if not heard.has(game.last_sound):
+			heard[game.last_sound] = await sound_levels(capture,1.9)
+	verify(heard.size()==4 and heard.values().all(func(level): return level.x+level.y>0.0000001),"Four scare clips produce actual mixed audio at the player")
+	verify(no_repeats,"Sound variation never repeats the same clip back to back")
+	verify(behind and bounded,"Scare audio stays behind the player, gain-limited and shorter than the reaction window")
+	var rng_state: int=game.sound_rng.state
+	var event_count: int=game.events.size()
+	game.apply_action("steps",-1)
+	verify(game.sound_rng.state==rng_state and game.events.size()==event_count,"Rejected sound consumes neither event budget nor random sequence")
+	game.sound_rng.seed=42
+	game.last_sound=-1
+	var reproduced := true
+	for event in sequence:
+		game.elapsed+=16.1
+		game.apply_action("steps",-1)
+		reproduced = reproduced and event==[game.last_sound,game.footsteps.position-game.player.position,game.footsteps.pitch_scale]
+	verify(reproduced,"Same seed reproduces sound, position and pitch")
+	game.pause_game()
+	verify(not game.footsteps.playing,"Pause immediately cancels scare audio")
+	game.resume_game()
+	verify(not game.footsteps.playing,"Resume does not replay a cancelled scare")
+	game.fly.active=false
+	game.intensity=0
+	game.elapsed+=16.1
+	game.apply_action("steps",-1)
+	verify(not game.footsteps.playing,"Zero effect intensity disables all scare variants")
+	game.intensity=0.65
+	game.apply_action("wait",-1)
+	verify(not game.footsteps.playing,"Wait never starts a scare sound")
+	game.set_volume(0)
+	game.apply_action("steps",-1)
+	verify(AudioServer.is_bus_mute(AudioServer.get_bus_index(game.footsteps.bus)),"Master mute covers the scare player's output bus")
+	game.set_volume(0.45)
+	game.finish_game()
+	verify(not game.footsteps.playing,"Completing the round stops scare audio")
 	game.player.active=false
 	game.fly.set_physics_process(true)
 	AudioServer.remove_bus_effect(0,0)
@@ -123,7 +178,10 @@ func run_checks() -> void:
 	game.director.feedback_until=game.director.now()-1
 	game._unhandled_input(rating_key)
 	verify(game.director.feedback_status.is_empty(),"Expired event cannot receive a rating")
+	game.events.clear()
+	game.apply_action("steps",-1)
 	game.get_window().focus_exited.emit()
 	verify(not game.player.active and not game.fly.active and not game.director.running and game.menu.visible,"Window focus loss pauses player, fly and event decisions")
 	verify(not game.fly.buzz.playing,"Focus loss also stops fly buzz")
+	verify(not game.footsteps.playing,"Focus loss also cancels scare audio")
 	await game.quit_game(0 if failures.is_empty() else 1)

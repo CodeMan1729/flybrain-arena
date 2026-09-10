@@ -51,7 +51,7 @@ class SocketTests(unittest.IsolatedAsyncioTestCase):
                     result=await receive(ws,'decision')
                     self.assertEqual(result['id'],2);self.assertGreater(result['neural']['active_neurons'],0)
                     self.assertNotEqual(result['action'],'wait')
-                    await ws.send(json.dumps({'type':'applied','id':2,'accepted':True,'telemetry':t}))
+                    await ws.send(json.dumps({'type':'applied','id':2,'accepted':True,'telemetry':t,'sound_variant':'knock'}))
                     t.update(speed=0,retreat=3.2,turn_rate=180)
                     for _ in range(23):
                         await ws.send(json.dumps({'type':'telemetry','telemetry':t}));await asyncio.sleep(.1)
@@ -115,10 +115,19 @@ class SocketTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(saved['updates'],1);self.assertEqual(saved['feedback_counts']['rating'],1)
                 async with connect(uri,proxy=None) as ws2:
                     self.assertEqual((await receive(ws2,'hello'))['protocol'],2)
+                    await ws2.send(json.dumps({'type':'start','mode':'random','seed':1,'interval':2}))
+                    await receive(ws2,'started');await asyncio.sleep(2)
+                    await ws2.send(json.dumps({'type':'decision','id':99,'telemetry':t}))
+                    self.assertEqual((await receive(ws2,'decision'))['action'],'steps')
+                    await ws2.send(json.dumps({'type':'applied','id':99,'accepted':True,'telemetry':t,'sound_variant':'knock'}))
+                    await ws2.send('{"type":"finish","outcome":"quit"}')
+                    await receive(ws2,'finished')
                     proc.terminate();await asyncio.to_thread(proc.wait,5)
                     with self.assertRaises(ConnectionClosed):await ws2.recv()
                 lines=[json.loads(s) for f in Path(tmp).glob('*.jsonl') for s in f.read_text().splitlines()]
                 self.assertTrue(any(x['type']=='decision' and 'neural' in x and 'inputs' in x for x in lines))
+                self.assertTrue(any(x['type']=='applied' and x['id']==2 and x.get('sound_variant')==('knock' if result['action']=='steps' else None) for x in lines))
+                self.assertTrue(any(x['type']=='applied' and x['id']==99 and x['action']=='steps' and x['sound_variant']=='knock' for x in lines))
                 self.assertEqual(sum(x['type']=='reward' for x in lines),3)
             finally:
                 if proc.poll() is None:proc.terminate();proc.wait(timeout=5)

@@ -137,7 +137,9 @@ async def run(port, token, log_dir):
                                 feedback_event=window
                                 round_data['events']+=1
                                 if mode=='learn':await send({'type':'feedback_open','id':pending['id'],'action':pending['action'],'seconds':8})
-                            record('applied',id=pending['id'],action=pending['action'],accepted=accepted)
+                            sound=msg.get('sound_variant')
+                            record('applied',id=pending['id'],action=pending['action'],accepted=accepted,
+                                   sound_variant=sound if accepted and pending['action']=='steps' and sound in ('steps','breath','creak','knock') else None)
                             pending=None
                     elif kind=='feedback':
                         rating=msg.get('rating');seq=msg.get('id')

@@ -13,7 +13,7 @@ Bu klasörde çalıştırılmış bir Godot oyunu, gerçek veri, ayrı Python si
 | Ön eğitim | 48 yapay oyuncu, 576 tur, 8.640 ödüllü olay |
 | Kişiselleşme | Oyun içi hareketler ve isteğe bağlı 1 / 2 / 3 değerlendirmeleri |
 | Çalışma biçimi | Yerel CPU; oyun sırasında yalnızca localhost iletişimi |
-| Son doğrulama | 10 Python/sunucu testi, 15 ayar kontrolü, 20 oynanış kontrolü, 35 tam tur kontrolü geçti |
+| Son doğrulama | 11 Python/sunucu testi, 15 ayar kontrolü, 32 ses/oynanış kontrolü, 35 tam tur kontrolü geçti |
 
 ![FLYFEAR: odadaki sinek, gerçek sinir etkinliği paneli ve olay değerlendirmesi](reports/learning-v3/feedback-open.png)
 
@@ -66,7 +66,11 @@ Ayarlar: ses, efekt yoğunluğu, fare hassasiyeti, 2–5 saniye karar aralığı
 
 [Godot ConfigFile](https://docs.godotengine.org/en/4.5/classes/class_configfile.html) kullanılır; yeni bağımlılık yoktur. Kayıt önce aynı klasörde geçici dosyaya yazılıp yeniden adlandırılır. Bozuk dosya değiştirilmeden önce `.broken-<zaman>` yedeği alınır; yedeklenemiyorsa üzerine yazılmaz. Sayısal değerler güvenli sınırlarda tutulur, yanlış türler ve NaN/sonsuz değerler varsayılana döner. Okuma/yazma sorunu menüde görünür; oyun mevcut oturum ayarlarıyla devam eder. Bu kayıt yöntemi dosya değiştirme sırasında önceki kaydı korur; güç kesintisine karşı fiziksel diske yazım garantisi verilmez.
 
-Tek oda + kısa koridor; prosedürel duvar/floor malzemeleri, temel geometriden özgün mobilya, anahtar ve siluet. Harici ücretli varlık yok. `tools/generate_audio.py` üç özgün PCM sesi yeniden üretir: oda uğultusu, arkadan ayak sesleri ve sineğin kesintisiz vızıltısı. Vızıltı sineğin fiziksel konumundan gelir; [Godot'un 3B sesi](https://docs.godotengine.org/en/4.5/classes/class_audiostreamplayer3d.html) yön ve uzaklığa göre duyulur, 12 metre dışında susar. Uçuş hızına göre tonu hafifçe değişir; duraklatma, pencere odağı kaybı ve tur sonunda kesilir. Ambiyansa küçük hoparlörlerde de duyulabilen üst harmonikler eklendi; ayak sesleri belirginleştirildi. Ayarlar → Ses tüm sesleri birlikte kontrol eder; 0 tam sessizdir. Ses örnekleri ±0,18 tam ölçekle sınırlandırılır; ana ses ve kaynak kazançları da sınırlıdır. Bu yazılım kazancı sınırıdır, donanımdaki kulaklık/speaker ses basıncı ölçülmedi. Işık olayı odanın ana aydınlatmasını yumuşakça kısar; el feneri oyuncunun kontrolünde, koridorun acil ışıkları açık kalır.
+Tek oda + kısa koridor; prosedürel duvar/floor malzemeleri, temel geometriden özgün mobilya, anahtar ve siluet. Harici ücretli varlık yok. `tools/generate_audio.py` altı özgün PCM sesi yeniden üretir: oda uğultusu, ayak sesleri, sineğin kesintisiz vızıltısı, boğuk nefes, gıcırtı ve düzensiz tok vuruşlar. İnsan sesi kaydı veya hazır ses örneği kullanılmaz. Vızıltı sineğin fiziksel konumundan gelir; [Godot'un 3B sesi](https://docs.godotengine.org/en/4.5/classes/class_audiostreamplayer3d.html) yön ve uzaklığa göre duyulur, 12 metre dışında susar. Uçuş hızına göre tonu hafifçe değişir; duraklatma, pencere odağı kaybı ve tur sonunda kesilir. Ambiyansa küçük hoparlörlerde de duyulabilen üst harmonikler eklendi. Ayarlar → Ses tüm sesleri birlikte kontrol eder; 0 tam sessizdir. Ses örnekleri ±0,18 tam ölçekle sınırlandırılır; ana ses ve kaynak kazançları da sınırlıdır. Bu yazılım kazancı sınırıdır, donanımdaki kulaklık/speaker ses basıncı ölçülmedi. Işık olayı odanın ana aydınlatmasını yumuşakça kısar; el feneri oyuncunun kontrolünde, koridorun acil ışıkları açık kalır.
+
+**Korku sesleri:** beyin `steps` işitsel olayını seçtiğinde ayak sesi, nefes, gıcırtı veya tok vuruş çalar. Aynı klip art arda seçilmez; klip, ±0,7 birim yan konum ve küçük ton değişimi turun tohumu ile tekrar üretilebilir. Kaynak oyuncunun 2,3 birim arkasındadır; ayak sesi zemin, diğerleri gövde yüksekliğinden gelir. Tek ses oynatıcısı kullanılır; olaylar üst üste yığılmaz. Tüm varyasyonlar aynı 5/60 saniye bütçesine ve 16 saniye tekrar sınırına tabidir. Yoğunluk 0 iken çalmaz; duraklatma, odak kaybı ve tur sonu sesi keser, devam ederken yarım ses yeniden başlamaz. Klipler ton değişimi dahil 2 saniyelik tepki penceresinden kısadır. [Nefes → gıcırtı → vuruş önizlemesi](reports/scare-sounds-preview.wav).
+
+Öğrenme katmanında üç olay ailesi korunur; yeni sesler `steps` ailesinin varyasyonlarıdır. Hangi klibin daha etkili olduğu ayrı bir politika olarak öğrenilmez. Önceki sentetik ön eğitim, bu yeni seslerin insanlardaki etkisini ölçmemiştir. Uygulanan varyasyon adı yerel `applied.sound_variant` günlüğüne yazılır; seçim bütçe tarafından reddedildiğinde ses rastgeleliği ilerlemez.
 
 ### Odadaki sinek ve canlı beyin görünümü
 
@@ -156,7 +160,7 @@ Grup sürüşü `0.2 + 0.8 * (girdi + 1) / 2`; diğer hücrelerde doğrudan sür
 | Ölçülen grubun ortalama etkinliği | Hücre sayısı | Atanan olay |
 |---|---:|---|
 | L1 | 1.776 | Oda ışığını kıs/söndür |
-| L2 | 1.779 | Oyuncunun arkasına konumlandırılan 3B ayak sesi |
+| L2 | 1.779 | Oyuncunun arkasına konumlandırılan 3B korku sesi |
 | L3 | 1.772 | Görüş kenarında kısa siluet |
 | Mi1 | 1.773 | Uçuş yüksekliği ve öğrenen katman bağlamı |
 
@@ -227,6 +231,8 @@ TAB panelindeki bellek: beyin **RSS**, oyun ise Godot **heap** sayacıdır; ayn�
 
 `tests/settings.gd` menü sinyalleriyle otomatik kaydı, yeniden açılışta gerçek oyun ayarlarını, sınır/tür doğrulamasını, bozuk dosyanın yedeklenmesini, yazma hatasında önceki kaydın korunmasını ve kişisel ayar izolasyonunu sınar. 15 ayar kontrolü ile mevcut 10 Python/sunucu, 20 ses/oynanış ve 35 tam tur kontrolü geçti. Ayrıca iki ayrı görünür Godot süreciyle gerçek tam ekran, sessizlik ve tüm menü değerlerinin korunduğu doğrulandı. [Son test çıktısı](reports/settings-tests.log), [tam ekran ayarlar görüntüsü](reports/settings-fullscreen.png). Bozuk dosya ve başarısız yedekleme senaryolarında Godot'un iki beklenen `ERROR` satırı görünür; testler dosyanın korunmasını ayrıca doğrular.
 
+Yeni korku sesleriyle **11 Python/sunucu, 15 ayar, 32 ses/oynanış ve 35 tam tur kontrolü** geçti. 32 ses/oynanış kontrolü görünür Godot sürecinde de geçti. Dört korku klibinin gerçek ses karışımında çıktı üretmesi, tekrarsız seçim, tohumla aynı klip/konum/ton, bütçenin reddettiği olayın rastgele diziyi ilerletmemesi, sessiz ses kanalına yönlendirme ve tüm durdurma yolları sınanır. Sunucu testi gerçek sinir çıktısından seçilen `steps` olayı için varyasyon adının günlüğe ulaştığını doğrular. [Ses testi çıktısı](reports/scare-tests.log), [yeni dosyaların PCM ölçümleri](reports/scare-audio-metrics.json). Altı sesin üretimi bayt düzeyinde tekrarlandı; üç eski sesin içeriği değişmedi.
+
 Testler `unittest` ve Godot'un kendisini kullanır; ayrı test çerçevesi yok. `tests/gameplay.gd` gerçek Godot ses karışımından yakın/uzak seviye farkını, sağ/sol yönü ve menzil dışı sessizliği ölçer; vızıltının duraklama/devam/tur sonu/odak kaybı davranışını ve ana sesin tam kapatılmasını da sınar. Ses sürümünün [görünür testi](reports/audio-rendered-tests.log) 18/18 geçti. Güncel v3 [tam testinde](reports/learning-v3/full-tests.log) 10 Python/sunucu testi, 20 Godot ses/oynanış kontrolü ve 35 tam tur kontrolü geçti; görünür gerçek tuş → sunucu geri bildirim yolu [ayrıca doğrulandı](reports/learning-v3/rendered-feedback.log). Kapsam: hash kontrollü gerçek veri hazırlama, nöron/kenar/temas sayıları, tam biyolojik ID eşlemesi, gerçek girdi→sinir çıktısı→eylem, bağlantı ablasyonu, sayısal giriş doğrulama, ödülün sınırı ve başlangıç hareketi, tohum tekrarı, parametre kayıt/sıfırlama/bozuk dosya, aynı bütçe, yetkisiz WebSocket/origin reddi, uygulanmış olay onayı ve yinelenen onay, sunucuyu sonlandırma, yeniden bağlantı, 1,85 saniye geciken yanıtı atan **üretim Godot istemcisi**, kesintide çalışan kare döngüsü.
 
 Oyun turu sineğin uçuşunu, duvar çarpışmasını, açık/kapalı görüşünü, 512 ölçümün panele ulaşmasını, duraklamasını ve kalıcı tur kaydını da sınar. Gerçek fizik üzerinden oyuncuyu duvara yürütür, kilitli kapıyı dener, masaya döner, anahtarı alır, her efekti ve cooldown'u sınar, duraklatır, socket'i koparır/yeniden bağlar ve anahtarla çıkışı açıp zafer durumuna girer. Efekt zorlamaları yalnızca `--smoke` / `--benchmark` test akışında yapılır ve ödül almamak için geçersiz onay kimliği kullanır. Otomatik rota insan oynanış testi yerine geçmez; temel oyun akışını doğrular.
@@ -245,7 +251,7 @@ Ham MaleCNS `.feather` dosyaları ve yeniden üretilebilen `.npz`/`.npy` matrisl
 | [brain/server.py](brain/server.py) | Yerel beyin sunucusu, olay onayı ve oyuncu geri bildirimleri |
 | [data/](data/) | Ham/veriden türetilmiş grafik, eşlemeler, manifest ve doğrulanmış ön eğitim |
 | [tools/train.py](tools/train.py) | Ardışık yapay oyuncu eğitimi ve bağımsız değerlendirme |
-| [tools/generate_audio.py](tools/generate_audio.py) | Özgün uğultu, ayak sesi ve sinek vızıltısını üreten betik |
+| [tools/generate_audio.py](tools/generate_audio.py) | Altı özgün PCM sesi üreten betik; üç yeni korku sesi dahil |
 | [tests/](tests/) | Python ve gerçek Godot istemcisiyle çalışan kontroller |
 | [reports/learning-v3/](reports/learning-v3/) | Güncel öğrenme sonuçları, eğitim izleri ve test kanıtları |
 | [research/](research/) | Sabitlenmiş özgün kaynaklar, lisanslar ve indirme hash'leri |

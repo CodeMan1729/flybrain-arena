@@ -2,6 +2,13 @@
 
 ## Sürekli geliştirme
 
+- [x] Kullanıcının istediği korku sesi geliştirmesi: özgün nefes, gıcırtı ve
+  tok vuruşlar mevcut işitsel olay ailesine eklendi. Art arda aynı klip yok;
+  tohum klip/konum/tonu tekrar üretir. Bütçe, kazanç sınırı, sessizlik,
+  duraklatma ve odak kaybı korundu. 11 Python, 15 ayar, 32 ses/oynanış ve
+  35 tam tur kontrolü; ayrıca görünür ses testleri geçti. Kanıt:
+  reports/scare-tests.log, reports/scare-audio-metrics.json ve ses önizlemesi.
+
 - [x] Kalıcı oyuncu ayarları: ses, efekt yoğunluğu, fare hassasiyeti, karar
   aralığı, mod, tohum ve tam ekran tercihi yeniden açılışta korunuyor.
   Bozuk dosya yedeksiz ezilmiyor; başarısız yazma önceki kaydı koruyor;

@@ -4,7 +4,8 @@ const PlayerScript = preload("res://player.gd")
 const DirectorScript = preload("res://director.gd")
 const BrainViewScript = preload("res://brain_view.gd")
 const FlyScript = preload("res://fly.gd")
-const ACTION_NAMES := {"lights":"Işık kesintisi", "steps":"Arkadan ayak sesi", "silhouette":"Görüş kenarı silueti", "wait":"Bekle"}
+const ACTION_NAMES := {"lights":"Işık kesintisi", "steps":"Arkadan gelen ses", "silhouette":"Görüş kenarı silueti", "wait":"Bekle"}
+const SCARE_SOUNDS := ["steps", "breath", "creak", "knock"]
 const MODE_NAMES := ["Rastgele seçim · kontrol", "Sabit bağlantı modeli", "Beyin + öğrenen karar katmanı"]
 const MODES := ["random", "fixed", "learn"]
 
@@ -17,6 +18,9 @@ var key_object: Node3D
 var door: StaticBody3D
 var silhouette: Node3D
 var footsteps: AudioStreamPlayer3D
+var scare_streams: Array[AudioStreamWAV] = []
+var sound_rng := RandomNumberGenerator.new()
+var last_sound := -1
 var ambience: AudioStreamPlayer
 var room_lights: Array[OmniLight3D] = []
 var has_key := false
@@ -317,9 +321,11 @@ func build_world() -> void:
 	silhouette.add_child(head)
 	silhouette.visible = false
 	footsteps = AudioStreamPlayer3D.new()
-	footsteps.stream = load("res://audio/steps.wav")
+	for sound in SCARE_SOUNDS: scare_streams.append(load("res://audio/"+sound+".wav"))
+	footsteps.stream = scare_streams[0]
 	footsteps.max_db = -6
 	footsteps.volume_db = -6
+	footsteps.unit_size = 2.5
 	footsteps.max_distance = 9
 	add_child(footsteps)
 	ambience = AudioStreamPlayer.new()
@@ -541,6 +547,8 @@ func start_game() -> void:
 	director.mode = MODES[mode_choice.selected]
 	director.interval = decision_interval
 	director.seed_value = int(seed_box.value)
+	sound_rng.seed = director.seed_value
+	last_sound = -1
 	director.start_session()
 	menu.visible = false
 	hud.visible = true
@@ -638,8 +646,11 @@ func apply_action(action_name: String, id: int) -> void:
 			"lights":
 				dark_until = elapsed + 2.2 * intensity + 0.5
 			"steps":
-				footsteps.position = player.position + player.global_basis.z * 2.3 + player.global_basis.x * 0.4
-				footsteps.position.y = 0.15
+				last_sound = sound_rng.randi_range(0,3) if last_sound < 0 else (last_sound+sound_rng.randi_range(1,3)) % 4
+				footsteps.stream = scare_streams[last_sound]
+				footsteps.position = player.position + player.global_basis.z * 2.3 + player.global_basis.x * sound_rng.randf_range(-0.7,0.7)
+				footsteps.position.y = player.position.y + (0.15 if last_sound == 0 else 1.4)
+				footsteps.pitch_scale = sound_rng.randf_range(0.97,1.03)
 				footsteps.volume_db = -6 + linear_to_db(maxf(intensity,0.01))
 				footsteps.play()
 			"silhouette":
@@ -654,7 +665,8 @@ func apply_action(action_name: String, id: int) -> void:
 				silhouette.scale = Vector3.ONE * (0.65 + 0.35 * intensity)
 				silhouette.visible = true
 				silhouette_until = elapsed + 0.7 + intensity
-	director.send({"type":"applied", "id":id, "accepted":accepted, "telemetry":player.telemetry()})
+	director.send({"type":"applied", "id":id, "accepted":accepted, "telemetry":player.telemetry(),
+		"sound_variant":SCARE_SOUNDS[last_sound] if accepted and action_name == "steps" else null})
 	if not accepted:
 		director.action = "wait"
 		director.reason = "Yerel olay bütçesi / yoğunluk sınırı"
