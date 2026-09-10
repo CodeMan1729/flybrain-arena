@@ -43,7 +43,7 @@ async def run(port, token, log_dir):
         pending=None;window=None;feedback_event=None;enabled=False;round_data=None;active_since=None
         def record(kind, **data):
             log.write(json.dumps({'type':kind,'utc':datetime.now(timezone.utc).isoformat(),'monotonic':time.monotonic(),
-                'connection':connection,'session':round_data['id'] if round_data else None,'seed':seed,'mode':mode,'model':Readout.MODEL,**data},allow_nan=False)+'\n')
+                'connection':connection,'session':round_data['id'] if round_data else None,'seed':seed,'mode':mode,'model':Readout.MODEL,**data},allow_nan=False,separators=(',',':'))+'\n')
         def cancel_window(reason):
             nonlocal pending,window,feedback_event
             if window:record('reward_censored',id=window['id'],reason=reason,samples=len(window['samples']))
@@ -69,7 +69,7 @@ async def run(port, token, log_dir):
             record('finished',outcome=outcome,summary=round_data)
             round_data=None
         async def send(data):
-            await ws.send(json.dumps(data,allow_nan=False))
+            await ws.send(json.dumps(data,allow_nan=False,separators=(',',':')))
         async def reward_event(event, reward, source, motion_reward=None):
             nonlocal window
             if mode=='learn':

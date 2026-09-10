@@ -90,6 +90,7 @@ class RealDataTests(unittest.TestCase):
         self.assertTrue(np.all(np.abs(np.subtract(output0['readout'][4:],output1['readout'][4:]))>.05),
                         'Every downstream context channel must survive the scaling without saturation')
         np.testing.assert_allclose(output1['view_activity'],np.round(b.state[b.view_indices],5),atol=1e-7)
+        self.assertLess(len(json.dumps(output1).encode()),50_000,'A full neural update stays below 50 KB')
         ids=np.load(ROOT/'data/ids.npy')
         self.assertEqual(b.info['view']['ids'],[str(ids[i]) for i in b.view_indices])
         view=b.info['view']

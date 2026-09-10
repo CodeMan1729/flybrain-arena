@@ -1,0 +1,27 @@
+Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org
+OpenGL API 4.1 Metal - 90.5 - Compatibility - Using Device: Apple - Apple M4 Pro
+
+PASS: Viewer accepts bounded anatomical metadata
+PASS: New measured sample updates history and live status
+PASS: Rendering does not invent neural samples
+PASS: Age text updates reuse the native network draw commands
+PASS: A new neural sample invalidates the cached network
+PASS: V opens an interactive paused inspector
+PASS: Paused view explicitly keeps the last measured activity and action
+PASS: Color controls invalidate cached network colors
+PASS: Mouse drag rotates actual 3D soma coordinates
+PASS: A coalesced drag remains rotation instead of an accidental neuron click
+PASS: Mouse wheel zooms the projected network
+PASS: Click selection resolves the biological record
+PASS: Peak selection uses measured absolute activity
+PASS: Group filter constrains neuron selection
+PASS: Reset restores the initial camera
+PASS: Disconnect never presents retained samples as live
+PASS: V returns to the original play state and compact projection
+PASS: Inspector preserves an already paused session and hidden compact panel
+PASS: Escape closes inspection into the pause menu
+PASS: A new round clears previous activity history
+PASS: Invalid edge indices stop drawing safely
+PASS: Non-finite soma coordinates are rejected
+PASS: Oversized normalized coordinates cannot overflow the projection
+PASS: Misaligned metadata cannot select the wrong neuron

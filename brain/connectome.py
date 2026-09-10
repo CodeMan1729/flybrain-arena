@@ -9,6 +9,7 @@ import time
 import numpy as np
 import psutil
 import pyarrow as pa
+import pyarrow.compute as pc
 import pyarrow.feather as feather
 from scipy import sparse
 
@@ -101,26 +102,31 @@ class Connectome:
             strength = np.abs(np.asarray(sensory_edges[:,group].sum(axis=1)).ravel())
             self.context_groups.append(receivers[np.argsort(strength)[-32:]])
         # A fixed anatomical sample for display only; all 166,700 cells still simulate.
-        a = feather.read_table(directory / 'annotations.feather', columns=['bodyId','somaLocation','superclass','type','somaSide']).to_pydict()
+        annotations = feather.read_table(directory / 'annotations.feather', columns=['bodyId','somaLocation','superclass','type','somaSide'])
+        annotations = annotations.filter(pc.and_(
+            pc.is_in(annotations['superclass'], value_set=pa.array(['ol_intrinsic','cb_intrinsic','ol_sensory','visual_projection'])),
+            pc.greater(pc.list_value_length(annotations['somaLocation']),0)))
         ids = np.load(directory / 'ids.npy')
-        rows = {body: i for i,(body,pos,group) in enumerate(zip(a['bodyId'],a['somaLocation'],a['superclass']))
-                if pos and group in ('ol_intrinsic','cb_intrinsic','ol_sensory','visual_projection')}
-        candidates = np.array([i for i,body in enumerate(ids) if body in rows])
+        _, candidates, rows = np.intersect1d(ids,annotations['bodyId'].to_numpy(),return_indices=True)
         if not len(candidates): raise ValueError('No annotated brain soma positions')
-        self.view_indices = candidates[np.linspace(0,len(candidates)-1,min(4096,len(candidates)),dtype=int)]
-        selected = [rows[ids[i]] for i in self.view_indices]
-        source_xyz = np.array([a['somaLocation'][i] for i in selected],dtype=float)
+        sample = np.linspace(0,len(candidates)-1,min(4096,len(candidates)),dtype=int)
+        self.view_indices = candidates[sample]
+        # Convert only the displayed records; keep the complete annotation table in Arrow buffers.
+        a = annotations.take(rows[sample]).to_pydict()
+        source_xyz = np.array(a['somaLocation'],dtype=float)
         # Preserve source-axis proportions; display rotation is not an anatomical axis assignment.
         xyz = (source_xyz-(source_xyz.min(axis=0)+source_xyz.max(axis=0))/2)/max(np.ptp(source_xyz,axis=0).max(),1)
         edges = self.weights[self.view_indices][:,self.view_indices].tocoo()
         strongest = np.argsort(np.abs(edges.data))[-6000:]
+        degree_out = np.zeros(n,dtype=np.int64)
+        np.add.at(degree_out,self.weights.indices,1) # Avoid bincount's full int32-to-int64 index copy.
         self.info = {**self.info, 'view': {'ids':[str(ids[i]) for i in self.view_indices],
                      'xyz':np.round(xyz,4).tolist(), 'edges':[[int(edges.col[k]),int(edges.row[k]),float(edges.data[k])] for k in strongest if edges.data[k]!=0],
-                     'types':[a['type'][i] or 'unknown' for i in selected],
-                     'classes':[a['superclass'][i] for i in selected], 'sides':[a['somaSide'][i] or '?' for i in selected],
+                     'types':[name or 'unknown' for name in a['type']],
+                     'classes':a['superclass'], 'sides':[side or '?' for side in a['somaSide']],
                      'source_xyz':source_xyz.tolist(),
                      'degree_in':np.diff(self.weights.indptr)[self.view_indices].tolist(),
-                     'degree_out':np.bincount(self.weights.indices,minlength=n)[self.view_indices].tolist(),
+                     'degree_out':degree_out[self.view_indices].tolist(),
                      'candidate_count':len(candidates),
                      'label':'Actual annotated brain soma sample and strongest signed edges within sample; full brain + VNC graph simulated'}}
         self.info['context_readout_ids'] = [[str(ids[i]) for i in group] for group in self.context_groups]
@@ -142,7 +148,8 @@ class Connectome:
         out = np.array([self.state[g].mean() for g in self.outputs], dtype=np.float32)
         return {'output': out.tolist(), 'mean_abs': float(np.abs(self.state).mean()),
                 'readout': np.r_[np.clip(out/.2,-1,1), [self.state[g].mean() for g in self.context_groups]].tolist(),
-                'view_activity': np.round(self.state[self.view_indices],5).tolist(),
+                # Keep five displayed decimals without float32 conversion noise inflating each JSON sample.
+                'view_activity': [round(v,5) for v in np.round(self.state[self.view_indices],5).tolist()],
                 'active_neurons': int(np.count_nonzero(np.abs(self.state) > 0.001)),
                 'peak_abs': float(np.abs(self.state).max()), 'latency_ms': (time.perf_counter()-start)*1000,
                 'rss_mb': psutil.Process().memory_info().rss/2**20}

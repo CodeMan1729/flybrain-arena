@@ -34,9 +34,14 @@ var toolbar: HBoxContainer
 var group_choice: OptionButton
 var color_choice: OptionButton
 var dots := MultiMesh.new()
+var network := Control.new()
+var was_fresh := false
 
 func _ready() -> void:
 	clip_contents = true
+	network.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	add_child(network)
+	network.draw.connect(draw_network)
 	# One native instanced mesh keeps 4,096 soma markers out of the individual draw-call path.
 	var vertices := PackedVector3Array()
 	for i in 12:
@@ -56,12 +61,12 @@ func _ready() -> void:
 	group_choice = OptionButton.new()
 	group_choice.add_item("Tüm hücre grupları")
 	for title in CLASS_NAMES: group_choice.add_item(title)
-	group_choice.item_selected.connect(func(_i): selected=-1; queue_redraw())
+	group_choice.item_selected.connect(func(_i): selected=-1; redraw_network())
 	toolbar.add_child(group_choice)
 	color_choice = OptionButton.new()
 	color_choice.add_item("Renk: ölçülen etkinlik")
 	color_choice.add_item("Renk: hücre grubu")
-	color_choice.item_selected.connect(func(_i): queue_redraw())
+	color_choice.item_selected.connect(func(_i): redraw_network())
 	toolbar.add_child(color_choice)
 	for item in [["En etkin nöron",select_peak],["Görünümü sıfırla",reset_view],["Geri [V]",func(): close_requested.emit()]]:
 		var button := Button.new()
@@ -73,6 +78,10 @@ func _ready() -> void:
 		child.add_theme_font_size_override("font_size",17)
 	get_viewport().size_changed.connect(layout)
 	set_expanded(false)
+
+func redraw_network() -> void:
+	network.queue_redraw()
+	queue_redraw()
 
 func set_expanded(value: bool) -> void:
 	expanded=value
@@ -90,14 +99,14 @@ func layout() -> void:
 	position=Vector2(70,70) if expanded else screen-Vector2(550,500)
 	dots.custom_aabb=AABB(Vector3.ZERO,Vector3(size.x,size.y,1))
 	project_points()
-	queue_redraw()
+	redraw_network()
 
 func graph_rect() -> Rect2:
 	return Rect2(24,106,size.x-460,size.y-302) if expanded else Rect2(18,65,size.x-36,185)
 
 func reset_view() -> void:
 	yaw=0.18; pitch=-0.12; zoom=1.0
-	project_points(); queue_redraw()
+	project_points(); redraw_network()
 
 func load_view(view: Dictionary) -> bool:
 	# Local authenticated data still needs bounds before it becomes array indices and draw commands.
@@ -133,11 +142,13 @@ func load_view(view: Dictionary) -> bool:
 	ids=[]; edges=[]; xyz.clear(); points.clear(); selected=-1
 	if not valid:
 		view_error="Anatomi verisi geçersiz; çizim durduruldu."
+		redraw_network()
 		return false
 	view_error=""; ids=incoming; edges=links; metadata=view
 	dots.instance_count=ids.size()
 	for p in view.xyz: xyz.append(Vector3(float(p[0]),float(p[1]),float(p[2])))
 	project_points()
+	redraw_network()
 	return true
 
 func project_points() -> void:
@@ -164,20 +175,20 @@ func select_at(pos: Vector2) -> void:
 	for i in points.size():
 		if included(i) and graph_rect().has_point(points[i]) and points[i].distance_to(pos)<distance:
 			selected=i; distance=points[i].distance_to(pos)
-	queue_redraw()
+	redraw_network()
 
 func select_peak() -> void:
 	var values: Array=snapshot.get("view_activity",[])
 	var peak := -1.0
 	for i in mini(values.size(),ids.size()):
 		if included(i) and absf(float(values[i]))>peak: selected=i; peak=absf(float(values[i]))
-	queue_redraw()
+	redraw_network()
 
 func rotate_drag(pos: Vector2) -> void:
 	var delta := pos-drag_position
 	drag_position=pos; moved+=delta.length()
 	yaw+=delta.x*0.008; pitch=clampf(pitch+delta.y*0.008,-1.4,1.4)
-	project_points(); queue_redraw()
+	project_points(); redraw_network()
 
 func _gui_input(event: InputEvent) -> void:
 	if not expanded: return
@@ -189,10 +200,10 @@ func _gui_input(event: InputEvent) -> void:
 				rotate_drag(event.position)
 				dragging=false
 				if moved<5: select_at(event.position)
-		if event.pressed and graph_rect().has_point(event.position):
+		if event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP,MOUSE_BUTTON_WHEEL_DOWN] and graph_rect().has_point(event.position):
 			if event.button_index==MOUSE_BUTTON_WHEEL_UP: zoom=minf(2.5,zoom*1.12)
 			if event.button_index==MOUSE_BUTTON_WHEEL_DOWN: zoom=maxf(0.55,zoom/1.12)
-			project_points(); queue_redraw()
+			project_points(); redraw_network()
 	elif event is InputEventMouseMotion and dragging:
 		rotate_drag(event.position)
 	elif event is InputEventKey and event.pressed:
@@ -206,22 +217,27 @@ func _gui_input(event: InputEvent) -> void:
 			KEY_MINUS, KEY_KP_SUBTRACT: zoom=maxf(0.55,zoom/1.12)
 			KEY_N: select_peak()
 			_: return
-		project_points(); queue_redraw(); accept_event()
+		project_points(); redraw_network(); accept_event()
 
 func _process(delta: float) -> void:
 	if director==null: return
 	if ids.is_empty() and view_error.is_empty() and director.info.has("view"): load_view(director.info.view)
 	if director.round_id!=last_round:
 		last_round=director.round_id; last_stamp=-1; snapshot={}; measured_action="wait"; history.clear()
+		redraw_network()
 	if director.last_neural_time>=0 and director.last_neural_time!=last_stamp:
 		last_stamp=director.last_neural_time
 		snapshot=director.neural
 		measured_action=director.action
 		history.append({"time":last_stamp,"sample":snapshot})
 		if history.size()>32: history.pop_front()
+		redraw_network()
+	var fresh: bool=last_stamp>=0 and director.connected and director.running and director.now()-last_stamp<=director.interval+1.5
+	if fresh!=was_fresh:
+		was_fresh=fresh; redraw_network()
 	redraw_clock+=delta
-	if visible and redraw_clock>=0.1:
-		redraw_clock=0; queue_redraw()
+	if is_visible_in_tree() and redraw_clock>=0.1:
+		redraw_clock=0; queue_redraw() # Text age changes; native network draw commands remain cached.
 
 func status_text() -> String:
 	if not view_error.is_empty(): return view_error
@@ -255,21 +271,13 @@ func activity_chart(rect: Rect2) -> void:
 	if line.size()>1: draw_polyline(line,GREEN,1.7,true)
 	text_at(rect.position+Vector2(6,14),"Tüm ağ ort. |a| · tepe %.4f · son %.0f sn" % [peak,last_stamp-start],12,MUTED)
 
-func _draw() -> void:
-	draw_rect(Rect2(Vector2.ZERO,size),Color(0.012,0.032,0.041,1.0 if expanded else 0.95))
-	draw_rect(Rect2(Vector2.ZERO,size),Color(0.19,0.39,0.36),false,1)
-	text_at(Vector2(20,28),"SİNEK BEYNİ / " + ("AYRINTILI İNCELEME" if expanded else "ÖLÇÜMLER [B]"),21 if expanded else 17)
-	if not expanded: text_at(Vector2(size.x-90,28),"V ayrıntı",15,GREEN)
-	if director==null: return
-	if ids.is_empty():
-		text_at(Vector2(20,120),status_text(),16,AMBER)
-		return
-	if not expanded: text_at(Vector2(20,49),"%d soma · %d / %d örnek bağ çizgisi" % [ids.size(),int(ceil(edges.size()/6.0)),edges.size()],13,MUTED)
+func draw_network() -> void:
+	if director==null or ids.is_empty(): return
 	var values: Array=snapshot.get("view_activity",[])
 	var valid := values.size()==ids.size() and last_stamp>=0
 	var fresh: bool=valid and director.connected and director.running and director.now()-last_stamp<=director.interval+1.5
 	var rect := graph_rect()
-	draw_rect(rect,Color(0.015,0.052,0.064))
+	network.draw_rect(rect,Color(0.015,0.052,0.064))
 	var neighbors := {}
 	var line_points := PackedVector2Array()
 	var line_colors := PackedColorArray()
@@ -294,8 +302,8 @@ func _draw() -> void:
 			var tip := points[b]-direction*4
 			highlight_points.append_array([tip,tip-direction.rotated(0.5)*7,tip,tip-direction.rotated(-0.5)*7])
 			highlight_colors.append_array([color,color])
-	if not line_points.is_empty(): draw_multiline_colors(line_points,line_colors,0.7,false)
-	if not highlight_points.is_empty(): draw_multiline_colors(highlight_points,highlight_colors,1.4,true)
+	if not line_points.is_empty(): network.draw_multiline_colors(line_points,line_colors,0.7,false)
+	if not highlight_points.is_empty(): network.draw_multiline_colors(highlight_points,highlight_colors,1.4,true)
 	var instances := 0
 	for i in points.size():
 		if not included(i) or not rect.has_point(points[i]): continue
@@ -311,11 +319,26 @@ func _draw() -> void:
 		dots.set_instance_color(instances,color)
 		instances+=1
 	dots.visible_instance_count=instances
-	if instances>0: draw_multimesh(dots,null)
+	if instances>0: network.draw_multimesh(dots,null)
 	for i in points.size():
 		if not included(i) or not rect.has_point(points[i]): continue
-		if i==selected and expanded: draw_arc(points[i],7,0,TAU,24,Color.WHITE,2,true)
-		elif neighbors.has(i): draw_arc(points[i],4,0,TAU,12,Color(0.65,0.88,0.91),1,true)
+		if i==selected and expanded: network.draw_arc(points[i],7,0,TAU,24,Color.WHITE,2,true)
+		elif neighbors.has(i): network.draw_arc(points[i],4,0,TAU,12,Color(0.65,0.88,0.91),1,true)
+
+func _draw() -> void:
+	draw_rect(Rect2(Vector2.ZERO,size),Color(0.012,0.032,0.041,1.0 if expanded else 0.95))
+	draw_rect(Rect2(Vector2.ZERO,size),Color(0.19,0.39,0.36),false,1)
+	text_at(Vector2(20,28),"SİNEK BEYNİ / " + ("AYRINTILI İNCELEME" if expanded else "ÖLÇÜMLER [B]"),21 if expanded else 17)
+	if not expanded: text_at(Vector2(size.x-90,28),"V ayrıntı",15,GREEN)
+	if director==null: return
+	if ids.is_empty():
+		text_at(Vector2(20,120),status_text(),16,AMBER)
+		return
+	if not expanded: text_at(Vector2(20,49),"%d soma · %d / %d örnek bağ çizgisi" % [ids.size(),int(ceil(edges.size()/6.0)),edges.size()],13,MUTED)
+	var values: Array=snapshot.get("view_activity",[])
+	var valid := values.size()==ids.size() and last_stamp>=0
+	var fresh: bool=valid and director.connected and director.running and director.now()-last_stamp<=director.interval+1.5
+	var rect := graph_rect()
 	var output: Array=snapshot.get("output",[0,0,0,0])
 	if not expanded:
 		text_at(Vector2(20,275),status_text(),14,GREEN if fresh else AMBER)

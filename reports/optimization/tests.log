@@ -1,0 +1,125 @@
+test_delayed_reply_never_reaches_game (test_client.ClientDeadlineTests.test_delayed_reply_never_reaches_game) ... ok
+test_learning_external_reproducible_persistent (test_core.CoreTests.test_learning_external_reproducible_persistent) ... ok
+test_normalization_and_boundary (test_core.CoreTests.test_normalization_and_boundary) ... ok
+test_original_scare_assets_are_bounded_and_non_silent (test_core.CoreTests.test_original_scare_assets_are_bounded_and_non_silent) ... ok
+test_reward_is_bounded_and_baseline_corrected (test_core.CoreTests.test_reward_is_bounded_and_baseline_corrected) ... ok
+test_same_budget_and_cooldowns (test_core.CoreTests.test_same_budget_and_cooldowns) ... ok
+test_context_learning_retention_erasure_and_allowed_actions (test_core.LearningChecks.test_context_learning_retention_erasure_and_allowed_actions) ... ok
+test_rating_correction_decay_and_prior_are_persistent (test_core.LearningChecks.test_rating_correction_decay_and_prior_are_persistent) ... ok
+test_end_to_end_actual_wiring (test_core.RealDataTests.test_end_to_end_actual_wiring) ... ok
+test_full_data_provenance (test_core.RealDataTests.test_full_data_provenance) ... ok
+test_real_worker (test_socket.SocketTests.test_real_worker) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 22.067s
+
+OK
+Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org
+
+PASS: First launch uses defaults without writing a file
+PASS: Menu changes save through the production path
+PASS: Successful save replaces the file without leaving temporary data
+PASS: Reopening restores mute before playback
+PASS: Reopening restores effect intensity, interval and mouse sensitivity
+PASS: Reopening restores mode, seed and fullscreen preference
+PASS: Restored experiment settings reach the actual round
+PASS: Failed write preserves the previous file and reports the failure
+PASS: Isolated tests neither read nor write personal settings
+PASS: Out-of-range and infinite values cannot escape safe limits
+PASS: Wrong value types use safe defaults
+PASS: NaN is rejected
+ERROR: ConfigFile parse error at <temp>/flyfear-settings-84828/settings.cfg:0: Unexpected EOF while parsing simple tag.
+   at: _parse (core/io/config_file.cpp:292)
+   GDScript backtrace (most recent call first):
+       [0] load_settings (res://main.gd:128)
+       [1] _ready (res://main.gd:85)
+       [2] open_game (res://../tests/settings.gd:12)
+       [3] run_checks (res://../tests/settings.gd:75)
+       [4] close_game (res://../tests/settings.gd:20)
+PASS: Corrupt settings are backed up byte for byte before replacement
+PASS: Settings remain usable after corrupt-file recovery
+ERROR: Failed to open '<temp>/flyfear-settings-84828'.
+   at: copy (core/io/dir_access.cpp:420)
+   GDScript backtrace (most recent call first):
+       [0] load_settings (res://main.gd:132)
+       [1] _ready (res://main.gd:85)
+       [2] open_game (res://../tests/settings.gd:12)
+       [3] run_checks (res://../tests/settings.gd:83)
+       [4] close_game (res://../tests/settings.gd:20)
+PASS: Failed backup prevents overwriting unreadable settings
+Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org
+
+PASS: HUD text is reused between 10 Hz updates
+PASS: HUD refreshes changed gameplay state at the next update
+PASS: Hidden debug text does not rebuild every update
+PASS: Unobstructed nearby key remains interactable
+PASS: Solid obstacle prevents collecting key through it
+PASS: Key can be collected after obstacle is removed
+PASS: Open exit cannot trigger victory in service passage: (0.0, 0.0, -18.5)
+PASS: Open exit cannot trigger victory in service passage: (-6.0, 0.0, -15.5)
+PASS: Open exit cannot trigger victory in service passage: (6.0, 0.0, -15.5)
+PASS: Fly fits through side-room doorway: -1
+PASS: Fly fits through rear service doorway: -1
+PASS: Fly fits through side-room doorway: 1
+PASS: Fly fits through rear service doorway: 1
+PASS: Rear wall contains fly
+PASS: Rear wall contains player
+PASS: Rear passage cannot bypass sealed exit wall
+PASS: Fly buzz is silent before play
+PASS: Actual mixed fly buzz grows louder near the listener
+PASS: Actual mixed fly buzz follows left and right position
+PASS: Fly buzz is inaudible beyond its range
+PASS: Pause stops fly buzz immediately
+PASS: Resume restarts looping fly buzz
+PASS: Zero volume mutes every game sound
+PASS: Volume restores bounded game audio
+PASS: Round completion stops fly buzz
+PASS: Four scare clips produce actual mixed audio at the player
+PASS: Sound variation never repeats the same clip back to back
+PASS: Scare audio stays behind the player, gain-limited and shorter than the reaction window
+PASS: Rejected sound consumes neither event budget nor random sequence
+PASS: Same seed reproduces sound, position and pitch
+PASS: Pause immediately cancels scare audio
+PASS: Resume does not replay a cancelled scare
+PASS: Zero effect intensity disables all scare variants
+PASS: Wait never starts a scare sound
+PASS: Master mute covers the scare player's output bus
+PASS: Completing the round stops scare audio
+PASS: Fast turn survives until 10 Hz telemetry sample
+PASS: Old turn expires instead of producing repeated reactions
+PASS: Fly searches even when neural lateral drive cancels old search turn
+PASS: Lost brain connection stops physical fly without stale drift
+PASS: Rating key reaches the learning feedback route
+PASS: Expired event cannot receive a rating
+PASS: Window focus loss pauses player, fly and event decisions
+PASS: Focus loss also stops fly buzz
+PASS: Focus loss also cancels scare audio
+Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org
+
+PASS: Viewer accepts bounded anatomical metadata
+PASS: New measured sample updates history and live status
+PASS: Rendering does not invent neural samples
+PASS: Age text updates reuse the native network draw commands
+PASS: A new neural sample invalidates the cached network
+PASS: V opens an interactive paused inspector
+PASS: Paused view explicitly keeps the last measured activity and action
+PASS: Color controls invalidate cached network colors
+PASS: Mouse drag rotates actual 3D soma coordinates
+PASS: A coalesced drag remains rotation instead of an accidental neuron click
+PASS: Mouse wheel zooms the projected network
+PASS: Click selection resolves the biological record
+PASS: Peak selection uses measured absolute activity
+PASS: Group filter constrains neuron selection
+PASS: Reset restores the initial camera
+PASS: Disconnect never presents retained samples as live
+PASS: V returns to the original play state and compact projection
+PASS: Inspector preserves an already paused session and hidden compact panel
+PASS: Escape closes inspection into the pause menu
+PASS: A new round clears previous activity history
+PASS: Invalid edge indices stop drawing safely
+PASS: Non-finite soma coordinates are rejected
+PASS: Oversized normalized coordinates cannot overflow the projection
+PASS: Misaligned metadata cannot select the wrong neuron
+FLYFEAR hazır · localhost · tam MaleCNS grafiği
+Oyun günlüğü: <project>/logs/validation/20260910-223130/20260910-223130-game.log
+Python ve headless oynanış testleri geçti. Görünür 1080p ölçüm: ./run.sh --benchmark

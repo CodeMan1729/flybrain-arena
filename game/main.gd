@@ -37,6 +37,7 @@ var elapsed := 0.0
 var frame_times: Array[float] = []
 var brain_view_frame_times: Array[float] = []
 var last_frame_usec := 0
+var ui_clock := 0.1
 var hud: Control
 var menu: Control
 var settings: VBoxContainer
@@ -785,6 +786,9 @@ func _process(delta: float) -> void:
 			light.light_energy = move_toward(light.light_energy,target,delta*3)
 		if elapsed >= silhouette_until: silhouette.visible = false
 		if has_key and door_open and absf(player.position.x)<1.3 and player.position.z < -15.2 and player.position.z > -16: finish_game()
+	ui_clock+=delta
+	if ui_clock<0.1: return
+	ui_clock=0
 	objective.text = "03 / ÇIKIŞA İLERLE" if door_open else ("02 / KORİDORDAKİ ÇIKIŞI AÇ" if has_key else "01 / ARŞİVDEKİ ANAHTARI BUL")
 	prompt.text = ""
 	if not has_key and can_interact(key_object.global_position): prompt.text = "[ E ]   ANAHTARI AL"
@@ -798,17 +802,19 @@ func _process(delta: float) -> void:
 	feedback_text.text = ""
 	if player.active and director.feedback_id >= 0 and director.now() < director.feedback_until:
 		feedback_text.text = director.feedback_status if not director.feedback_status.is_empty() else "%s · İstersen değerlendir:  1 Etkilemedi   2 Gerildim   3 Korktum" % ACTION_NAMES.get(director.feedback_action,"")
-	var saved: Dictionary = director.memory
-	memory_text.text = "KALICI ÖĞRENME / BU MAC\n\n%d kayıtlı tur · %d kişisel öğrenme örneği\n" % [int(saved.get("rounds",0)),int(saved.get("updates",0))]
-	var feedback_counts: Dictionary = saved.get("feedback_counts",{})
-	memory_text.text += "%d doğrudan değerlendirme · %d hareket tepkisi\n%d yapay eğitim olayıyla başlangıç\n\nSON TURLAR\n" % [int(feedback_counts.get("rating",0)),int(feedback_counts.get("motion",0)),int(saved.get("prior_events",0))]
-	for item in saved.get("recent",[]).slice(-3):
-		var mean_score: float = float(item.get("reward_sum",0))/maxi(1,int(item.get("rewards",0)))
-		memory_text.text += "%s · %d sn · %d olay · tepki %.2f\n" % [{"won":"Çıkış","quit":"Çıkıldı","connection_lost":"Kesinti","restarted":"Yeniden"}.get(item.get("outcome",""),"Tur"),int(item.get("seconds",0)),int(item.get("events",0)),mean_score]
-	if saved.get("recent",[]).is_empty(): memory_text.text += "Henüz tamamlanmış tur yok.\n"
-	var reaction_means: Array = saved.get("mean_reaction",[0,0,0])
-	var reaction_counts: Array = saved.get("counts",[0,0,0])
-	memory_text.text += "\nGözlenen tepki / örnek sayısı\nIşık %.2f / %d · Ses %.2f / %d · Siluet %.2f / %d" % [reaction_means[0],int(reaction_counts[0]),reaction_means[1],int(reaction_counts[1]),reaction_means[2],int(reaction_counts[2])]
+	if memory_text.is_visible_in_tree():
+		var saved: Dictionary = director.memory
+		memory_text.text = "KALICI ÖĞRENME / BU MAC\n\n%d kayıtlı tur · %d kişisel öğrenme örneği\n" % [int(saved.get("rounds",0)),int(saved.get("updates",0))]
+		var feedback_counts: Dictionary = saved.get("feedback_counts",{})
+		memory_text.text += "%d doğrudan değerlendirme · %d hareket tepkisi\n%d yapay eğitim olayıyla başlangıç\n\nSON TURLAR\n" % [int(feedback_counts.get("rating",0)),int(feedback_counts.get("motion",0)),int(saved.get("prior_events",0))]
+		for item in saved.get("recent",[]).slice(-3):
+			var mean_score: float = float(item.get("reward_sum",0))/maxi(1,int(item.get("rewards",0)))
+			memory_text.text += "%s · %d sn · %d olay · tepki %.2f\n" % [{"won":"Çıkış","quit":"Çıkıldı","connection_lost":"Kesinti","restarted":"Yeniden"}.get(item.get("outcome",""),"Tur"),int(item.get("seconds",0)),int(item.get("events",0)),mean_score]
+		if saved.get("recent",[]).is_empty(): memory_text.text += "Henüz tamamlanmış tur yok.\n"
+		var reaction_means: Array = saved.get("mean_reaction",[0,0,0])
+		var reaction_counts: Array = saved.get("counts",[0,0,0])
+		memory_text.text += "\nGözlenen tepki / örnek sayısı\nIşık %.2f / %d · Ses %.2f / %d · Siluet %.2f / %d" % [reaction_means[0],int(reaction_counts[0]),reaction_means[1],int(reaction_counts[1]),reaction_means[2],int(reaction_counts[2])]
+	if not debug_panel.is_visible_in_tree(): return
 	var output: Array = director.neural.get("output",[0,0,0,0])
 	debug_text.text = "ÖLÇÜMLER / TAB\n%s · biyolojik doğrulama yok\n\nEtkinlik: boyutsuz sayısal model\nL1 %.4f   L2 %.4f\nL3 %.4f   Mi1 %.4f\nEtkin nöron: %s  |  Ort. |a|: %.4f\n\nEylem: %s\n%s: %.3f / 1\nOlay: %d / 5 (60 sn)  ·  Kalıcı bellek: %d\n\nFPS: %d  |  Beyin: %.1f ms\nİstek/yanıt: %.1f ms\nBeyin RSS: %.1f MiB  |  Oyun heap: %.1f MiB\n%s" % [scope,output[0],output[1],output[2],output[3],str(director.neural.get("active_neurons","—")),director.neural.get("mean_abs",0),ACTION_NAMES.get(director.action,"Bekle"),"Oyuncu değerlendirmesi" if director.reward_source == "rating" else "Hareket tepkisi",director.reward,events.size(),director.updates,Engine.get_frames_per_second(),director.neural.get("latency_ms",0),director.rtt_ms,director.neural.get("rss_mb",0),OS.get_static_memory_usage()/1048576.0,director.reason]
 	if director.neural.is_empty():
@@ -866,7 +872,7 @@ func automated_run() -> void:
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png(evidence_dir+"/brain-detail-1080p.png")
 		brain_view.color_choice.select(1)
-		brain_view.queue_redraw()
+		brain_view.redraw_network()
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png(evidence_dir+"/brain-groups-1080p.png")
 	brain_view.color_choice.select(0)

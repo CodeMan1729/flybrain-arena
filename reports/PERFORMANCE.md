@@ -1,5 +1,7 @@
 # FLYFEAR v2 — doğrulama ve öğrenme raporu
 
+Güncel genel performans çalışması: [yükleme, bellek ve çizim optimizasyonu](optimization/README.md).
+
 Son beyin gösterimi ve görünür ölçüm: [yoğun, döndürülebilir ağ](brain-view/README.md).
 
 Son harita genişletmesi ve görünür ölçüm: [üç oda ve servis koridoru](expanded-map/README.md).

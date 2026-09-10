@@ -13,7 +13,11 @@ Bu klasörde çalıştırılmış bir Godot oyunu, gerçek veri, ayrı Python si
 | Ön eğitim | 48 yapay oyuncu, 576 tur, 8.640 ödüllü olay |
 | Kişiselleşme | Oyun içi hareketler ve isteğe bağlı 1 / 2 / 3 değerlendirmeleri |
 | Çalışma biçimi | Yerel CPU; oyun sırasında yalnızca localhost iletişimi |
-| Son doğrulama | 11 Python/sunucu testi, 15 ayar kontrolü, 42 ses/oynanış, 21 beyin görünümü ve 46 tam tur kontrolü geçti |
+| Son doğrulama | 11 Python/sunucu testi, 15 ayar kontrolü, 45 ses/oynanış, 24 beyin görünümü ve 46 tam tur kontrolü geçti |
+
+Son [genel performans optimizasyonu](reports/optimization/README.md): daha hızlı
+beyin yükleme, daha düşük bellek, değişiklik olduğunda yenilenen ağ çizimi ve
+daha küçük sinir ölçümü mesajları. Tam grafiğin dinamiği ve öğrenme korunur.
 
 ![FLYFEAR: odadaki sinek, gerçek sinir etkinliği paneli ve olay değerlendirmesi](reports/learning-v3/feedback-open.png)
 
@@ -89,7 +93,7 @@ Sağ altta `somaLocation` alanından alınan **4.096 gerçek hücre konumu** çi
 
 V ile açılış oyunu ve beyin kararlarını duraklatır. V ile geri dönüş önceki oynama/duraklama durumunu ve küçük panelin görünürlüğünü korur; ESC duraklama menüsüne döner. İnceleme sırasında görünen etkinlik **son ölçümdür**, yeni ölçüm gibi sunulmaz. Küçük paneldeki L1/L2/L3/Mi1 sayıları ham grup ortalamalarıdır; çubuk ölçeği ±0,2 olarak yazılır. Zaman grafiği son 32 gerçek örnekte tüm ağın ortalama |a| değerini, gerçek örnek zamanları ve belirtilen tepe ölçeğiyle gösterir. Yeni turda eski grafik temizlenir; bağlantı kaybında son örnek açıkça eski olarak işaretlenir.
 
-Nokta renkleri ölçülen model etkinliğini veya kaynak hücre gruplarını gösterir; nöron dalları/zar yüzeyi çizilmez ve biyolojik kayıt iddiası yoktur. Yeni ölçüm 2–5 saniyede bir gelir; örnekler arasında sahte ateşleme animasyonu üretilmez. Godot MultiMesh ve toplu çizgi çizimi kullanılır; panel 10 Hz yenilenir. [Görseller, etkileşim testleri ve performans raporu](reports/brain-view/README.md).
+Nokta renkleri ölçülen model etkinliğini veya kaynak hücre gruplarını gösterir; nöron dalları/zar yüzeyi çizilmez ve biyolojik kayıt iddiası yoktur. Yeni ölçüm 2–5 saniyede bir gelir; örnekler arasında sahte ateşleme animasyonu üretilmez. Godot MultiMesh ve toplu çizgi çizimi kullanılır. Ağın çizim komutları yalnızca yeni ölçüm, görünüm/renk/seçim veya canlı/eski durum değişiminde yenilenir; yaş etiketleri 10 Hz güncellenir. Diğer HUD metinleri de 10 Hz yenilenir; hareket, fizik, telemetri ve olay denetimi kendi hızlarında çalışır. [Görseller ve etkileşimler](reports/brain-view/README.md) · [Güncel optimizasyon ölçümü](reports/optimization/README.md).
 
 ## Mimari ve güvenli bekleme
 

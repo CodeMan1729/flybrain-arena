@@ -14,6 +14,8 @@ func checks() -> void:
     game.director.set_process(false)
     await create_timer(0.5).timeout # Let the native audio mixer initialize before this short scene lifecycle.
     var panel=game.brain_view
+    var network_draws=[0]
+    panel.network.draw.connect(func(): network_draws[0]+=1)
     var view={'ids':['11','22','33','44'],'xyz':[[-0.5,0,0],[0.5,0.1,0],[0,0.2,0.4],[0,-0.2,-0.4]],
         'source_xyz':[[0,0,0],[10,1,0],[5,2,4],[5,-2,-4]],'types':['A','B','C','D'],
         'classes':['ol_intrinsic','cb_intrinsic','visual_projection','ol_sensory'],'sides':['L','R','M','?'],
@@ -21,6 +23,8 @@ func checks() -> void:
     verify(panel.load_view(view) and panel.points.size()==4,'Viewer accepts bounded anatomical metadata')
     var before: PackedVector2Array=panel.points.duplicate()
     game.playing=true
+    game.hud.visible=true
+    game.menu.visible=false
     game.player.active=true
     game.director.running=true
     game.director.action='lights'
@@ -31,11 +35,28 @@ func checks() -> void:
     verify(panel.history.size()==1 and 'CANLI' in panel.status_text(),'New measured sample updates history and live status')
     panel._process(0.1)
     verify(panel.history.size()==1,'Rendering does not invent neural samples')
+    await process_frame
+    await process_frame
+    var rendered: int=network_draws[0]
+    await create_timer(0.15).timeout
+    verify(rendered>0 and network_draws[0]==rendered,'Age text updates reuse the native network draw commands')
+    game.director.last_neural_time=game.director.now()
+    panel._process(0.1)
+    await process_frame
+    await process_frame
+    verify(network_draws[0]>rendered,'A new neural sample invalidates the cached network')
     game.director.connected=false
     game.toggle_brain_details()
     game.director.connected=true
     verify(panel.expanded and not game.player.active and not game.director.running and not game.menu.visible,'V opens an interactive paused inspector')
     verify('DURAKLATILDI' in panel.status_text() and panel.snapshot.view_activity[1]==-0.9 and panel.measured_action=='lights','Paused view explicitly keeps the last measured activity and action')
+    await process_frame
+    await process_frame
+    rendered=network_draws[0]
+    panel.color_choice.select(1);panel.color_choice.item_selected.emit(1)
+    await process_frame
+    await process_frame
+    verify(network_draws[0]>rendered,'Color controls invalidate cached network colors')
     var anchor: Vector2=panel.graph_rect().get_center()
     var mouse=InputEventMouseButton.new()
     mouse.button_index=MOUSE_BUTTON_LEFT;mouse.pressed=true;mouse.position=anchor

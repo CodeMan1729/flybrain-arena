@@ -24,6 +24,18 @@ func run_checks() -> void:
 	game.settings_path = ""
 	root.add_child(game)
 	game.director.set_process(false)
+	game.ui_clock=0.1
+	game._process(0)
+	var initial_objective: String=game.objective.text
+	game.has_key=true
+	game._process(0.01)
+	verify(game.objective.text==initial_objective,"HUD text is reused between 10 Hz updates")
+	game._process(0.1)
+	verify(game.objective.text.begins_with("02 /"),"HUD refreshes changed gameplay state at the next update")
+	game.debug_text.text="hidden sentinel"
+	game._process(0.1)
+	verify(game.debug_text.text=="hidden sentinel","Hidden debug text does not rebuild every update")
+	game.has_key=false
 	game.player.position=Vector3(-7.4,0,-7.9)
 	game.player.camera.look_at(game.key_object.global_position)
 	await physics_frame

@@ -1,0 +1,183 @@
+{
+  "initialization": {
+    "before": {
+      "load_seconds": 0.8564283340238035,
+      "rss_mb": 558.96875,
+      "peak_rss_mb": 591.75
+    },
+    "after": {
+      "load_seconds": 0.414633332984522,
+      "rss_mb": 358.484375,
+      "peak_rss_mb": 358.484375
+    }
+  },
+  "before_cpu": {
+    "game": {
+      "main_calls": 819,
+      "main_max_us": 161.0,
+      "main_us": 62683.0,
+      "view_draws": 67,
+      "view_max_us": 5521.0,
+      "view_us": 343970.0
+    },
+    "inspection": {
+      "main_calls": 341,
+      "main_max_us": 123.0,
+      "main_us": 19855.0,
+      "view_draws": 28,
+      "view_max_us": 8448.0,
+      "view_us": 220402.0
+    }
+  },
+  "after_cpu": {
+    "game": {
+      "main_calls": 839,
+      "main_max_us": 85.0,
+      "main_us": 23754.0,
+      "network_draws": 2,
+      "network_us": 9388.0,
+      "view_draws": 67,
+      "view_max_us": 525.0,
+      "view_us": 8102.0
+    },
+    "inspection": {
+      "main_calls": 361,
+      "main_max_us": 38.0,
+      "main_us": 3021.0,
+      "network_draws": 0,
+      "network_us": 0.0,
+      "view_draws": 28,
+      "view_max_us": 309.0,
+      "view_us": 6615.0
+    }
+  },
+  "payload": {
+    "sample_count": 4096,
+    "before_bytes": 90731,
+    "after_bytes": 32216,
+    "max_display_quantization_delta": 1.4066696141235013e-08
+  },
+  "bitwise_state_comparison": {
+    "load_seconds": 0.40813429187983274,
+    "step_ms_p50": 435.2150206686929,
+    "step_ms_p95": 437.6466045505367,
+    "rss_mb": 372.8125,
+    "peak_rss_mb": 372.859375,
+    "view_sha256": "c05291a95ddd28b8b53ae0160f67ad2a6c6f581c3df86a1881adffc9f22f7c25",
+    "bitwise_identical_full_state_steps": 16
+  },
+  "baseline_commit": "4eba87e",
+  "initialization_runs": [
+    {
+      "version": "before",
+      "load_seconds": 0.8564283340238035,
+      "rss_mb": 558.140625,
+      "peak_rss_mb": 590.890625,
+      "view_sha256": "c05291a95ddd28b8b53ae0160f67ad2a6c6f581c3df86a1881adffc9f22f7c25",
+      "neural_sha256": "e037a741e0beb57c39298d5667e402c77af65fac02a70e4104e13f6f9cc1b897"
+    },
+    {
+      "version": "after",
+      "load_seconds": 0.414633332984522,
+      "rss_mb": 359.34375,
+      "peak_rss_mb": 359.34375,
+      "view_sha256": "c05291a95ddd28b8b53ae0160f67ad2a6c6f581c3df86a1881adffc9f22f7c25",
+      "neural_sha256": "e037a741e0beb57c39298d5667e402c77af65fac02a70e4104e13f6f9cc1b897"
+    },
+    {
+      "version": "before",
+      "load_seconds": 0.8501427918672562,
+      "rss_mb": 558.96875,
+      "peak_rss_mb": 591.75,
+      "view_sha256": "c05291a95ddd28b8b53ae0160f67ad2a6c6f581c3df86a1881adffc9f22f7c25",
+      "neural_sha256": "e037a741e0beb57c39298d5667e402c77af65fac02a70e4104e13f6f9cc1b897"
+    },
+    {
+      "version": "after",
+      "load_seconds": 0.4171343750786036,
+      "rss_mb": 358.484375,
+      "peak_rss_mb": 358.484375,
+      "view_sha256": "c05291a95ddd28b8b53ae0160f67ad2a6c6f581c3df86a1881adffc9f22f7c25",
+      "neural_sha256": "e037a741e0beb57c39298d5667e402c77af65fac02a70e4104e13f6f9cc1b897"
+    },
+    {
+      "version": "before",
+      "load_seconds": 0.8575437921099365,
+      "rss_mb": 559.921875,
+      "peak_rss_mb": 592.671875,
+      "view_sha256": "c05291a95ddd28b8b53ae0160f67ad2a6c6f581c3df86a1881adffc9f22f7c25",
+      "neural_sha256": "e037a741e0beb57c39298d5667e402c77af65fac02a70e4104e13f6f9cc1b897"
+    },
+    {
+      "version": "after",
+      "load_seconds": 0.41354924999177456,
+      "rss_mb": 357.15625,
+      "peak_rss_mb": 357.15625,
+      "view_sha256": "c05291a95ddd28b8b53ae0160f67ad2a6c6f581c3df86a1881adffc9f22f7c25",
+      "neural_sha256": "e037a741e0beb57c39298d5667e402c77af65fac02a70e4104e13f6f9cc1b897"
+    }
+  ],
+  "before_rendered": {
+    "brain_view_frames": 224,
+    "brain_view_mean_fps": 106.252383563515,
+    "display": "macOS",
+    "elapsed_seconds": 61.7126315757544,
+    "failure": "",
+    "frame_ms_p50": 7.042,
+    "frame_ms_p95": 13.162,
+    "frame_ms_p99": 13.409,
+    "frames": 6853,
+    "godot_version": {
+      "build": "official",
+      "hash": "6ce3de25aa58466e14ef354703ba8d9791a417da",
+      "hex": 263426,
+      "major": 4,
+      "minor": 5,
+      "patch": 2,
+      "status": "stable",
+      "string": "4.5.2-stable (official)",
+      "timestamp": 0
+    },
+    "headless": false,
+    "mean_fps": 114.755022642139,
+    "mode": "learn",
+    "passed": true,
+    "renderer": "Apple M4 Pro",
+    "viewport": "(1920.0, 1080.0)",
+    "passed_checks": 46
+  },
+  "after_rendered": {
+    "brain_view_frames": 238,
+    "brain_view_mean_fps": 113.4422378817,
+    "display": "macOS",
+    "elapsed_seconds": 61.6895285151488,
+    "failure": "",
+    "frame_ms_p50": 6.807,
+    "frame_ms_p95": 12.992,
+    "frame_ms_p99": 13.202,
+    "frames": 7083,
+    "godot_version": {
+      "build": "official",
+      "hash": "6ce3de25aa58466e14ef354703ba8d9791a417da",
+      "hex": 263426,
+      "major": 4,
+      "minor": 5,
+      "patch": 2,
+      "status": "stable",
+      "string": "4.5.2-stable (official)",
+      "timestamp": 0
+    },
+    "headless": false,
+    "mean_fps": 118.682464788984,
+    "mode": "learn",
+    "passed": true,
+    "renderer": "Apple M4 Pro",
+    "viewport": "(1920.0, 1080.0)",
+    "passed_checks": 46
+  },
+  "profiling_durations_seconds": {
+    "game": 7,
+    "inspection": 3,
+    "warmup": 5
+  }
+}

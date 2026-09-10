@@ -2,6 +2,12 @@
 
 ## Sürekli geliştirme
 
+- [x] Genel performans optimizasyonu: ağ çizimini değişikliklerde yenile;
+  HUD yazılarını 10 Hz güncelle; yalnızca gösterilecek anatomik kayıtları
+  Python nesnelerine dönüştür; bağlantı derecesindeki büyük geçici kopyayı
+  kaldır; sinir ölçümü JSON'unu küçült. Önce/sonra profil, tam durum
+  eşitliği ve regresyon kontrolleri: reports/optimization/README.md.
+
 - [x] Kullanıcı tercihi doğrultusunda görselliği öne alan yoğun, döndürülebilir
   beyin görünümü: 4.096 gerçek soma, 6.000 gerçek bağ, V ile büyük görünüm,
   yakınlaştırma, hücre grubu renkleri/filtreleri ve nöron seçimi. Küçük
