@@ -1,0 +1,17 @@
+test_delayed_reply_never_reaches_game (test_client.ClientDeadlineTests.test_delayed_reply_never_reaches_game) ... ok
+test_learning_external_reproducible_persistent (test_core.CoreTests.test_learning_external_reproducible_persistent) ... ok
+test_normalization_and_boundary (test_core.CoreTests.test_normalization_and_boundary) ... ok
+test_reward_is_bounded_and_baseline_corrected (test_core.CoreTests.test_reward_is_bounded_and_baseline_corrected) ... ok
+test_same_budget_and_cooldowns (test_core.CoreTests.test_same_budget_and_cooldowns) ... ok
+test_context_learning_retention_erasure_and_allowed_actions (test_core.LearningChecks.test_context_learning_retention_erasure_and_allowed_actions) ... ok
+test_end_to_end_actual_wiring (test_core.RealDataTests.test_end_to_end_actual_wiring) ... ok
+test_full_data_provenance (test_core.RealDataTests.test_full_data_provenance) ... ok
+test_real_worker (test_socket.SocketTests.test_real_worker) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 14.169s
+
+OK
+FLYFEAR hazır · localhost · tam MaleCNS grafiği
+Oyun günlüğü: <project>/logs/validation/20260910-180501/20260910-180501-game.log
+Python ve headless oynanış testleri geçti. Görünür 1080p ölçüm: ./run.sh --benchmark

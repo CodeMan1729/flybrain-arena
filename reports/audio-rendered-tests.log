@@ -1,0 +1,21 @@
+Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org
+OpenGL API 4.1 Metal - 90.5 - Compatibility - Using Device: Apple - Apple M4 Pro
+
+PASS: Unobstructed nearby key remains interactable
+PASS: Solid obstacle prevents collecting key through it
+PASS: Key can be collected after obstacle is removed
+PASS: Fly buzz is silent before play
+PASS: Actual mixed fly buzz grows louder near the listener
+PASS: Actual mixed fly buzz follows left and right position
+PASS: Fly buzz is inaudible beyond its range
+PASS: Pause stops fly buzz immediately
+PASS: Resume restarts looping fly buzz
+PASS: Zero volume mutes every game sound
+PASS: Volume restores bounded game audio
+PASS: Round completion stops fly buzz
+PASS: Fast turn survives until 10 Hz telemetry sample
+PASS: Old turn expires instead of producing repeated reactions
+PASS: Fly searches even when neural lateral drive cancels old search turn
+PASS: Lost brain connection stops physical fly without stale drift
+PASS: Window focus loss pauses player, fly and event decisions
+PASS: Focus loss also stops fly buzz

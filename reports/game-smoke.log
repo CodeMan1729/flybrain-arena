@@ -1,0 +1,19 @@
+Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org
+
+CHECK: Godot received real connectome manifest
+CHECK: Room wall prevents walking through collision
+CHECK: Walk to room center
+CHECK: Navigate corridor with collisions
+CHECK: Exit stays locked without key
+CHECK: Return through corridor
+CHECK: Reach key table
+CHECK: E interaction collects key
+CHECK: Effect dispatch: lights
+CHECK: Effect dispatch: steps
+CHECK: Footstep source is behind player
+CHECK: Effect dispatch: silhouette
+CHECK: Silhouette is visible
+CHECK: Local cooldown rejects event spam
+CHECK: ESC pause cancels effects and decisions
+CHECK: WebSocket disconnect safely waits; game remains active
+CHECK: Automatic localhost reconnect

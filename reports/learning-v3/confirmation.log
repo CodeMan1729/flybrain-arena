@@ -1,0 +1,86 @@
+Held-out player 1/24 complete
+Held-out player 2/24 complete
+Held-out player 3/24 complete
+Held-out player 4/24 complete
+Held-out player 5/24 complete
+Held-out player 6/24 complete
+Held-out player 7/24 complete
+Held-out player 8/24 complete
+Held-out player 9/24 complete
+Held-out player 10/24 complete
+Held-out player 11/24 complete
+Held-out player 12/24 complete
+Held-out player 13/24 complete
+Held-out player 14/24 complete
+Held-out player 15/24 complete
+Held-out player 16/24 complete
+Held-out player 17/24 complete
+Held-out player 18/24 complete
+Held-out player 19/24 complete
+Held-out player 20/24 complete
+Held-out player 21/24 complete
+Held-out player 22/24 complete
+Held-out player 23/24 complete
+Held-out player 24/24 complete
+{
+  "means": {
+    "cold_start": 0.26621507243462167,
+    "fixed": 0.27221065680892886,
+    "neural_ablated": 0.2914613818537298,
+    "pretrained_start": 0.3199577997227832,
+    "random": 0.26754556139978125,
+    "reset": 0.24643987837180983,
+    "retained": 0.37076271297555435,
+    "shuffled_reward": 0.2682692948451471,
+    "v2": 0.3690409840300563,
+    "v2_changed": 0.33796819701741815,
+    "v2_changed_before": 0.19622731134560736,
+    "v3_changed": 0.37076271297555435,
+    "v3_changed_before": 0.23682860106830703,
+    "v3_cold": 0.3696536622687365,
+    "v3_pretrained": 0.369320154392248,
+    "zero_reward": 0.26621507243462167
+  },
+  "comparisons": {
+    "v3_pretrained_minus_v2": {
+      "mean": 0.0002791703621916701,
+      "interval_95": [
+        -0.004920962723110692,
+        0.005118328847531454
+      ],
+      "positive_players": 16
+    },
+    "v3_pretrained_minus_random": {
+      "mean": 0.10177459299246679,
+      "interval_95": [
+        0.09359750311589386,
+        0.10938070547211474
+      ],
+      "positive_players": 24
+    },
+    "v3_changed_minus_v2_changed": {
+      "mean": 0.0327945159581362,
+      "interval_95": [
+        0.02016459575293355,
+        0.04596953059627796
+      ],
+      "positive_players": 22
+    },
+    "v3_changed_minus_v3_changed_before": {
+      "mean": 0.13393411190724733,
+      "interval_95": [
+        0.11788919987319268,
+        0.15028841239162918
+      ],
+      "positive_players": 24
+    },
+    "pretrained_start_minus_cold_start": {
+      "mean": 0.053742727288161596,
+      "interval_95": [
+        0.017768418002269065,
+        0.09274989543799496
+      ],
+      "positive_players": 15
+    }
+  }
+}

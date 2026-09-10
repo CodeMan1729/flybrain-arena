@@ -1,0 +1,14 @@
+{
+  "method": "Native Godot app operated with CUA; screenshots inspected; server logs checked",
+  "checks": {
+    "menu_settings_no_overlap": true,
+    "save_button_ack": true,
+    "reset_button_ack": true,
+    "random_mode_started": true,
+    "real_neural_decision": true,
+    "esc_paused": true,
+    "keyboard_flashlight_and_tab_visually_checked": true,
+    "menu_exit_clean": true
+  },
+  "session_log": "logs/sessions/df1a2c85e3f5449586d11fc3b5e8122f.jsonl"
+}

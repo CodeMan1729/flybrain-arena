@@ -1,0 +1,48 @@
+train: 0/128
+train: 32/128
+train: 64/128
+train: 96/128
+held_out: 0/64
+held_out: 32/64
+{
+  "kind": "Synthetic context task; external decoder learning, NOT human fear or biological learning",
+  "model": "malecns-rate-readout-v2",
+  "graph": "full MaleCNS v1.0",
+  "graph_weights_unchanged": true,
+  "graph_weights_sha256": "8ad2164f2ba44b8be7dc0ce7a1be70890f963b6c84ae272f4cb84e1b04ba8d48",
+  "real_neural_decisions": 192,
+  "train_trace_seed": 2101,
+  "held_out_trace_seed": 9107,
+  "training_decisions_per_seed": 3072,
+  "evaluation_decisions_per_condition_seed": 512,
+  "training_epochs": 24,
+  "evaluation_frozen": true,
+  "budget": "5/60s; 8s gap; 16s repeat; allowed actions masked before choice",
+  "response_formula": "lights=.5+.38*x; steps=.5-.38*x; silhouette=.45+.38*speed; normalized x/speed, clipped .02..98",
+  "means": {
+    "fixed": 0.48408424751228896,
+    "memory_erased": 0.45225471571336917,
+    "neural_features_ablated": 0.518770086877048,
+    "no_reward": 0.45225471571336917,
+    "random": 0.4821293527076188,
+    "retained": 0.5491936097943761,
+    "shuffled_reward": 0.4712273671382239,
+    "trained": 0.5491936097943761,
+    "untrained": 0.45225471571336917
+  },
+  "trained_minus_fixed_paired": [
+    0.03134018721091458,
+    0.07059816379648765,
+    0.05529983476930578,
+    0.07136623502008671,
+    0.08693258002295712,
+    0.06344544684684056,
+    0.09089674087226851,
+    0.05099570971783679
+  ],
+  "paired_bootstrap_95_interval": [
+    0.05215448277658608,
+    0.07720363793842991
+  ],
+  "limitations": "8 policy seeds share 192 neural trace points; replay does not establish independent animals, human efficacy, closed-loop adaptation or unfamiliar response laws."
+}

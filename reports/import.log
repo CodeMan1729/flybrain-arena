@@ -1,0 +1,34 @@
+{
+  "dataset": "MaleCNS v1.0",
+  "scope": "FULL retained annotated neuronal graph; brain + VNC",
+  "neurons": 166700,
+  "edges": 25582938,
+  "synaptic_contacts": 124177617,
+  "source_edges": 151856684,
+  "source_contacts": 311833243,
+  "excluded_edges": 126273746,
+  "neurotransmitters": {
+    "acetylcholine": 103720,
+    "gaba": 22069,
+    "unclear": 3177,
+    "glutamate": 29302,
+    "octopamine": 101,
+    "serotonin": 48,
+    "dopamine": 392,
+    "histamine": 7891
+  },
+  "zero_sign_neurons": 3718,
+  "signed_nonzero_edges": 24559135,
+  "input_count": 3377,
+  "output_counts": {
+    "lights": 1776,
+    "steps": 1779,
+    "silhouette": 1772,
+    "wait": 1773
+  },
+  "prepare_seconds": 40.63306833291426,
+  "rss_mb": 1940.90625,
+  "subnetwork": false,
+  "additional_edge_threshold": null,
+  "dynamics": "engineered signed rate deviations, not validated biological emulation"
+}

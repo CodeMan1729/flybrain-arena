@@ -1,0 +1,98 @@
+Pretraining 1/12: 48 players, 720 rewarded events
+Pretraining 2/12: 48 players, 1440 rewarded events
+Pretraining 3/12: 48 players, 2160 rewarded events
+Pretraining 4/12: 48 players, 2880 rewarded events
+Pretraining 5/12: 48 players, 3600 rewarded events
+Pretraining 6/12: 48 players, 4320 rewarded events
+Pretraining 7/12: 48 players, 5040 rewarded events
+Pretraining 8/12: 48 players, 5760 rewarded events
+Pretraining 9/12: 48 players, 6480 rewarded events
+Pretraining 10/12: 48 players, 7200 rewarded events
+Pretraining 11/12: 48 players, 7920 rewarded events
+Pretraining 12/12: 48 players, 8640 rewarded events
+Held-out player 1/24 complete
+Held-out player 2/24 complete
+Held-out player 3/24 complete
+Held-out player 4/24 complete
+Held-out player 5/24 complete
+Held-out player 6/24 complete
+Held-out player 7/24 complete
+Held-out player 8/24 complete
+Held-out player 9/24 complete
+Held-out player 10/24 complete
+Held-out player 11/24 complete
+Held-out player 12/24 complete
+Held-out player 13/24 complete
+Held-out player 14/24 complete
+Held-out player 15/24 complete
+Held-out player 16/24 complete
+Held-out player 17/24 complete
+Held-out player 18/24 complete
+Held-out player 19/24 complete
+Held-out player 20/24 complete
+Held-out player 21/24 complete
+Held-out player 22/24 complete
+Held-out player 23/24 complete
+Held-out player 24/24 complete
+{
+  "means": {
+    "cold_start": 0.26902250874828776,
+    "fixed": 0.2704157601249857,
+    "neural_ablated": 0.30895502023830107,
+    "pretrained_start": 0.3110906378177252,
+    "random": 0.26351908058435664,
+    "reset": 0.22130665905622146,
+    "retained": 0.37345526203786034,
+    "shuffled_reward": 0.2710123439589536,
+    "v2": 0.3671705777188583,
+    "v2_changed": 0.32841153318170385,
+    "v2_changed_before": 0.2001589264296094,
+    "v3_changed": 0.37345526203786034,
+    "v3_changed_before": 0.23103480524637857,
+    "v3_cold": 0.3695034244222435,
+    "v3_pretrained": 0.3701134817132765,
+    "zero_reward": 0.26902250874828776
+  },
+  "comparisons": {
+    "v3_pretrained_minus_v2": {
+      "mean": 0.0029429039944182597,
+      "interval_95": [
+        -0.0026356416618202577,
+        0.007810911045396311
+      ],
+      "positive_players": 16
+    },
+    "v3_pretrained_minus_random": {
+      "mean": 0.10659440112891987,
+      "interval_95": [
+        0.09830826642380429,
+        0.11387705202005916
+      ],
+      "positive_players": 24
+    },
+    "v3_changed_minus_v2_changed": {
+      "mean": 0.04504372885615649,
+      "interval_95": [
+        0.030625355717968754,
+        0.05951349619372417
+      ],
+      "positive_players": 21
+    },
+    "v3_changed_minus_v3_changed_before": {
+      "mean": 0.14242045679148174,
+      "interval_95": [
+        0.12692298907941696,
+        0.15819968972823287
+      ],
+      "positive_players": 24
+    },
+    "pretrained_start_minus_cold_start": {
+      "mean": 0.04206812906943753,
+      "interval_95": [
+        0.0023847538605534487,
+        0.08429208930592978
+      ],
+      "positive_players": 12
+    }
+  }
+}

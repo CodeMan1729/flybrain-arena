@@ -1,0 +1,10 @@
+Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org
+
+PASS: Unobstructed nearby key remains interactable
+PASS: Solid obstacle prevents collecting key through it
+PASS: Key can be collected after obstacle is removed
+PASS: Fast turn survives until 10 Hz telemetry sample
+PASS: Old turn expires instead of producing repeated reactions
+PASS: Fly searches even when neural lateral drive cancels old search turn
+PASS: Lost brain connection stops physical fly without stale drift
+PASS: Window focus loss pauses player, fly and event decisions

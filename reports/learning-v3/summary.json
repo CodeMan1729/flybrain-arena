@@ -1,0 +1,2781 @@
+{
+  "kind": "Synthetic response and habituation simulator; NOT measured human fear",
+  "confirmation": false,
+  "model": "malecns-rate-readout-v3",
+  "training_players": 48,
+  "held_out_players": 24,
+  "training_events": 8640,
+  "neural": {
+    "graph_sha256": "8ad2164f2ba44b8be7dc0ce7a1be70890f963b6c84ae272f4cb84e1b04ba8d48",
+    "neurons": 166700,
+    "edges": 25582938,
+    "seconds": 213.08835754194297,
+    "real_neural_steps": 640,
+    "split_seeds": [
+      202610,
+      202611
+    ],
+    "confirmation_seed": 202612,
+    "confirmation_seconds": 70.26376008312218
+  },
+  "means": {
+    "cold_start": 0.26902250874828776,
+    "fixed": 0.2704157601249857,
+    "neural_ablated": 0.30895502023830107,
+    "pretrained_start": 0.3110906378177252,
+    "random": 0.26351908058435664,
+    "reset": 0.22130665905622146,
+    "retained": 0.37345526203786034,
+    "shuffled_reward": 0.2710123439589536,
+    "v2": 0.3671705777188583,
+    "v2_changed": 0.32841153318170385,
+    "v2_changed_before": 0.2001589264296094,
+    "v3_changed": 0.37345526203786034,
+    "v3_changed_before": 0.23103480524637857,
+    "v3_cold": 0.3695034244222435,
+    "v3_pretrained": 0.3701134817132765,
+    "zero_reward": 0.26902250874828776
+  },
+  "comparisons": {
+    "v3_pretrained_minus_v2": {
+      "mean": 0.0029429039944182597,
+      "interval_95": [
+        -0.0026356416618202577,
+        0.007810911045396311
+      ],
+      "positive_players": 16
+    },
+    "v3_pretrained_minus_random": {
+      "mean": 0.10659440112891987,
+      "interval_95": [
+        0.09830826642380429,
+        0.11387705202005916
+      ],
+      "positive_players": 24
+    },
+    "v3_changed_minus_v2_changed": {
+      "mean": 0.04504372885615649,
+      "interval_95": [
+        0.030625355717968754,
+        0.05951349619372417
+      ],
+      "positive_players": 21
+    },
+    "v3_changed_minus_v3_changed_before": {
+      "mean": 0.14242045679148174,
+      "interval_95": [
+        0.12692298907941696,
+        0.15819968972823287
+      ],
+      "positive_players": 24
+    },
+    "pretrained_start_minus_cold_start": {
+      "mean": 0.04206812906943753,
+      "interval_95": [
+        0.0023847538605534487,
+        0.08429208930592978
+      ],
+      "positive_players": 12
+    }
+  },
+  "results": [
+    {
+      "player": 0,
+      "condition": "random",
+      "mean_response": 0.2660119250508566,
+      "regret": 0.16636727739599944,
+      "events": 90
+    },
+    {
+      "player": 0,
+      "condition": "fixed",
+      "mean_response": 0.24913013968794936,
+      "regret": 0.18183330826833743,
+      "events": 90
+    },
+    {
+      "player": 0,
+      "condition": "cold_start",
+      "mean_response": 0.21384127844493406,
+      "regret": 0.2876399728885083,
+      "events": 90
+    },
+    {
+      "player": 0,
+      "condition": "pretrained_start",
+      "mean_response": 0.29066373425165953,
+      "regret": 0.15778734618419313,
+      "events": 90
+    },
+    {
+      "player": 0,
+      "condition": "v2",
+      "mean_response": 0.3546217997070939,
+      "regret": 0.020876658663281356,
+      "events": 90
+    },
+    {
+      "player": 0,
+      "condition": "v3_cold",
+      "mean_response": 0.3651006083987346,
+      "regret": 0.004253835311064415,
+      "events": 90
+    },
+    {
+      "player": 0,
+      "condition": "v3_pretrained",
+      "mean_response": 0.3653776536566706,
+      "regret": 0.007485433189065598,
+      "events": 90
+    },
+    {
+      "player": 0,
+      "condition": "zero_reward",
+      "mean_response": 0.21384127844493406,
+      "regret": 0.2876399728885083,
+      "events": 90
+    },
+    {
+      "player": 0,
+      "condition": "shuffled_reward",
+      "mean_response": 0.27751599061051613,
+      "regret": 0.12542112503354388,
+      "events": 90
+    },
+    {
+      "player": 0,
+      "condition": "v2_changed_before",
+      "mean_response": 0.2173064704825177,
+      "regret": 0.2636748846609688,
+      "events": 90
+    },
+    {
+      "player": 0,
+      "condition": "v2_changed",
+      "mean_response": 0.32036765856339383,
+      "regret": 0.11835852319083497,
+      "events": 90
+    },
+    {
+      "player": 0,
+      "condition": "v3_changed_before",
+      "mean_response": 0.22806232443209432,
+      "regret": 0.2595914675011184,
+      "events": 90
+    },
+    {
+      "player": 0,
+      "condition": "v3_changed",
+      "mean_response": 0.4203762981379175,
+      "regret": 0.0013095003230750098,
+      "events": 90
+    },
+    {
+      "player": 0,
+      "condition": "retained",
+      "mean_response": 0.4203762981379175,
+      "regret": 0.0013095003230750098,
+      "events": 90
+    },
+    {
+      "player": 0,
+      "condition": "reset",
+      "mean_response": 0.18908369245586215,
+      "regret": 0.48121998612035155,
+      "events": 90
+    },
+    {
+      "player": 0,
+      "condition": "neural_ablated",
+      "mean_response": 0.3514534338981677,
+      "regret": 0.06218597615038792,
+      "events": 90
+    },
+    {
+      "player": 1,
+      "condition": "random",
+      "mean_response": 0.28448792024338126,
+      "regret": 0.17549015598415593,
+      "events": 90
+    },
+    {
+      "player": 1,
+      "condition": "fixed",
+      "mean_response": 0.3056118364403828,
+      "regret": 0.13414325042271433,
+      "events": 90
+    },
+    {
+      "player": 1,
+      "condition": "cold_start",
+      "mean_response": 0.31438789840485576,
+      "regret": 0.1650241753048189,
+      "events": 90
+    },
+    {
+      "player": 1,
+      "condition": "pretrained_start",
+      "mean_response": 0.3500106615701824,
+      "regret": 0.08995277605615619,
+      "events": 90
+    },
+    {
+      "player": 1,
+      "condition": "v2",
+      "mean_response": 0.39996564253998484,
+      "regret": 0.016078938430555037,
+      "events": 90
+    },
+    {
+      "player": 1,
+      "condition": "v3_cold",
+      "mean_response": 0.4086970501385617,
+      "regret": 0.0003331141291447783,
+      "events": 90
+    },
+    {
+      "player": 1,
+      "condition": "v3_pretrained",
+      "mean_response": 0.4086970501385617,
+      "regret": 0.0003331141291447783,
+      "events": 90
+    },
+    {
+      "player": 1,
+      "condition": "zero_reward",
+      "mean_response": 0.31438789840485576,
+      "regret": 0.1650241753048189,
+      "events": 90
+    },
+    {
+      "player": 1,
+      "condition": "shuffled_reward",
+      "mean_response": 0.3481675439068709,
+      "regret": 0.04581229881996531,
+      "events": 90
+    },
+    {
+      "player": 1,
+      "condition": "v2_changed_before",
+      "mean_response": 0.18843214733073574,
+      "regret": 0.42347372094787367,
+      "events": 90
+    },
+    {
+      "player": 1,
+      "condition": "v2_changed",
+      "mean_response": 0.38073397992459024,
+      "regret": 0.0013757948178563246,
+      "events": 90
+    },
+    {
+      "player": 1,
+      "condition": "v3_changed_before",
+      "mean_response": 0.24862799018905624,
+      "regret": 0.26925156234550446,
+      "events": 90
+    },
+    {
+      "player": 1,
+      "condition": "v3_changed",
+      "mean_response": 0.3637352515294656,
+      "regret": 0.006665819394785791,
+      "events": 90
+    },
+    {
+      "player": 1,
+      "condition": "retained",
+      "mean_response": 0.3637352515294656,
+      "regret": 0.006665819394785791,
+      "events": 90
+    },
+    {
+      "player": 1,
+      "condition": "reset",
+      "mean_response": 0.3348712897482781,
+      "regret": 0.03430205829288545,
+      "events": 90
+    },
+    {
+      "player": 1,
+      "condition": "neural_ablated",
+      "mean_response": 0.18843214733073574,
+      "regret": 0.42347372094787367,
+      "events": 90
+    },
+    {
+      "player": 2,
+      "condition": "random",
+      "mean_response": 0.27127627682949507,
+      "regret": 0.13717892972544554,
+      "events": 90
+    },
+    {
+      "player": 2,
+      "condition": "fixed",
+      "mean_response": 0.2765835034326519,
+      "regret": 0.1295367298788704,
+      "events": 90
+    },
+    {
+      "player": 2,
+      "condition": "cold_start",
+      "mean_response": 0.3270863817436815,
+      "regret": 0.05294839477158558,
+      "events": 90
+    },
+    {
+      "player": 2,
+      "condition": "pretrained_start",
+      "mean_response": 0.28946707565614055,
+      "regret": 0.13345570872765503,
+      "events": 90
+    },
+    {
+      "player": 2,
+      "condition": "v2",
+      "mean_response": 0.3783446044375158,
+      "regret": 0.008302382199348323,
+      "events": 90
+    },
+    {
+      "player": 2,
+      "condition": "v3_cold",
+      "mean_response": 0.37016787024969544,
+      "regret": 0.00808360157386067,
+      "events": 90
+    },
+    {
+      "player": 2,
+      "condition": "v3_pretrained",
+      "mean_response": 0.36022043470454373,
+      "regret": 0.034323766310155296,
+      "events": 90
+    },
+    {
+      "player": 2,
+      "condition": "zero_reward",
+      "mean_response": 0.3270863817436815,
+      "regret": 0.05294839477158558,
+      "events": 90
+    },
+    {
+      "player": 2,
+      "condition": "shuffled_reward",
+      "mean_response": 0.24629523010152785,
+      "regret": 0.18826082219940835,
+      "events": 90
+    },
+    {
+      "player": 2,
+      "condition": "v2_changed_before",
+      "mean_response": 0.16738961151146958,
+      "regret": 0.4788774964608883,
+      "events": 90
+    },
+    {
+      "player": 2,
+      "condition": "v2_changed",
+      "mean_response": 0.3658957689733363,
+      "regret": 0.031992340773888975,
+      "events": 90
+    },
+    {
+      "player": 2,
+      "condition": "v3_changed_before",
+      "mean_response": 0.25936834069372233,
+      "regret": 0.23762276932360432,
+      "events": 90
+    },
+    {
+      "player": 2,
+      "condition": "v3_changed",
+      "mean_response": 0.38276417196361817,
+      "regret": 0.0029839117264371345,
+      "events": 90
+    },
+    {
+      "player": 2,
+      "condition": "retained",
+      "mean_response": 0.38276417196361817,
+      "regret": 0.0029839117264371345,
+      "events": 90
+    },
+    {
+      "player": 2,
+      "condition": "reset",
+      "mean_response": 0.12698876907270504,
+      "regret": 0.5192783388996528,
+      "events": 90
+    },
+    {
+      "player": 2,
+      "condition": "neural_ablated",
+      "mean_response": 0.35311241385987113,
+      "regret": 0.040772116620189015,
+      "events": 90
+    },
+    {
+      "player": 3,
+      "condition": "random",
+      "mean_response": 0.25609533461489026,
+      "regret": 0.17880331492575122,
+      "events": 90
+    },
+    {
+      "player": 3,
+      "condition": "fixed",
+      "mean_response": 0.28580801865164324,
+      "regret": 0.11903377313970634,
+      "events": 90
+    },
+    {
+      "player": 3,
+      "condition": "cold_start",
+      "mean_response": 0.3951599533577489,
+      "regret": 0.0231983144937889,
+      "events": 90
+    },
+    {
+      "player": 3,
+      "condition": "pretrained_start",
+      "mean_response": 0.31621501101028143,
+      "regret": 0.14624733401770812,
+      "events": 90
+    },
+    {
+      "player": 3,
+      "condition": "v2",
+      "mean_response": 0.40583762287465225,
+      "regret": 0.004597852132882939,
+      "events": 90
+    },
+    {
+      "player": 3,
+      "condition": "v3_cold",
+      "mean_response": 0.3990880440387325,
+      "regret": 0.004567494820929111,
+      "events": 90
+    },
+    {
+      "player": 3,
+      "condition": "v3_pretrained",
+      "mean_response": 0.3990880440387325,
+      "regret": 0.004567494820929111,
+      "events": 90
+    },
+    {
+      "player": 3,
+      "condition": "zero_reward",
+      "mean_response": 0.3951599533577489,
+      "regret": 0.0231983144937889,
+      "events": 90
+    },
+    {
+      "player": 3,
+      "condition": "shuffled_reward",
+      "mean_response": 0.2093961449778386,
+      "regret": 0.33167045360196695,
+      "events": 90
+    },
+    {
+      "player": 3,
+      "condition": "v2_changed_before",
+      "mean_response": 0.24524150059250036,
+      "regret": 0.21566758911693956,
+      "events": 90
+    },
+    {
+      "player": 3,
+      "condition": "v2_changed",
+      "mean_response": 0.3017018500976852,
+      "regret": 0.14016420180411832,
+      "events": 90
+    },
+    {
+      "player": 3,
+      "condition": "v3_changed_before",
+      "mean_response": 0.2541412438117616,
+      "regret": 0.18555704057844669,
+      "events": 90
+    },
+    {
+      "player": 3,
+      "condition": "v3_changed",
+      "mean_response": 0.33929672174384085,
+      "regret": 0.024803185892436467,
+      "events": 90
+    },
+    {
+      "player": 3,
+      "condition": "retained",
+      "mean_response": 0.33929672174384085,
+      "regret": 0.024803185892436467,
+      "events": 90
+    },
+    {
+      "player": 3,
+      "condition": "reset",
+      "mean_response": 0.23456383107559706,
+      "regret": 0.25001395301889506,
+      "events": 90
+    },
+    {
+      "player": 3,
+      "condition": "neural_ablated",
+      "mean_response": 0.2688023138620794,
+      "regret": 0.19130424579324162,
+      "events": 90
+    },
+    {
+      "player": 4,
+      "condition": "random",
+      "mean_response": 0.25188797866503276,
+      "regret": 0.1670461381216891,
+      "events": 90
+    },
+    {
+      "player": 4,
+      "condition": "fixed",
+      "mean_response": 0.27616110230591595,
+      "regret": 0.12656204101210014,
+      "events": 90
+    },
+    {
+      "player": 4,
+      "condition": "cold_start",
+      "mean_response": 0.3305863525236168,
+      "regret": 0.05501783233829095,
+      "events": 90
+    },
+    {
+      "player": 4,
+      "condition": "pretrained_start",
+      "mean_response": 0.27861966258189197,
+      "regret": 0.16476197398435818,
+      "events": 90
+    },
+    {
+      "player": 4,
+      "condition": "v2",
+      "mean_response": 0.35710022648035744,
+      "regret": 0.01450695488770349,
+      "events": 90
+    },
+    {
+      "player": 4,
+      "condition": "v3_cold",
+      "mean_response": 0.3578642405061752,
+      "regret": 0.00882311809293063,
+      "events": 90
+    },
+    {
+      "player": 4,
+      "condition": "v3_pretrained",
+      "mean_response": 0.3578642405061752,
+      "regret": 0.00882311809293063,
+      "events": 90
+    },
+    {
+      "player": 4,
+      "condition": "zero_reward",
+      "mean_response": 0.3305863525236168,
+      "regret": 0.05501783233829095,
+      "events": 90
+    },
+    {
+      "player": 4,
+      "condition": "shuffled_reward",
+      "mean_response": 0.26780353087145553,
+      "regret": 0.14408350402620773,
+      "events": 90
+    },
+    {
+      "player": 4,
+      "condition": "v2_changed_before",
+      "mean_response": 0.1535221713366503,
+      "regret": 0.49640283725575246,
+      "events": 90
+    },
+    {
+      "player": 4,
+      "condition": "v2_changed",
+      "mean_response": 0.35993796228475267,
+      "regret": 0.029463396218234943,
+      "events": 90
+    },
+    {
+      "player": 4,
+      "condition": "v3_changed_before",
+      "mean_response": 0.23776927572028567,
+      "regret": 0.25953737766315577,
+      "events": 90
+    },
+    {
+      "player": 4,
+      "condition": "v3_changed",
+      "mean_response": 0.37790002021221836,
+      "regret": 0.007264658858594146,
+      "events": 90
+    },
+    {
+      "player": 4,
+      "condition": "retained",
+      "mean_response": 0.37790002021221836,
+      "regret": 0.007264658858594146,
+      "events": 90
+    },
+    {
+      "player": 4,
+      "condition": "reset",
+      "mean_response": 0.13463749722862162,
+      "regret": 0.5155587071161827,
+      "events": 90
+    },
+    {
+      "player": 4,
+      "condition": "neural_ablated",
+      "mean_response": 0.22981877649715132,
+      "regret": 0.23334506883632547,
+      "events": 90
+    },
+    {
+      "player": 5,
+      "condition": "random",
+      "mean_response": 0.25519347415956245,
+      "regret": 0.15362362930192175,
+      "events": 90
+    },
+    {
+      "player": 5,
+      "condition": "fixed",
+      "mean_response": 0.270654400573303,
+      "regret": 0.1392547233393304,
+      "events": 90
+    },
+    {
+      "player": 5,
+      "condition": "cold_start",
+      "mean_response": 0.337817554148024,
+      "regret": 0.059778222898690565,
+      "events": 90
+    },
+    {
+      "player": 5,
+      "condition": "pretrained_start",
+      "mean_response": 0.3006439286372701,
+      "regret": 0.1272791208368501,
+      "events": 90
+    },
+    {
+      "player": 5,
+      "condition": "v2",
+      "mean_response": 0.3417931971869213,
+      "regret": 0.013140094586817249,
+      "events": 90
+    },
+    {
+      "player": 5,
+      "condition": "v3_cold",
+      "mean_response": 0.35995246876889503,
+      "regret": 0.0045198080057018575,
+      "events": 90
+    },
+    {
+      "player": 5,
+      "condition": "v3_pretrained",
+      "mean_response": 0.35995246876889503,
+      "regret": 0.0045198080057018575,
+      "events": 90
+    },
+    {
+      "player": 5,
+      "condition": "zero_reward",
+      "mean_response": 0.337817554148024,
+      "regret": 0.059778222898690565,
+      "events": 90
+    },
+    {
+      "player": 5,
+      "condition": "shuffled_reward",
+      "mean_response": 0.23894186194434539,
+      "regret": 0.1995712418084324,
+      "events": 90
+    },
+    {
+      "player": 5,
+      "condition": "v2_changed_before",
+      "mean_response": 0.14215208996052478,
+      "regret": 0.5040932707605849,
+      "events": 90
+    },
+    {
+      "player": 5,
+      "condition": "v2_changed",
+      "mean_response": 0.32193313300035326,
+      "regret": 0.07671668240499002,
+      "events": 90
+    },
+    {
+      "player": 5,
+      "condition": "v3_changed_before",
+      "mean_response": 0.2019572685995894,
+      "regret": 0.3576157257008104,
+      "events": 90
+    },
+    {
+      "player": 5,
+      "condition": "v3_changed",
+      "mean_response": 0.3746119013742434,
+      "regret": 0.013714570729423052,
+      "events": 90
+    },
+    {
+      "player": 5,
+      "condition": "retained",
+      "mean_response": 0.3746119013742434,
+      "regret": 0.013714570729423052,
+      "events": 90
+    },
+    {
+      "player": 5,
+      "condition": "reset",
+      "mean_response": 0.13852943007156185,
+      "regret": 0.5077159306495478,
+      "events": 90
+    },
+    {
+      "player": 5,
+      "condition": "neural_ablated",
+      "mean_response": 0.2997275552534501,
+      "regret": 0.15214382718307623,
+      "events": 90
+    },
+    {
+      "player": 6,
+      "condition": "random",
+      "mean_response": 0.2825373784872751,
+      "regret": 0.1460872425845183,
+      "events": 90
+    },
+    {
+      "player": 6,
+      "condition": "fixed",
+      "mean_response": 0.284414594086046,
+      "regret": 0.15685400939828695,
+      "events": 90
+    },
+    {
+      "player": 6,
+      "condition": "cold_start",
+      "mean_response": 0.17553595727504392,
+      "regret": 0.47444929231436045,
+      "events": 90
+    },
+    {
+      "player": 6,
+      "condition": "pretrained_start",
+      "mean_response": 0.3725568938728258,
+      "regret": 0.04228588520497522,
+      "events": 90
+    },
+    {
+      "player": 6,
+      "condition": "v2",
+      "mean_response": 0.38793256166074813,
+      "regret": 0.011526673669172524,
+      "events": 90
+    },
+    {
+      "player": 6,
+      "condition": "v3_cold",
+      "mean_response": 0.38793256166074813,
+      "regret": 0.011526673669172524,
+      "events": 90
+    },
+    {
+      "player": 6,
+      "condition": "v3_pretrained",
+      "mean_response": 0.38793256166074813,
+      "regret": 0.011526673669172524,
+      "events": 90
+    },
+    {
+      "player": 6,
+      "condition": "zero_reward",
+      "mean_response": 0.17553595727504392,
+      "regret": 0.47444929231436045,
+      "events": 90
+    },
+    {
+      "player": 6,
+      "condition": "shuffled_reward",
+      "mean_response": 0.27950987699183194,
+      "regret": 0.16024915578762208,
+      "events": 90
+    },
+    {
+      "player": 6,
+      "condition": "v2_changed_before",
+      "mean_response": 0.23410515075964305,
+      "regret": 0.24570301418787333,
+      "events": 90
+    },
+    {
+      "player": 6,
+      "condition": "v2_changed",
+      "mean_response": 0.3104225276513974,
+      "regret": 0.147564500376614,
+      "events": 90
+    },
+    {
+      "player": 6,
+      "condition": "v3_changed_before",
+      "mean_response": 0.23410515075964305,
+      "regret": 0.24570301418787333,
+      "events": 90
+    },
+    {
+      "player": 6,
+      "condition": "v3_changed",
+      "mean_response": 0.3648408431573922,
+      "regret": 0.016225923077609398,
+      "events": 90
+    },
+    {
+      "player": 6,
+      "condition": "retained",
+      "mean_response": 0.3648408431573922,
+      "regret": 0.016225923077609398,
+      "events": 90
+    },
+    {
+      "player": 6,
+      "condition": "reset",
+      "mean_response": 0.36111804381825885,
+      "regret": 0.03255125197008276,
+      "events": 90
+    },
+    {
+      "player": 6,
+      "condition": "neural_ablated",
+      "mean_response": 0.3104225276513974,
+      "regret": 0.147564500376614,
+      "events": 90
+    },
+    {
+      "player": 7,
+      "condition": "random",
+      "mean_response": 0.2579147672504629,
+      "regret": 0.12109584057429955,
+      "events": 90
+    },
+    {
+      "player": 7,
+      "condition": "fixed",
+      "mean_response": 0.2556833889004475,
+      "regret": 0.13604110780035644,
+      "events": 90
+    },
+    {
+      "player": 7,
+      "condition": "cold_start",
+      "mean_response": 0.2085849971463173,
+      "regret": 0.24058328706021434,
+      "events": 90
+    },
+    {
+      "player": 7,
+      "condition": "pretrained_start",
+      "mean_response": 0.3029621243535464,
+      "regret": 0.10007813458037561,
+      "events": 90
+    },
+    {
+      "player": 7,
+      "condition": "v2",
+      "mean_response": 0.35182594040366694,
+      "regret": 0.022711408823409437,
+      "events": 90
+    },
+    {
+      "player": 7,
+      "condition": "v3_cold",
+      "mean_response": 0.3639718390094987,
+      "regret": 0.004100047715441661,
+      "events": 90
+    },
+    {
+      "player": 7,
+      "condition": "v3_pretrained",
+      "mean_response": 0.3639718390094987,
+      "regret": 0.004100047715441661,
+      "events": 90
+    },
+    {
+      "player": 7,
+      "condition": "zero_reward",
+      "mean_response": 0.2085849971463173,
+      "regret": 0.24058328706021434,
+      "events": 90
+    },
+    {
+      "player": 7,
+      "condition": "shuffled_reward",
+      "mean_response": 0.33492253953544443,
+      "regret": 0.02000934998549074,
+      "events": 90
+    },
+    {
+      "player": 7,
+      "condition": "v2_changed_before",
+      "mean_response": 0.21437930374671815,
+      "regret": 0.27891421356940255,
+      "events": 90
+    },
+    {
+      "player": 7,
+      "condition": "v2_changed",
+      "mean_response": 0.35301874507424946,
+      "regret": 0.05125186773265529,
+      "events": 90
+    },
+    {
+      "player": 7,
+      "condition": "v3_changed_before",
+      "mean_response": 0.24006962179700914,
+      "regret": 0.22163813707830995,
+      "events": 90
+    },
+    {
+      "player": 7,
+      "condition": "v3_changed",
+      "mean_response": 0.3734244465961884,
+      "regret": 0.012051920228926398,
+      "events": 90
+    },
+    {
+      "player": 7,
+      "condition": "retained",
+      "mean_response": 0.3734244465961884,
+      "regret": 0.012051920228926398,
+      "events": 90
+    },
+    {
+      "player": 7,
+      "condition": "reset",
+      "mean_response": 0.1747340942461667,
+      "regret": 0.46892957302867927,
+      "events": 90
+    },
+    {
+      "player": 7,
+      "condition": "neural_ablated",
+      "mean_response": 0.3463102081802143,
+      "regret": 0.054158548978801964,
+      "events": 90
+    },
+    {
+      "player": 8,
+      "condition": "random",
+      "mean_response": 0.2591692012048532,
+      "regret": 0.16808257867791998,
+      "events": 90
+    },
+    {
+      "player": 8,
+      "condition": "fixed",
+      "mean_response": 0.2905886335248275,
+      "regret": 0.11593085058333269,
+      "events": 90
+    },
+    {
+      "player": 8,
+      "condition": "cold_start",
+      "mean_response": 0.36558012245242977,
+      "regret": 0.02479813866639702,
+      "events": 90
+    },
+    {
+      "player": 8,
+      "condition": "pretrained_start",
+      "mean_response": 0.3045856643691839,
+      "regret": 0.10480228704519691,
+      "events": 90
+    },
+    {
+      "player": 8,
+      "condition": "v2",
+      "mean_response": 0.36558012245242977,
+      "regret": 0.02479813866639702,
+      "events": 90
+    },
+    {
+      "player": 8,
+      "condition": "v3_cold",
+      "mean_response": 0.35467253606871313,
+      "regret": 0.009792945124913301,
+      "events": 90
+    },
+    {
+      "player": 8,
+      "condition": "v3_pretrained",
+      "mean_response": 0.3791553726792156,
+      "regret": 0.004140600284747199,
+      "events": 90
+    },
+    {
+      "player": 8,
+      "condition": "zero_reward",
+      "mean_response": 0.36558012245242977,
+      "regret": 0.02479813866639702,
+      "events": 90
+    },
+    {
+      "player": 8,
+      "condition": "shuffled_reward",
+      "mean_response": 0.263924737383733,
+      "regret": 0.1839246218540274,
+      "events": 90
+    },
+    {
+      "player": 8,
+      "condition": "v2_changed_before",
+      "mean_response": 0.21600439286243614,
+      "regret": 0.2422268929921246,
+      "events": 90
+    },
+    {
+      "player": 8,
+      "condition": "v2_changed",
+      "mean_response": 0.260112014885617,
+      "regret": 0.1829488366253194,
+      "events": 90
+    },
+    {
+      "player": 8,
+      "condition": "v3_changed_before",
+      "mean_response": 0.2483119956574429,
+      "regret": 0.1935929818341641,
+      "events": 90
+    },
+    {
+      "player": 8,
+      "condition": "v3_changed",
+      "mean_response": 0.34367190947830545,
+      "regret": 0.019950202131889264,
+      "events": 90
+    },
+    {
+      "player": 8,
+      "condition": "retained",
+      "mean_response": 0.34367190947830545,
+      "regret": 0.019950202131889264,
+      "events": 90
+    },
+    {
+      "player": 8,
+      "condition": "reset",
+      "mean_response": 0.21600439286243614,
+      "regret": 0.2422268929921246,
+      "events": 90
+    },
+    {
+      "player": 8,
+      "condition": "neural_ablated",
+      "mean_response": 0.23240501650385997,
+      "regret": 0.21874697069794447,
+      "events": 90
+    },
+    {
+      "player": 9,
+      "condition": "random",
+      "mean_response": 0.2705477401164617,
+      "regret": 0.1899483043269106,
+      "events": 90
+    },
+    {
+      "player": 9,
+      "condition": "fixed",
+      "mean_response": 0.29705238986119076,
+      "regret": 0.13543716106341075,
+      "events": 90
+    },
+    {
+      "player": 9,
+      "condition": "cold_start",
+      "mean_response": 0.37533503465518436,
+      "regret": 0.024925576039965158,
+      "events": 90
+    },
+    {
+      "player": 9,
+      "condition": "pretrained_start",
+      "mean_response": 0.306666088386107,
+      "regret": 0.14685307987330576,
+      "events": 90
+    },
+    {
+      "player": 9,
+      "condition": "v2",
+      "mean_response": 0.3846984532015321,
+      "regret": 0.0089179216617843,
+      "events": 90
+    },
+    {
+      "player": 9,
+      "condition": "v3_cold",
+      "mean_response": 0.3694817980276189,
+      "regret": 0.020551391761284947,
+      "events": 90
+    },
+    {
+      "player": 9,
+      "condition": "v3_pretrained",
+      "mean_response": 0.3694817980276189,
+      "regret": 0.020551391761284947,
+      "events": 90
+    },
+    {
+      "player": 9,
+      "condition": "zero_reward",
+      "mean_response": 0.37533503465518436,
+      "regret": 0.024925576039965158,
+      "events": 90
+    },
+    {
+      "player": 9,
+      "condition": "shuffled_reward",
+      "mean_response": 0.26248958134214767,
+      "regret": 0.20381370308221797,
+      "events": 90
+    },
+    {
+      "player": 9,
+      "condition": "v2_changed_before",
+      "mean_response": 0.2173152906888351,
+      "regret": 0.23555440484234832,
+      "events": 90
+    },
+    {
+      "player": 9,
+      "condition": "v2_changed",
+      "mean_response": 0.28029456050467455,
+      "regret": 0.1309085664895979,
+      "events": 90
+    },
+    {
+      "player": 9,
+      "condition": "v3_changed_before",
+      "mean_response": 0.25468327054669504,
+      "regret": 0.1547618796002524,
+      "events": 90
+    },
+    {
+      "player": 9,
+      "condition": "v3_changed",
+      "mean_response": 0.35902488673718186,
+      "regret": 0.012624558951704511,
+      "events": 90
+    },
+    {
+      "player": 9,
+      "condition": "retained",
+      "mean_response": 0.35902488673718186,
+      "regret": 0.012624558951704511,
+      "events": 90
+    },
+    {
+      "player": 9,
+      "condition": "reset",
+      "mean_response": 0.20748960385386128,
+      "regret": 0.2651438210369674,
+      "events": 90
+    },
+    {
+      "player": 9,
+      "condition": "neural_ablated",
+      "mean_response": 0.34309360029425506,
+      "regret": 0.0378103537740923,
+      "events": 90
+    },
+    {
+      "player": 10,
+      "condition": "random",
+      "mean_response": 0.27428892206161976,
+      "regret": 0.15161047673456407,
+      "events": 90
+    },
+    {
+      "player": 10,
+      "condition": "fixed",
+      "mean_response": 0.25382588940040834,
+      "regret": 0.19566202175918793,
+      "events": 90
+    },
+    {
+      "player": 10,
+      "condition": "cold_start",
+      "mean_response": 0.17904237443164264,
+      "regret": 0.4618717526065283,
+      "events": 90
+    },
+    {
+      "player": 10,
+      "condition": "pretrained_start",
+      "mean_response": 0.3272850805331271,
+      "regret": 0.08384303114907381,
+      "events": 90
+    },
+    {
+      "player": 10,
+      "condition": "v2",
+      "mean_response": 0.37337710747060027,
+      "regret": 0.014682273658728144,
+      "events": 90
+    },
+    {
+      "player": 10,
+      "condition": "v3_cold",
+      "mean_response": 0.38879584017668,
+      "regret": 0.0003917601860676174,
+      "events": 90
+    },
+    {
+      "player": 10,
+      "condition": "v3_pretrained",
+      "mean_response": 0.38879584017668,
+      "regret": 0.0003917601860676174,
+      "events": 90
+    },
+    {
+      "player": 10,
+      "condition": "zero_reward",
+      "mean_response": 0.17904237443164264,
+      "regret": 0.4618717526065283,
+      "events": 90
+    },
+    {
+      "player": 10,
+      "condition": "shuffled_reward",
+      "mean_response": 0.29946365579558604,
+      "regret": 0.14671271129798974,
+      "events": 90
+    },
+    {
+      "player": 10,
+      "condition": "v2_changed_before",
+      "mean_response": 0.21768984616713621,
+      "regret": 0.27628931239132226,
+      "events": 90
+    },
+    {
+      "player": 10,
+      "condition": "v2_changed",
+      "mean_response": 0.3097432558939116,
+      "regret": 0.17367577007650994,
+      "events": 90
+    },
+    {
+      "player": 10,
+      "condition": "v3_changed_before",
+      "mean_response": 0.24369063411060124,
+      "regret": 0.22626407410042712,
+      "events": 90
+    },
+    {
+      "player": 10,
+      "condition": "v3_changed",
+      "mean_response": 0.3877764711887044,
+      "regret": 0.00525566760496597,
+      "events": 90
+    },
+    {
+      "player": 10,
+      "condition": "retained",
+      "mean_response": 0.3877764711887044,
+      "regret": 0.00525566760496597,
+      "events": 90
+    },
+    {
+      "player": 10,
+      "condition": "reset",
+      "mean_response": 0.37226244901830513,
+      "regret": 0.0260396339136611,
+      "events": 90
+    },
+    {
+      "player": 10,
+      "condition": "neural_ablated",
+      "mean_response": 0.37226244901830513,
+      "regret": 0.0260396339136611,
+      "events": 90
+    },
+    {
+      "player": 11,
+      "condition": "random",
+      "mean_response": 0.24896798896932046,
+      "regret": 0.16194069650377388,
+      "events": 90
+    },
+    {
+      "player": 11,
+      "condition": "fixed",
+      "mean_response": 0.26533416686455596,
+      "regret": 0.1395143457820949,
+      "events": 90
+    },
+    {
+      "player": 11,
+      "condition": "cold_start",
+      "mean_response": 0.3197289023389976,
+      "regret": 0.0442385333377579,
+      "events": 90
+    },
+    {
+      "player": 11,
+      "condition": "pretrained_start",
+      "mean_response": 0.27260880545967503,
+      "regret": 0.15215309065963356,
+      "events": 90
+    },
+    {
+      "player": 11,
+      "condition": "v2",
+      "mean_response": 0.3582313407351095,
+      "regret": 0.007071591981949656,
+      "events": 90
+    },
+    {
+      "player": 11,
+      "condition": "v3_cold",
+      "mean_response": 0.34389999527567366,
+      "regret": 0.008005692873226774,
+      "events": 90
+    },
+    {
+      "player": 11,
+      "condition": "v3_pretrained",
+      "mean_response": 0.3582313407351095,
+      "regret": 0.007071591981949656,
+      "events": 90
+    },
+    {
+      "player": 11,
+      "condition": "zero_reward",
+      "mean_response": 0.3197289023389976,
+      "regret": 0.0442385333377579,
+      "events": 90
+    },
+    {
+      "player": 11,
+      "condition": "shuffled_reward",
+      "mean_response": 0.2604545897061072,
+      "regret": 0.11674573992276517,
+      "events": 90
+    },
+    {
+      "player": 11,
+      "condition": "v2_changed_before",
+      "mean_response": 0.15017404330642434,
+      "regret": 0.5010998262674387,
+      "events": 90
+    },
+    {
+      "player": 11,
+      "condition": "v2_changed",
+      "mean_response": 0.3647494682277522,
+      "regret": 0.015502092369722525,
+      "events": 90
+    },
+    {
+      "player": 11,
+      "condition": "v3_changed_before",
+      "mean_response": 0.15017404330642434,
+      "regret": 0.5010998262674387,
+      "events": 90
+    },
+    {
+      "player": 11,
+      "condition": "v3_changed",
+      "mean_response": 0.3610042127982353,
+      "regret": 0.011755552512341498,
+      "events": 90
+    },
+    {
+      "player": 11,
+      "condition": "retained",
+      "mean_response": 0.3610042127982353,
+      "regret": 0.011755552512341498,
+      "events": 90
+    },
+    {
+      "player": 11,
+      "condition": "reset",
+      "mean_response": 0.12210853156947744,
+      "regret": 0.5291653380043856,
+      "events": 90
+    },
+    {
+      "player": 11,
+      "condition": "neural_ablated",
+      "mean_response": 0.20384072235383807,
+      "regret": 0.25430300460627914,
+      "events": 90
+    },
+    {
+      "player": 12,
+      "condition": "random",
+      "mean_response": 0.2602180649617827,
+      "regret": 0.1375726469147782,
+      "events": 90
+    },
+    {
+      "player": 12,
+      "condition": "fixed",
+      "mean_response": 0.26882486429181374,
+      "regret": 0.119839527439939,
+      "events": 90
+    },
+    {
+      "player": 12,
+      "condition": "cold_start",
+      "mean_response": 0.32828778064560743,
+      "regret": 0.03816773413833831,
+      "events": 90
+    },
+    {
+      "player": 12,
+      "condition": "pretrained_start",
+      "mean_response": 0.2720391639092589,
+      "regret": 0.16408876994489313,
+      "events": 90
+    },
+    {
+      "player": 12,
+      "condition": "v2",
+      "mean_response": 0.3469417169033985,
+      "regret": 0.018458055218972324,
+      "events": 90
+    },
+    {
+      "player": 12,
+      "condition": "v3_cold",
+      "mean_response": 0.3483030590670035,
+      "regret": 0.0044827908033421736,
+      "events": 90
+    },
+    {
+      "player": 12,
+      "condition": "v3_pretrained",
+      "mean_response": 0.3523319668343556,
+      "regret": 0.008926670282917177,
+      "events": 90
+    },
+    {
+      "player": 12,
+      "condition": "zero_reward",
+      "mean_response": 0.32828778064560743,
+      "regret": 0.03816773413833831,
+      "events": 90
+    },
+    {
+      "player": 12,
+      "condition": "shuffled_reward",
+      "mean_response": 0.24671502637447523,
+      "regret": 0.14201676143278455,
+      "events": 90
+    },
+    {
+      "player": 12,
+      "condition": "v2_changed_before",
+      "mean_response": 0.13545652192256213,
+      "regret": 0.5268675151182285,
+      "events": 90
+    },
+    {
+      "player": 12,
+      "condition": "v2_changed",
+      "mean_response": 0.36514078061693966,
+      "regret": 0.016228520444036047,
+      "events": 90
+    },
+    {
+      "player": 12,
+      "condition": "v3_changed_before",
+      "mean_response": 0.16666439182489975,
+      "regret": 0.44338369065402583,
+      "events": 90
+    },
+    {
+      "player": 12,
+      "condition": "v3_changed",
+      "mean_response": 0.3571535282452416,
+      "regret": 0.01532674980915553,
+      "events": 90
+    },
+    {
+      "player": 12,
+      "condition": "retained",
+      "mean_response": 0.3571535282452416,
+      "regret": 0.01532674980915553,
+      "events": 90
+    },
+    {
+      "player": 12,
+      "condition": "reset",
+      "mean_response": 0.12071390387907568,
+      "regret": 0.541610133161715,
+      "events": 90
+    },
+    {
+      "player": 12,
+      "condition": "neural_ablated",
+      "mean_response": 0.3111701931598265,
+      "regret": 0.11682773123906907,
+      "events": 90
+    },
+    {
+      "player": 13,
+      "condition": "random",
+      "mean_response": 0.2451787692674762,
+      "regret": 0.13317882659987557,
+      "events": 90
+    },
+    {
+      "player": 13,
+      "condition": "fixed",
+      "mean_response": 0.26347297482709064,
+      "regret": 0.12177001033212306,
+      "events": 90
+    },
+    {
+      "player": 13,
+      "condition": "cold_start",
+      "mean_response": 0.18238294965949203,
+      "regret": 0.28348521351123057,
+      "events": 90
+    },
+    {
+      "player": 13,
+      "condition": "pretrained_start",
+      "mean_response": 0.2777439022509255,
+      "regret": 0.14091605104457597,
+      "events": 90
+    },
+    {
+      "player": 13,
+      "condition": "v2",
+      "mean_response": 0.34781541077046935,
+      "regret": 0.031169426226418863,
+      "events": 90
+    },
+    {
+      "player": 13,
+      "condition": "v3_cold",
+      "mean_response": 0.3571555083543834,
+      "regret": 0.01714632759554064,
+      "events": 90
+    },
+    {
+      "player": 13,
+      "condition": "v3_pretrained",
+      "mean_response": 0.35072239652796083,
+      "regret": 0.011619653655848916,
+      "events": 90
+    },
+    {
+      "player": 13,
+      "condition": "zero_reward",
+      "mean_response": 0.18238294965949203,
+      "regret": 0.28348521351123057,
+      "events": 90
+    },
+    {
+      "player": 13,
+      "condition": "shuffled_reward",
+      "mean_response": 0.24756209134419876,
+      "regret": 0.15585364157673914,
+      "events": 90
+    },
+    {
+      "player": 13,
+      "condition": "v2_changed_before",
+      "mean_response": 0.21621549873518076,
+      "regret": 0.2856464050378979,
+      "events": 90
+    },
+    {
+      "player": 13,
+      "condition": "v2_changed",
+      "mean_response": 0.26895038170510455,
+      "regret": 0.17173454562655657,
+      "events": 90
+    },
+    {
+      "player": 13,
+      "condition": "v3_changed_before",
+      "mean_response": 0.27005849580052776,
+      "regret": 0.19325313837455813,
+      "events": 90
+    },
+    {
+      "player": 13,
+      "condition": "v3_changed",
+      "mean_response": 0.3846273784174828,
+      "regret": 0.01969308886443514,
+      "events": 90
+    },
+    {
+      "player": 13,
+      "condition": "retained",
+      "mean_response": 0.3846273784174828,
+      "regret": 0.01969308886443514,
+      "events": 90
+    },
+    {
+      "player": 13,
+      "condition": "reset",
+      "mean_response": 0.1618785980408079,
+      "regret": 0.4860458029721658,
+      "events": 90
+    },
+    {
+      "player": 13,
+      "condition": "neural_ablated",
+      "mean_response": 0.3385191489366439,
+      "regret": 0.05847252624106078,
+      "events": 90
+    },
+    {
+      "player": 14,
+      "condition": "random",
+      "mean_response": 0.2631953636421397,
+      "regret": 0.16440829333495333,
+      "events": 90
+    },
+    {
+      "player": 14,
+      "condition": "fixed",
+      "mean_response": 0.23347506901148202,
+      "regret": 0.2058720264779069,
+      "events": 90
+    },
+    {
+      "player": 14,
+      "condition": "cold_start",
+      "mean_response": 0.12163281288699637,
+      "regret": 0.5345785931257937,
+      "events": 90
+    },
+    {
+      "player": 14,
+      "condition": "pretrained_start",
+      "mean_response": 0.3100641035022544,
+      "regret": 0.09032172074442749,
+      "events": 90
+    },
+    {
+      "player": 14,
+      "condition": "v2",
+      "mean_response": 0.3554659955873004,
+      "regret": 0.03272717439638289,
+      "events": 90
+    },
+    {
+      "player": 14,
+      "condition": "v3_cold",
+      "mean_response": 0.36893108701111155,
+      "regret": 0.007505059008644256,
+      "events": 90
+    },
+    {
+      "player": 14,
+      "condition": "v3_pretrained",
+      "mean_response": 0.36893108701111155,
+      "regret": 0.007505059008644256,
+      "events": 90
+    },
+    {
+      "player": 14,
+      "condition": "zero_reward",
+      "mean_response": 0.12163281288699637,
+      "regret": 0.5345785931257937,
+      "events": 90
+    },
+    {
+      "player": 14,
+      "condition": "shuffled_reward",
+      "mean_response": 0.25082377447312965,
+      "regret": 0.19490808608882013,
+      "events": 90
+    },
+    {
+      "player": 14,
+      "condition": "v2_changed_before",
+      "mean_response": 0.1802060491903473,
+      "regret": 0.48772499195286323,
+      "events": 90
+    },
+    {
+      "player": 14,
+      "condition": "v2_changed",
+      "mean_response": 0.39954191257432753,
+      "regret": 0.008081799015878988,
+      "events": 90
+    },
+    {
+      "player": 14,
+      "condition": "v3_changed_before",
+      "mean_response": 0.24108266467696163,
+      "regret": 0.31300279844677426,
+      "events": 90
+    },
+    {
+      "player": 14,
+      "condition": "v3_changed",
+      "mean_response": 0.40670813534323735,
+      "regret": 0.002163117042846187,
+      "events": 90
+    },
+    {
+      "player": 14,
+      "condition": "retained",
+      "mean_response": 0.40670813534323735,
+      "regret": 0.002163117042846187,
+      "events": 90
+    },
+    {
+      "player": 14,
+      "condition": "reset",
+      "mean_response": 0.3154356362454509,
+      "regret": 0.16785739156359938,
+      "events": 90
+    },
+    {
+      "player": 14,
+      "condition": "neural_ablated",
+      "mean_response": 0.39954191257432753,
+      "regret": 0.008081799015878988,
+      "events": 90
+    },
+    {
+      "player": 15,
+      "condition": "random",
+      "mean_response": 0.2881323349121372,
+      "regret": 0.1522288848383831,
+      "events": 90
+    },
+    {
+      "player": 15,
+      "condition": "fixed",
+      "mean_response": 0.26409577494343445,
+      "regret": 0.21968627631240767,
+      "events": 90
+    },
+    {
+      "player": 15,
+      "condition": "cold_start",
+      "mean_response": 0.18799599763570743,
+      "regret": 0.470159339618292,
+      "events": 90
+    },
+    {
+      "player": 15,
+      "condition": "pretrained_start",
+      "mean_response": 0.34125167967443304,
+      "regret": 0.08123092947298684,
+      "events": 90
+    },
+    {
+      "player": 15,
+      "condition": "v2",
+      "mean_response": 0.38333361820793177,
+      "regret": 0.014759360645232979,
+      "events": 90
+    },
+    {
+      "player": 15,
+      "condition": "v3_cold",
+      "mean_response": 0.3814437767055602,
+      "regret": 0.012273451775553628,
+      "events": 90
+    },
+    {
+      "player": 15,
+      "condition": "v3_pretrained",
+      "mean_response": 0.393363757950063,
+      "regret": 0.005558291418356381,
+      "events": 90
+    },
+    {
+      "player": 15,
+      "condition": "zero_reward",
+      "mean_response": 0.18799599763570743,
+      "regret": 0.470159339618292,
+      "events": 90
+    },
+    {
+      "player": 15,
+      "condition": "shuffled_reward",
+      "mean_response": 0.31060591642234076,
+      "regret": 0.10409793246994196,
+      "events": 90
+    },
+    {
+      "player": 15,
+      "condition": "v2_changed_before",
+      "mean_response": 0.23187590979536712,
+      "regret": 0.25628264211142343,
+      "events": 90
+    },
+    {
+      "player": 15,
+      "condition": "v2_changed",
+      "mean_response": 0.33001563599605555,
+      "regret": 0.12507818411324367,
+      "events": 90
+    },
+    {
+      "player": 15,
+      "condition": "v3_changed_before",
+      "mean_response": 0.2419060495374983,
+      "regret": 0.24332935154233373,
+      "events": 90
+    },
+    {
+      "player": 15,
+      "condition": "v3_changed",
+      "mean_response": 0.39526078275876264,
+      "regret": 0.002472744555169491,
+      "events": 90
+    },
+    {
+      "player": 15,
+      "condition": "retained",
+      "mean_response": 0.39526078275876264,
+      "regret": 0.002472744555169491,
+      "events": 90
+    },
+    {
+      "player": 15,
+      "condition": "reset",
+      "mean_response": 0.37483208316682914,
+      "regret": 0.033125159446717546,
+      "events": 90
+    },
+    {
+      "player": 15,
+      "condition": "neural_ablated",
+      "mean_response": 0.32325373434183585,
+      "regret": 0.14154488438197588,
+      "events": 90
+    },
+    {
+      "player": 16,
+      "condition": "random",
+      "mean_response": 0.24262348257249503,
+      "regret": 0.20732542075998803,
+      "events": 90
+    },
+    {
+      "player": 16,
+      "condition": "fixed",
+      "mean_response": 0.280356985567722,
+      "regret": 0.11902405415969333,
+      "events": 90
+    },
+    {
+      "player": 16,
+      "condition": "cold_start",
+      "mean_response": 0.3671663670432338,
+      "regret": 0.034460653365761616,
+      "events": 90
+    },
+    {
+      "player": 16,
+      "condition": "pretrained_start",
+      "mean_response": 0.30034859657193275,
+      "regret": 0.15348312511868256,
+      "events": 90
+    },
+    {
+      "player": 16,
+      "condition": "v2",
+      "mean_response": 0.3747103265168955,
+      "regret": 0.02521218765105294,
+      "events": 90
+    },
+    {
+      "player": 16,
+      "condition": "v3_cold",
+      "mean_response": 0.383831202814074,
+      "regret": 0.006254268431997006,
+      "events": 90
+    },
+    {
+      "player": 16,
+      "condition": "v3_pretrained",
+      "mean_response": 0.38287019374999737,
+      "regret": 0.011036346982163308,
+      "events": 90
+    },
+    {
+      "player": 16,
+      "condition": "zero_reward",
+      "mean_response": 0.3671663670432338,
+      "regret": 0.034460653365761616,
+      "events": 90
+    },
+    {
+      "player": 16,
+      "condition": "shuffled_reward",
+      "mean_response": 0.2906477298555015,
+      "regret": 0.11385690029539959,
+      "events": 90
+    },
+    {
+      "player": 16,
+      "condition": "v2_changed_before",
+      "mean_response": 0.2219119885936676,
+      "regret": 0.24525589308019657,
+      "events": 90
+    },
+    {
+      "player": 16,
+      "condition": "v2_changed",
+      "mean_response": 0.2602923502598972,
+      "regret": 0.18166102415650973,
+      "events": 90
+    },
+    {
+      "player": 16,
+      "condition": "v3_changed_before",
+      "mean_response": 0.27157815595266593,
+      "regret": 0.18380895594730054,
+      "events": 90
+    },
+    {
+      "player": 16,
+      "condition": "v3_changed",
+      "mean_response": 0.34212330687283493,
+      "regret": 0.021688025435718735,
+      "events": 90
+    },
+    {
+      "player": 16,
+      "condition": "retained",
+      "mean_response": 0.34212330687283493,
+      "regret": 0.021688025435718735,
+      "events": 90
+    },
+    {
+      "player": 16,
+      "condition": "reset",
+      "mean_response": 0.21430379333768673,
+      "regret": 0.2585423818413892,
+      "events": 90
+    },
+    {
+      "player": 16,
+      "condition": "neural_ablated",
+      "mean_response": 0.26580207331368244,
+      "regret": 0.12884347476713448,
+      "events": 90
+    },
+    {
+      "player": 17,
+      "condition": "random",
+      "mean_response": 0.26332949316951515,
+      "regret": 0.15399001871815632,
+      "events": 90
+    },
+    {
+      "player": 17,
+      "condition": "fixed",
+      "mean_response": 0.23761467662774013,
+      "regret": 0.2018186165998278,
+      "events": 90
+    },
+    {
+      "player": 17,
+      "condition": "cold_start",
+      "mean_response": 0.12048396931000192,
+      "regret": 0.527401142865509,
+      "events": 90
+    },
+    {
+      "player": 17,
+      "condition": "pretrained_start",
+      "mean_response": 0.3202801830130192,
+      "regret": 0.05663696447841645,
+      "events": 90
+    },
+    {
+      "player": 17,
+      "condition": "v2",
+      "mean_response": 0.3686077951716564,
+      "regret": 0.010548597362797252,
+      "events": 90
+    },
+    {
+      "player": 17,
+      "condition": "v3_cold",
+      "mean_response": 0.3588148763203775,
+      "regret": 0.017023296984924483,
+      "events": 90
+    },
+    {
+      "player": 17,
+      "condition": "v3_pretrained",
+      "mean_response": 0.36164718573839105,
+      "regret": 0.019083310292082028,
+      "events": 90
+    },
+    {
+      "player": 17,
+      "condition": "zero_reward",
+      "mean_response": 0.12048396931000192,
+      "regret": 0.527401142865509,
+      "events": 90
+    },
+    {
+      "player": 17,
+      "condition": "shuffled_reward",
+      "mean_response": 0.3084952803059053,
+      "regret": 0.10301840520452693,
+      "events": 90
+    },
+    {
+      "player": 17,
+      "condition": "v2_changed_before",
+      "mean_response": 0.2066207540190319,
+      "regret": 0.38859359234227137,
+      "events": 90
+    },
+    {
+      "player": 17,
+      "condition": "v2_changed",
+      "mean_response": 0.3769908715848643,
+      "regret": 0.010375373286574575,
+      "events": 90
+    },
+    {
+      "player": 17,
+      "condition": "v3_changed_before",
+      "mean_response": 0.1883560348611873,
+      "regret": 0.4282548913783476,
+      "events": 90
+    },
+    {
+      "player": 17,
+      "condition": "v3_changed",
+      "mean_response": 0.3789790405392595,
+      "regret": 0.0008465491389873715,
+      "events": 90
+    },
+    {
+      "player": 17,
+      "condition": "retained",
+      "mean_response": 0.3789790405392595,
+      "regret": 0.0008465491389873715,
+      "events": 90
+    },
+    {
+      "player": 17,
+      "condition": "reset",
+      "mean_response": 0.2992413958046571,
+      "regret": 0.17106292903890438,
+      "events": 90
+    },
+    {
+      "player": 17,
+      "condition": "neural_ablated",
+      "mean_response": 0.3769908715848643,
+      "regret": 0.010375373286574575,
+      "events": 90
+    },
+    {
+      "player": 18,
+      "condition": "random",
+      "mean_response": 0.2561410668048777,
+      "regret": 0.15075893276593294,
+      "events": 90
+    },
+    {
+      "player": 18,
+      "condition": "fixed",
+      "mean_response": 0.27416726014087867,
+      "regret": 0.1231611061022452,
+      "events": 90
+    },
+    {
+      "player": 18,
+      "condition": "cold_start",
+      "mean_response": 0.33289736310580825,
+      "regret": 0.054452728798887365,
+      "events": 90
+    },
+    {
+      "player": 18,
+      "condition": "pretrained_start",
+      "mean_response": 0.3091391822471201,
+      "regret": 0.12178717981533628,
+      "events": 90
+    },
+    {
+      "player": 18,
+      "condition": "v2",
+      "mean_response": 0.34108167036730924,
+      "regret": 0.014915596380287275,
+      "events": 90
+    },
+    {
+      "player": 18,
+      "condition": "v3_cold",
+      "mean_response": 0.35121879738085504,
+      "regret": 0.0018865025351754024,
+      "events": 90
+    },
+    {
+      "player": 18,
+      "condition": "v3_pretrained",
+      "mean_response": 0.3509689730426193,
+      "regret": 0.001293287027023082,
+      "events": 90
+    },
+    {
+      "player": 18,
+      "condition": "zero_reward",
+      "mean_response": 0.33289736310580825,
+      "regret": 0.054452728798887365,
+      "events": 90
+    },
+    {
+      "player": 18,
+      "condition": "shuffled_reward",
+      "mean_response": 0.29025885223194414,
+      "regret": 0.11131743682085593,
+      "events": 90
+    },
+    {
+      "player": 18,
+      "condition": "v2_changed_before",
+      "mean_response": 0.1360186594838922,
+      "regret": 0.5250673279275472,
+      "events": 90
+    },
+    {
+      "player": 18,
+      "condition": "v2_changed",
+      "mean_response": 0.33739243586548473,
+      "regret": 0.04154842177660856,
+      "events": 90
+    },
+    {
+      "player": 18,
+      "condition": "v3_changed_before",
+      "mean_response": 0.1889972489872824,
+      "regret": 0.38386852224011075,
+      "events": 90
+    },
+    {
+      "player": 18,
+      "condition": "v3_changed",
+      "mean_response": 0.3894570441778213,
+      "regret": 0.005200080974442325,
+      "events": 90
+    },
+    {
+      "player": 18,
+      "condition": "retained",
+      "mean_response": 0.3894570441778213,
+      "regret": 0.005200080974442325,
+      "events": 90
+    },
+    {
+      "player": 18,
+      "condition": "reset",
+      "mean_response": 0.13328952022849977,
+      "regret": 0.5277964671829397,
+      "events": 90
+    },
+    {
+      "player": 18,
+      "condition": "neural_ablated",
+      "mean_response": 0.357589584481492,
+      "regret": 0.052293603980617366,
+      "events": 90
+    },
+    {
+      "player": 19,
+      "condition": "random",
+      "mean_response": 0.2738229203053711,
+      "regret": 0.135197161981025,
+      "events": 90
+    },
+    {
+      "player": 19,
+      "condition": "fixed",
+      "mean_response": 0.260341383404147,
+      "regret": 0.1531120533946853,
+      "events": 90
+    },
+    {
+      "player": 19,
+      "condition": "cold_start",
+      "mean_response": 0.2095650960949288,
+      "regret": 0.2551030233064884,
+      "events": 90
+    },
+    {
+      "player": 19,
+      "condition": "pretrained_start",
+      "mean_response": 0.32312622326635587,
+      "regret": 0.08970152602945383,
+      "events": 90
+    },
+    {
+      "player": 19,
+      "condition": "v2",
+      "mean_response": 0.36872429756302155,
+      "regret": 0.02193800581913856,
+      "events": 90
+    },
+    {
+      "player": 19,
+      "condition": "v3_cold",
+      "mean_response": 0.3690255615300354,
+      "regret": 0.007415190003804679,
+      "events": 90
+    },
+    {
+      "player": 19,
+      "condition": "v3_pretrained",
+      "mean_response": 0.3702917761389778,
+      "regret": 0.019091990769266255,
+      "events": 90
+    },
+    {
+      "player": 19,
+      "condition": "zero_reward",
+      "mean_response": 0.2095650960949288,
+      "regret": 0.2551030233064884,
+      "events": 90
+    },
+    {
+      "player": 19,
+      "condition": "shuffled_reward",
+      "mean_response": 0.223187285581373,
+      "regret": 0.20493826238469912,
+      "events": 90
+    },
+    {
+      "player": 19,
+      "condition": "v2_changed_before",
+      "mean_response": 0.2200001756280889,
+      "regret": 0.2542121868261502,
+      "events": 90
+    },
+    {
+      "player": 19,
+      "condition": "v2_changed",
+      "mean_response": 0.3360448078144666,
+      "regret": 0.08947893949004736,
+      "events": 90
+    },
+    {
+      "player": 19,
+      "condition": "v3_changed_before",
+      "mean_response": 0.2615312229938605,
+      "regret": 0.19098982812662335,
+      "events": 90
+    },
+    {
+      "player": 19,
+      "condition": "v3_changed",
+      "mean_response": 0.38408109017013914,
+      "regret": 0.0040656145898487,
+      "events": 90
+    },
+    {
+      "player": 19,
+      "condition": "retained",
+      "mean_response": 0.38408109017013914,
+      "regret": 0.0040656145898487,
+      "events": 90
+    },
+    {
+      "player": 19,
+      "condition": "reset",
+      "mean_response": 0.16113023451271424,
+      "regret": 0.4876538473096505,
+      "events": 90
+    },
+    {
+      "player": 19,
+      "condition": "neural_ablated",
+      "mean_response": 0.37362552063963245,
+      "regret": 0.015986794754559566,
+      "events": 90
+    },
+    {
+      "player": 20,
+      "condition": "random",
+      "mean_response": 0.26234215683444656,
+      "regret": 0.1903688503423065,
+      "events": 90
+    },
+    {
+      "player": 20,
+      "condition": "fixed",
+      "mean_response": 0.3036439936333832,
+      "regret": 0.10821617860541113,
+      "events": 90
+    },
+    {
+      "player": 20,
+      "condition": "cold_start",
+      "mean_response": 0.3861130868746844,
+      "regret": 0.017855626948091795,
+      "events": 90
+    },
+    {
+      "player": 20,
+      "condition": "pretrained_start",
+      "mean_response": 0.35046089954969706,
+      "regret": 0.06537298701624514,
+      "events": 90
+    },
+    {
+      "player": 20,
+      "condition": "v2",
+      "mean_response": 0.3938138038713113,
+      "regret": 0.007108101668459002,
+      "events": 90
+    },
+    {
+      "player": 20,
+      "condition": "v3_cold",
+      "mean_response": 0.3861130868746844,
+      "regret": 0.017855626948091795,
+      "events": 90
+    },
+    {
+      "player": 20,
+      "condition": "v3_pretrained",
+      "mean_response": 0.3861130868746844,
+      "regret": 0.017855626948091795,
+      "events": 90
+    },
+    {
+      "player": 20,
+      "condition": "zero_reward",
+      "mean_response": 0.3861130868746844,
+      "regret": 0.017855626948091795,
+      "events": 90
+    },
+    {
+      "player": 20,
+      "condition": "shuffled_reward",
+      "mean_response": 0.3122010512927447,
+      "regret": 0.08145875327237495,
+      "events": 90
+    },
+    {
+      "player": 20,
+      "condition": "v2_changed_before",
+      "mean_response": 0.23074084978990683,
+      "regret": 0.21524198594517271,
+      "events": 90
+    },
+    {
+      "player": 20,
+      "condition": "v2_changed",
+      "mean_response": 0.27271786345707055,
+      "regret": 0.15042276398166324,
+      "events": 90
+    },
+    {
+      "player": 20,
+      "condition": "v3_changed_before",
+      "mean_response": 0.22272091914892075,
+      "regret": 0.24852444154100947,
+      "events": 90
+    },
+    {
+      "player": 20,
+      "condition": "v3_changed",
+      "mean_response": 0.3197033229312812,
+      "regret": 0.029720353404396195,
+      "events": 90
+    },
+    {
+      "player": 20,
+      "condition": "retained",
+      "mean_response": 0.3197033229312812,
+      "regret": 0.029720353404396195,
+      "events": 90
+    },
+    {
+      "player": 20,
+      "condition": "reset",
+      "mean_response": 0.22272091914892075,
+      "regret": 0.24852444154100947,
+      "events": 90
+    },
+    {
+      "player": 20,
+      "condition": "neural_ablated",
+      "mean_response": 0.181118452496734,
+      "regret": 0.4230853597978021,
+      "events": 90
+    },
+    {
+      "player": 21,
+      "condition": "random",
+      "mean_response": 0.29260427431654257,
+      "regret": 0.14494493128503178,
+      "events": 90
+    },
+    {
+      "player": 21,
+      "condition": "fixed",
+      "mean_response": 0.3166906694310387,
+      "regret": 0.08863420957898156,
+      "events": 90
+    },
+    {
+      "player": 21,
+      "condition": "cold_start",
+      "mean_response": 0.35151703277871194,
+      "regret": 0.02782161649115051,
+      "events": 90
+    },
+    {
+      "player": 21,
+      "condition": "pretrained_start",
+      "mean_response": 0.3213470960479936,
+      "regret": 0.12801582750442825,
+      "events": 90
+    },
+    {
+      "player": 21,
+      "condition": "v2",
+      "mean_response": 0.3700918755046754,
+      "regret": 0.005133193401062307,
+      "events": 90
+    },
+    {
+      "player": 21,
+      "condition": "v3_cold",
+      "mean_response": 0.3773083847108836,
+      "regret": 0.011112183064894933,
+      "events": 90
+    },
+    {
+      "player": 21,
+      "condition": "v3_pretrained",
+      "mean_response": 0.33393908330025723,
+      "regret": 0.03459767134359068,
+      "events": 90
+    },
+    {
+      "player": 21,
+      "condition": "zero_reward",
+      "mean_response": 0.35151703277871194,
+      "regret": 0.02782161649115051,
+      "events": 90
+    },
+    {
+      "player": 21,
+      "condition": "shuffled_reward",
+      "mean_response": 0.221101687256122,
+      "regret": 0.2580047305401421,
+      "events": 90
+    },
+    {
+      "player": 21,
+      "condition": "v2_changed_before",
+      "mean_response": 0.21623332782779164,
+      "regret": 0.22820922401871818,
+      "events": 90
+    },
+    {
+      "player": 21,
+      "condition": "v2_changed",
+      "mean_response": 0.2615487072191416,
+      "regret": 0.1976002528374698,
+      "events": 90
+    },
+    {
+      "player": 21,
+      "condition": "v3_changed_before",
+      "mean_response": 0.22744918653074755,
+      "regret": 0.18765479436336352,
+      "events": 90
+    },
+    {
+      "player": 21,
+      "condition": "v3_changed",
+      "mean_response": 0.35864454556797004,
+      "regret": 0.004862693254002236,
+      "events": 90
+    },
+    {
+      "player": 21,
+      "condition": "retained",
+      "mean_response": 0.35864454556797004,
+      "regret": 0.004862693254002236,
+      "events": 90
+    },
+    {
+      "player": 21,
+      "condition": "reset",
+      "mean_response": 0.19765848510182826,
+      "regret": 0.26141022369816336,
+      "events": 90
+    },
+    {
+      "player": 21,
+      "condition": "neural_ablated",
+      "mean_response": 0.19765848510182826,
+      "regret": 0.26141022369816336,
+      "events": 90
+    },
+    {
+      "player": 22,
+      "condition": "random",
+      "mean_response": 0.24514189016925675,
+      "regret": 0.15028395157785218,
+      "events": 90
+    },
+    {
+      "player": 22,
+      "condition": "fixed",
+      "mean_response": 0.2519014965537295,
+      "regret": 0.14109260073084046,
+      "events": 90
+    },
+    {
+      "player": 22,
+      "condition": "cold_start",
+      "mean_response": 0.2134969092381822,
+      "regret": 0.2372039352933024,
+      "events": 90
+    },
+    {
+      "player": 22,
+      "condition": "pretrained_start",
+      "mean_response": 0.27753626427733585,
+      "regret": 0.13028503658868265,
+      "events": 90
+    },
+    {
+      "player": 22,
+      "condition": "v2",
+      "mean_response": 0.3418622183449916,
+      "regret": 0.03221994088256784,
+      "events": 90
+    },
+    {
+      "player": 22,
+      "condition": "v3_cold",
+      "mean_response": 0.35568386442154565,
+      "regret": 0.011042375204128449,
+      "events": 90
+    },
+    {
+      "player": 22,
+      "condition": "v3_pretrained",
+      "mean_response": 0.34987956981681456,
+      "regret": 0.015630719420016453,
+      "events": 90
+    },
+    {
+      "player": 22,
+      "condition": "zero_reward",
+      "mean_response": 0.2134969092381822,
+      "regret": 0.2372039352933024,
+      "events": 90
+    },
+    {
+      "player": 22,
+      "condition": "shuffled_reward",
+      "mean_response": 0.30625388913371465,
+      "regret": 0.08549915779329549,
+      "events": 90
+    },
+    {
+      "player": 22,
+      "condition": "v2_changed_before",
+      "mean_response": 0.21477660675888266,
+      "regret": 0.2725515264261999,
+      "events": 90
+    },
+    {
+      "player": 22,
+      "condition": "v2_changed",
+      "mean_response": 0.3421337605059748,
+      "regret": 0.06614814234653735,
+      "events": 90
+    },
+    {
+      "player": 22,
+      "condition": "v3_changed_before",
+      "mean_response": 0.2424663620621673,
+      "regret": 0.22723547597334057,
+      "events": 90
+    },
+    {
+      "player": 22,
+      "condition": "v3_changed",
+      "mean_response": 0.38187435818792365,
+      "regret": 0.012161979543804624,
+      "events": 90
+    },
+    {
+      "player": 22,
+      "condition": "retained",
+      "mean_response": 0.38187435818792365,
+      "regret": 0.012161979543804624,
+      "events": 90
+    },
+    {
+      "player": 22,
+      "condition": "reset",
+      "mean_response": 0.17643434987644796,
+      "regret": 0.46906479262174394,
+      "events": 90
+    },
+    {
+      "player": 22,
+      "condition": "neural_ablated",
+      "mean_response": 0.38777298070518174,
+      "regret": 0.01378546768324402,
+      "events": 90
+    },
+    {
+      "player": 23,
+      "condition": "random",
+      "mean_response": 0.25334920941530764,
+      "regret": 0.18380936204863088,
+      "events": 90
+    },
+    {
+      "player": 23,
+      "condition": "fixed",
+      "mean_response": 0.22454503083787397,
+      "regret": 0.22172160956326392,
+      "events": 90
+    },
+    {
+      "player": 23,
+      "condition": "cold_start",
+      "mean_response": 0.11231403776307407,
+      "regret": 0.5414775598317434,
+      "events": 90
+    },
+    {
+      "player": 23,
+      "condition": "pretrained_start",
+      "mean_response": 0.35055328263318847,
+      "regret": 0.05908796217936874,
+      "events": 90
+    },
+    {
+      "player": 23,
+      "condition": "v2",
+      "mean_response": 0.36033651729302496,
+      "regret": 0.030156722759466677,
+      "events": 90
+    },
+    {
+      "player": 23,
+      "condition": "v3_cold",
+      "mean_response": 0.36062812862360144,
+      "regret": 0.0382324321806463,
+      "events": 90
+    },
+    {
+      "player": 23,
+      "condition": "v3_pretrained",
+      "mean_response": 0.3828958400309542,
+      "regret": 0.026341976314009394,
+      "events": 90
+    },
+    {
+      "player": 23,
+      "condition": "zero_reward",
+      "mean_response": 0.11231403776307407,
+      "regret": 0.5414775598317434,
+      "events": 90
+    },
+    {
+      "player": 23,
+      "condition": "shuffled_reward",
+      "mean_response": 0.20755838757603295,
+      "regret": 0.22138837786595558,
+      "events": 90
+    },
+    {
+      "player": 23,
+      "condition": "v2_changed_before",
+      "mean_response": 0.23004587382031544,
+      "regret": 0.35843905206706234,
+      "events": 90
+    },
+    {
+      "player": 23,
+      "condition": "v2_changed",
+      "mean_response": 0.4021963636798513,
+      "regret": 0.02121318889344797,
+      "events": 90
+    },
+    {
+      "player": 23,
+      "condition": "v3_changed_before",
+      "mean_response": 0.22106343391204158,
+      "regret": 0.4154126449230863,
+      "events": 90
+    },
+    {
+      "player": 23,
+      "condition": "v3_changed",
+      "mean_response": 0.4158866207793825,
+      "regret": 0.0013080568266717028,
+      "events": 90
+    },
+    {
+      "player": 23,
+      "condition": "retained",
+      "mean_response": 0.4158866207793825,
+      "regret": 0.0013080568266717028,
+      "events": 90
+    },
+    {
+      "player": 23,
+      "condition": "reset",
+      "mean_response": 0.32132927298526476,
+      "regret": 0.1585801975554714,
+      "events": 90
+    },
+    {
+      "player": 23,
+      "condition": "neural_ablated",
+      "mean_response": 0.4021963636798513,
+      "regret": 0.02121318889344797,
+      "events": 90
+    }
+  ],
+  "budget": "Identical 5/60s, 8s gap, 16s repeat; 3s decisions; 60 decisions per episode",
+  "evaluation": "Frozen weights and no exploration; separate neural contexts and persona seeds",
+  "persona_seed_start": 18000,
+  "source_sha256": {
+    "brain/director.py": "8d01709c07f37496019c2965722eab0b029feb18c65549b34a03f95aee043f7b",
+    "brain/connectome.py": "f5412ecd4e994d95da52f288072acaea0634468ed5d5a82dd3885aadc94469b7",
+    "tools/train.py": "a6411de58b5367d0f47aeaa867a201f3bd05b4912af16002499f775b25638406",
+    "reports/learning-v3/director-v2.py": "d82cabeb6113238f7458c965e76d9a6e2f0b2c6bb5fccf34257d8c09ff062737"
+  },
+  "limitations": "Synthetic preference families and reused full-graph traces; no human labels, no biological plasticity, no learned timing or learned flight. Each preference change rotates the simulated bias; response rules are not discovered facts about people."
+}

@@ -1,0 +1,6 @@
+test_real_worker (tests.test_socket.SocketTests.test_real_worker) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 8.662s
+
+OK

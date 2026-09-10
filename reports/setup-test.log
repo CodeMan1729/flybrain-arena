@@ -1,0 +1,6 @@
+Python 3.12.12 is already installed
+Audited 5 packages in 16ms
+Verified annotations.feather
+Verified neurotransmitters.feather
+Verified edges.feather
+Hazır. Başlat: ./run.sh   Test: ./test.sh

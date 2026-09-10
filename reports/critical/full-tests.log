@@ -1,0 +1,27 @@
+test_delayed_reply_never_reaches_game (test_client.ClientDeadlineTests.test_delayed_reply_never_reaches_game) ... ok
+test_learning_external_reproducible_persistent (test_core.CoreTests.test_learning_external_reproducible_persistent) ... ok
+test_normalization_and_boundary (test_core.CoreTests.test_normalization_and_boundary) ... ok
+test_reward_is_bounded_and_baseline_corrected (test_core.CoreTests.test_reward_is_bounded_and_baseline_corrected) ... ok
+test_same_budget_and_cooldowns (test_core.CoreTests.test_same_budget_and_cooldowns) ... ok
+test_context_learning_retention_erasure_and_allowed_actions (test_core.LearningChecks.test_context_learning_retention_erasure_and_allowed_actions) ... ok
+test_end_to_end_actual_wiring (test_core.RealDataTests.test_end_to_end_actual_wiring) ... ok
+test_full_data_provenance (test_core.RealDataTests.test_full_data_provenance) ... ok
+test_real_worker (test_socket.SocketTests.test_real_worker) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 14.013s
+
+OK
+Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org
+
+PASS: Unobstructed nearby key remains interactable
+PASS: Solid obstacle prevents collecting key through it
+PASS: Key can be collected after obstacle is removed
+PASS: Fast turn survives until 10 Hz telemetry sample
+PASS: Old turn expires instead of producing repeated reactions
+PASS: Fly searches even when neural lateral drive cancels old search turn
+PASS: Lost brain connection stops physical fly without stale drift
+PASS: Window focus loss pauses player, fly and event decisions
+FLYFEAR hazır · localhost · tam MaleCNS grafiği
+Oyun günlüğü: <project>/logs/validation/20260910-183139/20260910-183139-game.log
+Python ve headless oynanış testleri geçti. Görünür 1080p ölçüm: ./run.sh --benchmark

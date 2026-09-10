@@ -1,0 +1,13 @@
+{
+  "python": "3.12.12",
+  "architecture": "arm64",
+  "macOS": "26.6.2",
+  "packages": {
+    "numpy": "2.2.6",
+    "scipy": "1.15.3",
+    "pyarrow": "20.0.0",
+    "websockets": "15.0.1",
+    "psutil": "7.0.0"
+  },
+  "godot": "4.5.2.stable.official.6ce3de25a"
+}

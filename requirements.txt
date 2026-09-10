@@ -1,0 +1,5 @@
+numpy==2.2.6
+scipy==1.15.3
+pyarrow==20.0.0
+websockets==15.0.1
+psutil==7.0.0

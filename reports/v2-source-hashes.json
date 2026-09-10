@@ -1,0 +1,16 @@
+{
+  "brain/server.py": "580b4329e3139810feb9ed2301339e27bc1b624efbf6e66435058aaf98b179ec",
+  "brain/connectome.py": "e20b3ea9088dd3dce9d2dfd712a671750d05022dd461433357ecedd04845d623",
+  "brain/director.py": "d82cabeb6113238f7458c965e76d9a6e2f0b2c6bb5fccf34257d8c09ff062737",
+  "game/fly.gd": "facdebcc02116c0b2b83cb06d95020bcec6effb0da643cbcb46a0187d6adffbe",
+  "game/brain_view.gd": "db8784498d113d6270bb366a1877242a3392f502f860c6abfed94a2d04c67485",
+  "game/player.gd": "bf48e2dd3e1a78c679a4e7686eab8ed38b4238fdc8c776a641807b6d2327aeb4",
+  "game/main.gd": "98b457d5e587b6137fe3ce96538f35c8a4973801e1b939c509055e359acab706",
+  "game/director.gd": "c15f8841f55fdec212639deee7a1d77378486f43848cb529763df9f4782af2ab",
+  "game/project.godot": "b0dcdc75d7f8a147b673b993f213c61554904f75339266eadc513208f0389887",
+  "tests/test_core.py": "878efa13aae019811d498a929041bd476d7eb2d4e2cc5bc907e922ce0edc4c29",
+  "tests/test_socket.py": "77bd308a1415082fb02fa25d295583a1c59d3fcdf9b6745de5bea60b5cbdf2d4",
+  "tests/test_client.py": "677650540988bdc0ddd38fd023b5307da7938b6f23fdb83e577162c2c81d9785",
+  "tests/client.gd": "39bd5d315100c1320ebbaf7553f633f9a58eeccf7cfb46d1df7be68abbc7e02b",
+  "tools/experiment.py": "8cd2b881936051d71d46c48253f635fd07496d2ae7a9566b3da1f78e0e56c347"
+}

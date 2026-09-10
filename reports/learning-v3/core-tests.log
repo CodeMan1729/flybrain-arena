@@ -1,0 +1,12 @@
+test_learning_external_reproducible_persistent (tests.test_core.CoreTests.test_learning_external_reproducible_persistent) ... ok
+test_normalization_and_boundary (tests.test_core.CoreTests.test_normalization_and_boundary) ... ok
+test_reward_is_bounded_and_baseline_corrected (tests.test_core.CoreTests.test_reward_is_bounded_and_baseline_corrected) ... ok
+test_same_budget_and_cooldowns (tests.test_core.CoreTests.test_same_budget_and_cooldowns) ... ok
+test_context_learning_retention_erasure_and_allowed_actions (tests.test_core.LearningChecks.test_context_learning_retention_erasure_and_allowed_actions) ... ok
+test_end_to_end_actual_wiring (tests.test_core.RealDataTests.test_end_to_end_actual_wiring) ... ok
+test_full_data_provenance (tests.test_core.RealDataTests.test_full_data_provenance) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 1.931s
+
+OK

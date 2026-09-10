@@ -1,0 +1,549 @@
+{
+  "kind": "Synthetic context task; external decoder learning, NOT human fear or biological learning",
+  "model": "malecns-rate-readout-v2",
+  "graph": "full MaleCNS v1.0",
+  "graph_weights_unchanged": true,
+  "graph_weights_sha256": "8ad2164f2ba44b8be7dc0ce7a1be70890f963b6c84ae272f4cb84e1b04ba8d48",
+  "real_neural_decisions": 192,
+  "train_trace_seed": 2101,
+  "held_out_trace_seed": 9107,
+  "training_decisions_per_seed": 3072,
+  "evaluation_decisions_per_condition_seed": 512,
+  "training_epochs": 24,
+  "evaluation_frozen": true,
+  "budget": "5/60s; 8s gap; 16s repeat; allowed actions masked before choice",
+  "response_formula": "lights=.5+.38*x; steps=.5-.38*x; silhouette=.45+.38*speed; normalized x/speed, clipped .02..98",
+  "means": {
+    "fixed": 0.48408424751228896,
+    "memory_erased": 0.45225471571336917,
+    "neural_features_ablated": 0.518770086877048,
+    "no_reward": 0.45225471571336917,
+    "random": 0.4821293527076188,
+    "retained": 0.620738989165587,
+    "shuffled_reward": 0.484203277833407,
+    "trained": 0.620738989165587,
+    "untrained": 0.45225471571336917
+  },
+  "trained_minus_fixed_paired": [
+    0.11640776664643127,
+    0.14694782330661782,
+    0.11439931131148517,
+    0.1462007791588314,
+    0.14504251861334738,
+    0.14654467411610012,
+    0.15184287117028883,
+    0.12585218890328248
+  ],
+  "paired_bootstrap_95_interval": [
+    0.12658039732126414,
+    0.145857955219604
+  ],
+  "limitations": "8 policy seeds share 192 neural trace points; replay does not establish independent animals, human efficacy, closed-loop adaptation or unfamiliar response laws.",
+  "results": [
+    {
+      "seed": 3,
+      "condition": "random",
+      "mean_response": 0.5136951971680734,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 3,
+      "condition": "fixed",
+      "mean_response": 0.5043312225191557,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 3,
+      "condition": "untrained",
+      "mean_response": 0.45225471571336917,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 3,
+      "condition": "trained",
+      "mean_response": 0.620738989165587,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 3,
+      "condition": "retained",
+      "mean_response": 0.620738989165587,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 3,
+      "condition": "shuffled_reward",
+      "mean_response": 0.47762710383176343,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 3,
+      "condition": "no_reward",
+      "mean_response": 0.45225471571336917,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 3,
+      "condition": "memory_erased",
+      "mean_response": 0.45225471571336917,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 3,
+      "condition": "neural_features_ablated",
+      "mean_response": 0.518770086877048,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 17,
+      "condition": "random",
+      "mean_response": 0.48067087244848866,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 17,
+      "condition": "fixed",
+      "mean_response": 0.4737911658589692,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 17,
+      "condition": "untrained",
+      "mean_response": 0.45225471571336917,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 17,
+      "condition": "trained",
+      "mean_response": 0.620738989165587,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 17,
+      "condition": "retained",
+      "mean_response": 0.620738989165587,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 17,
+      "condition": "shuffled_reward",
+      "mean_response": 0.45855710930591664,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 17,
+      "condition": "no_reward",
+      "mean_response": 0.45225471571336917,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 17,
+      "condition": "memory_erased",
+      "mean_response": 0.45225471571336917,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 17,
+      "condition": "neural_features_ablated",
+      "mean_response": 0.518770086877048,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 42,
+      "condition": "random",
+      "mean_response": 0.48311403908691003,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 42,
+      "condition": "fixed",
+      "mean_response": 0.5063396778541018,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 42,
+      "condition": "untrained",
+      "mean_response": 0.45225471571336917,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 42,
+      "condition": "trained",
+      "mean_response": 0.620738989165587,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 42,
+      "condition": "retained",
+      "mean_response": 0.620738989165587,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 42,
+      "condition": "shuffled_reward",
+      "mean_response": 0.4536700079204919,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 42,
+      "condition": "no_reward",
+      "mean_response": 0.45225471571336917,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 42,
+      "condition": "memory_erased",
+      "mean_response": 0.45225471571336917,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 42,
+      "condition": "neural_features_ablated",
+      "mean_response": 0.518770086877048,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 71,
+      "condition": "random",
+      "mean_response": 0.45274109403187657,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 71,
+      "condition": "fixed",
+      "mean_response": 0.4745382100067556,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 71,
+      "condition": "untrained",
+      "mean_response": 0.45225471571336917,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 71,
+      "condition": "trained",
+      "mean_response": 0.620738989165587,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 71,
+      "condition": "retained",
+      "mean_response": 0.620738989165587,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 71,
+      "condition": "shuffled_reward",
+      "mean_response": 0.47531629898791133,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 71,
+      "condition": "no_reward",
+      "mean_response": 0.45225471571336917,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 71,
+      "condition": "memory_erased",
+      "mean_response": 0.45225471571336917,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 71,
+      "condition": "neural_features_ablated",
+      "mean_response": 0.518770086877048,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 123,
+      "condition": "random",
+      "mean_response": 0.4907204418659369,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 123,
+      "condition": "fixed",
+      "mean_response": 0.4756964705522396,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 123,
+      "condition": "untrained",
+      "mean_response": 0.45225471571336917,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 123,
+      "condition": "trained",
+      "mean_response": 0.620738989165587,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 123,
+      "condition": "retained",
+      "mean_response": 0.620738989165587,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 123,
+      "condition": "shuffled_reward",
+      "mean_response": 0.4715055052784106,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 123,
+      "condition": "no_reward",
+      "mean_response": 0.45225471571336917,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 123,
+      "condition": "memory_erased",
+      "mean_response": 0.45225471571336917,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 123,
+      "condition": "neural_features_ablated",
+      "mean_response": 0.518770086877048,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 208,
+      "condition": "random",
+      "mean_response": 0.4738754955894682,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 208,
+      "condition": "fixed",
+      "mean_response": 0.4741943150494869,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 208,
+      "condition": "untrained",
+      "mean_response": 0.45225471571336917,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 208,
+      "condition": "trained",
+      "mean_response": 0.620738989165587,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 208,
+      "condition": "retained",
+      "mean_response": 0.620738989165587,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 208,
+      "condition": "shuffled_reward",
+      "mean_response": 0.5487055670847222,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 208,
+      "condition": "no_reward",
+      "mean_response": 0.45225471571336917,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 208,
+      "condition": "memory_erased",
+      "mean_response": 0.45225471571336917,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 208,
+      "condition": "neural_features_ablated",
+      "mean_response": 0.518770086877048,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 501,
+      "condition": "random",
+      "mean_response": 0.4909251390077,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 501,
+      "condition": "fixed",
+      "mean_response": 0.4688961179952982,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 501,
+      "condition": "untrained",
+      "mean_response": 0.45225471571336917,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 501,
+      "condition": "trained",
+      "mean_response": 0.620738989165587,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 501,
+      "condition": "retained",
+      "mean_response": 0.620738989165587,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 501,
+      "condition": "shuffled_reward",
+      "mean_response": 0.45671131570603296,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 501,
+      "condition": "no_reward",
+      "mean_response": 0.45225471571336917,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 501,
+      "condition": "memory_erased",
+      "mean_response": 0.45225471571336917,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 501,
+      "condition": "neural_features_ablated",
+      "mean_response": 0.518770086877048,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 999,
+      "condition": "random",
+      "mean_response": 0.471292542462497,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 999,
+      "condition": "fixed",
+      "mean_response": 0.4948868002623045,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 999,
+      "condition": "untrained",
+      "mean_response": 0.45225471571336917,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 999,
+      "condition": "trained",
+      "mean_response": 0.620738989165587,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 999,
+      "condition": "retained",
+      "mean_response": 0.620738989165587,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 999,
+      "condition": "shuffled_reward",
+      "mean_response": 0.5315333145520065,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 999,
+      "condition": "no_reward",
+      "mean_response": 0.45225471571336917,
+      "events": 129,
+      "updates": 769
+    },
+    {
+      "seed": 999,
+      "condition": "memory_erased",
+      "mean_response": 0.45225471571336917,
+      "events": 129,
+      "updates": 0
+    },
+    {
+      "seed": 999,
+      "condition": "neural_features_ablated",
+      "mean_response": 0.518770086877048,
+      "events": 129,
+      "updates": 769
+    }
+  ],
+  "superseded": "Intermediate sensory-population readout pilot, replaced by downstream-only context features before delivery. Final evidence is experiment-summary.json."
+}
