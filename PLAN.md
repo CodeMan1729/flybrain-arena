@@ -178,10 +178,17 @@
   sunucu güncellendi. Öğrenme dosyaları bayt düzeyinde korundu; canlı
   HTTPS/WSS hazır, 24 örnek / 4 tur değişmedi. Sürümlü mobil web paketi
   korundu. Kanıt: reports/web/README.md içindeki onay kimliği bölümü.
-- [ ] Sıradaki hedef: gecikmiş veya tekrarlanan public olay onayının
-  yeni bekleyen olayı iptal etmediğini ve ikinci ödül oluşturmadığını
-  gerçek ayrı sunucuda doğrula. Önce hatayı yeniden üret; üretim değişikliği
-  yalnızca başarısız kontrol varsa yap. Kişisel/canlı öğrenme kullanma.
+- [x] Gecikmiş ve tekrarlanan public olay onayları ayrı gerçek sunucuda
+  doğrulandı. Tamamlanan olayın tekrarı ikinci ödül üretmedi; 1,6 saniye
+  geciken onay değerlendirme açmadı ve sonraki kararda bütçe sıfır kaldı.
+  Yeni 51 numaralı karar beklerken önceki turun 1 numaralı onayı geldi;
+  doğru 51 onayı yine kabul edildi. Genişletilen public testi 20,867 sn'de
+  geçti; Semgrep 321 kural / 1 dosya / 0 bulgu. Üretim hatası bulunmadı;
+  mevcut uygulama kodu korundu. Kanıt: reports/web/README.md.
+- [ ] Sıradaki hedef: gerçek web istemcisinde ağ bağlantısı kopup geri
+  geldiğinde açık değerlendirme penceresinin eski oturuma puan göndermediğini
+  doğrula. Ayrı beyin ve geçici kayıt kullan; yeniden üretilen hata varsa
+  ortak bağlantı/geri bildirim yolunda en küçük düzeltmeyi yap.
 
 ## Önceki tamamlanan hedefler
 

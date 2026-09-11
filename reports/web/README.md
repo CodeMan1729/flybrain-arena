@@ -533,3 +533,26 @@ Model ve tur dosyaları bayt düzeyinde değişmedi; HTTPS/WSS yeniden
 doğrulandı: 166.700 nöron, 24 öğrenme örneği, 4 tur. Canlıda test turu
 başlatılmadı. `web-20260911-loading-cache` statik yayını ve sürümlü
 mobil oyun dosyaları korundu. Önce canlı yayın, ardından GitHub push.
+
+
+## Gecikmiş ve tekrarlanan onaylar — 2026-09-11
+
+Mevcut public entegrasyon testi, gerçek ayrı sunucu ve geçici öğrenme
+kayıtlarıyla üç onay sıralamasını sınayacak şekilde genişletildi:
+
+- Öğrenilmiş 1 numaralı olayın onayı ve puanı tekrar gönderildi. İlk yanıt
+  hata oldu; ikinci pencere/ödül açılmadı, kayıt iki güncellemede kaldı.
+- Yeni bağlantıda 39 numaralı kararın onayı 1,6 saniye geciktirildi.
+  1,5 saniyelik sınır aşıldığından değerlendirme reddedildi ve model
+  değişmedi. Sonraki 40 numaralı gerçek karar bütçe kullanımı sıfırken
+  seçildi ve zamanında onaylanabildi.
+- 51 numaralı karar beklerken önceki turun 1 numaralı onayı gönderildi.
+  Ardından gelen doğru onayın ilk yanıtı `feedback_open`, kimliği 51 idi;
+  eski onay yeni bekleyen olayı iptal etmedi. Yarım bırakılan pencerenin
+  ödül üretmediği mevcut kalıcılık kontrolleri de geçti.
+
+Genişletilen public testi 20,867 saniyede geçti. Semgrep: 321 kural, bir
+değişen test dosyası, sıfır bulgu/hata/uyarı. Üretim hatası yeniden
+üretilemedi; sunucu ve oyun kodu değiştirilmedi. Kişisel kayıtlar ve canlı
+öğrenme test için kullanılmadı. Mevcut canlı uygulama doğrulandı;
+yayımlanacak yeni üretim dosyası bulunmadığından çalışan hizmet korundu.
