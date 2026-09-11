@@ -1,0 +1,148 @@
+{
+  "date": "2026-09-11",
+  "scope": "Godot web mobile controls and responsive menus; browser emulation with synthetic DOM touch events, not a physical phone test",
+  "native_checks": {
+    "command": "./test.sh",
+    "python_tests": 12,
+    "python_seconds": 40.655,
+    "godot_passes": 189,
+    "mobile_passes": 27,
+    "passed": true
+  },
+  "viewports": [
+    [
+      320,
+      568
+    ],
+    [
+      390,
+      844
+    ],
+    [
+      568,
+      320
+    ],
+    [
+      844,
+      390
+    ]
+  ],
+  "browser": {
+    "engine": "Chromium / Godot 4.5.2 single-threaded release",
+    "dpr_checked": [
+      1,
+      3
+    ],
+    "dpr3_css_size": [
+      390,
+      844
+    ],
+    "dpr3_drawing_buffer": [
+      585,
+      1266
+    ],
+    "desktop_css_size": [
+      1280,
+      720
+    ],
+    "desktop_drawing_buffer": [
+      1920,
+      1080
+    ],
+    "console_errors": 0,
+    "verified": [
+      "scrollable menu and settings",
+      "simultaneous movement and look",
+      "touch torch and pause",
+      "portrait-landscape-portrait without reload",
+      "held movement cleared by rotation",
+      "native brain toolbar, graph and outputs fit all four viewports",
+      "touch feedback accepted by real isolated brain",
+      "touchcancel pauses game",
+      "desktop menu retains keyboard and mouse layout"
+    ]
+  },
+  "audio": {
+    "scope": "menu ambience, two actual WebAudio destination taps, 40 sample windows each",
+    "sample_rate": 48000,
+    "samples_per_output": 81920,
+    "volume_045": {
+      "peak": 0.008626434952020645,
+      "rms": 0.005098496753433825
+    },
+    "volume_zero": {
+      "both_peaks": 0,
+      "both_rms": 0
+    },
+    "contexts_running": true,
+    "audio_seconds_each": 2.053333333333333,
+    "physical_listening": false
+  },
+  "learning": {
+    "backend_neurons": 166700,
+    "test_storage": "isolated temporary directories",
+    "feedback_accepted": true,
+    "feedback_rating": 1,
+    "reward": 0.5,
+    "same_event_updates_before_and_after_correction": 3,
+    "production_learning_used_for_tests": false
+  },
+  "limits": [
+    "No physical iOS/Android device or GPU/FPS measurement",
+    "Browser touch events were synthetic; native Godot InputEventScreenTouch and ScreenDrag tests also ran",
+    "Godot canvas is not a fully screen-reader navigable game"
+  ],
+  "security": {
+    "semgrep_rules": 353,
+    "semgrep_targets": 39,
+    "findings": 0,
+    "configs": [
+      "p/default",
+      "p/python",
+      "p/security-audit"
+    ],
+    "scope": "application, game, tests, web and executable scripts",
+    "reviewed_false_positives": [
+      "Archived research HTML canonical link is not executable application code; archived downloads excluded from application scan",
+      "Generic nginx upgrade rule also matches fixed websocket value. Header restricted to websocket; localized suppression documents that condition."
+    ]
+  },
+  "assets": {
+    "index.wasm": "6ead2ac528d007fe9627aae650444f9187f89420d7603c22460d8f3279545240",
+    "index.html": "58405883ee68721ad6446cbd2e148afae869d2fcebda1b9376cebc40a3d618e8",
+    "index.js": "8a7c7d57f7da69bb71da9de302480b87e4c7ecb467ce643665b4a288683cd18f",
+    "index.pck": "bc16b0a5fd30fac4a7ecfa16549aee96f0d6c80fcccd60005b995cda261c35df"
+  },
+  "published": true,
+  "deployment": {
+    "release": "web-20260911-mobile",
+    "previous_release": "web-20260911-menu-input",
+    "asset_hashes_match": true,
+    "nginx_config_test": true,
+    "nginx_graceful_reload": true,
+    "backend_pid_unchanged": true,
+    "learning_files_unchanged": true,
+    "existing_wss_survived_reload": true,
+    "wss_no_round_started": true
+  },
+  "live": {
+    "assets_match": true,
+    "sha256": {
+      "index.js": "8a7c7d57f7da69bb71da9de302480b87e4c7ecb467ce643665b4a288683cd18f",
+      "index.wasm": "6ead2ac528d007fe9627aae650444f9187f89420d7603c22460d8f3279545240",
+      "index.pck": "bc16b0a5fd30fac4a7ecfa16549aee96f0d6c80fcccd60005b995cda261c35df"
+    },
+    "html_source_matches": true,
+    "cdn_security_script_injected": true,
+    "health": {
+      "ready": true,
+      "learning": true,
+      "neurons": 166700,
+      "updates": 24,
+      "rounds": 4
+    },
+    "mobile_menu_rendered": true,
+    "browser_console_errors": 0,
+    "round_started_for_verification": false
+  }
+}

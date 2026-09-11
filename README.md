@@ -8,7 +8,7 @@ Bu klasörde çalıştırılmış bir Godot oyunu, gerçek veri, ayrı Python si
 
 | Proje özeti | Durum |
 |---|---|
-| Platform | WebGL 2 tarayıcı + klavye/fare; ayrıca macOS ARM64 |
+| Platform | WebGL 2 tarayıcı + dokunmatik veya klavye/fare; ayrıca macOS ARM64 |
 | Oyun motoru | Godot 4.5.2, hafif 3B, birinci şahıs |
 | Beyin verisi | MaleCNS v1.0; 166.700 nöron, 25.582.938 yönlü bağlantı |
 | Öğrenme | Sinir çıktılarından olay seçen, ödülle güncellenen dış karar katmanı v3 |
@@ -25,7 +25,7 @@ daha küçük sinir ölçümü mesajları. Tam grafiğin dinamiği ve öğrenme 
 
 ## Web sürümü
 
-Kurulumsuz oyun: **https://furkancakir.dev/flyfear/**. Güncel, WebGL 2 ve SharedArrayBuffer destekleyen bir masaüstü tarayıcı, klavye ve fare gerekir. Dokunmatik kontroller eklenmedi. İlk sıkıştırılmış indirme yaklaşık 9 MiB. İnternet bağlantısı oyun boyunca gereklidir.
+Kurulumsuz oyun: **[furkancakir.dev/flyfear](https://furkancakir.dev/flyfear/)**. Güncel, WebGL 2 destekleyen bir tarayıcı gerekir. Telefonda sol alanda sürükleyerek hareket et, sağ alanda sürükleyerek bak; etkileşim, fener, duraklatma, beyin ve değerlendirme düğmeleri ekrandadır. Dikey/yatay menüler kaydırılabilir; ekran dönüşü ve dokunma iptali oyunu duraklatır. Masaüstünde klavye/fare kontrolleri sürer. İlk sıkıştırılmış indirme yaklaşık 9 MiB. İnternet bağlantısı oyun boyunca gereklidir. [Mobil doğrulama ve cihaz sınırları](reports/web/mobile-check.json).
 
 166.700 nöronun tamamı sunucuda hesaplanır. Oyuncular aynı bağlantı grafiğini kullanır fakat her birinin sinir durumu ayrıdır; geçerli hareket tepkileri ve isteğe bağlı değerlendirmeler aynı kalıcı karar katmanını günceller. Yeniden bağlantı, yeni ziyaretçi ve hizmet yeniden başlatması ortak modeli silmez. Öğrenmenin ilerlemesi her turda daha güçlü korku garantisi değildir.
 

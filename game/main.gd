@@ -4,6 +4,7 @@ const PlayerScript = preload("res://player.gd")
 const DirectorScript = preload("res://director.gd")
 const BrainViewScript = preload("res://brain_view.gd")
 const FlyScript = preload("res://fly.gd")
+const TouchControlsScript = preload("res://touch_controls.gd")
 const ACTION_NAMES := {"lights":"Işık kesintisi", "steps":"Arkadan gelen ses", "silhouette":"Görüş kenarı silueti", "wait":"Bekle"}
 const SCARE_SOUNDS := ["steps", "breath", "creak", "knock"]
 const MODE_NAMES := ["Rastgele seçim · kontrol", "Sabit bağlantı modeli", "Beyin + öğrenen karar katmanı"]
@@ -71,6 +72,10 @@ var brain_was_running := false
 var brain_was_visible := true
 var research_modes := false
 var web_pause_callback: JavaScriptObject
+var touch_mode := false
+var touch_controls: Control
+var mobile_scroll: ScrollContainer
+var crosshair: Label
 
 func _exit_tree() -> void:
 	if is_instance_valid(ambience):
@@ -89,6 +94,8 @@ func _ready() -> void:
 	smoke = "--smoke" in args
 	benchmark = "--benchmark" in args
 	research_modes = (research_modes or smoke or benchmark) and not OS.has_feature("web")
+	touch_mode = touch_mode or DisplayServer.is_touchscreen_available()
+	if OS.has_feature("web"): touch_mode = bool(JavaScriptBridge.eval("window.flyfearTouch === true"))
 	if smoke or benchmark: settings_path = ""
 	load_settings()
 	set_volume(volume)
@@ -112,6 +119,9 @@ func _ready() -> void:
 	add_child(fly)
 	fly.reset_body()
 	build_ui()
+	if touch_mode:
+		get_viewport().size_changed.connect(layout_mobile,CONNECT_DEFERRED)
+		layout_mobile()
 	if OS.has_feature("web"):
 		web_pause_callback = JavaScriptBridge.create_callback(func(_args):
 			if player.active: pause_game()
@@ -478,6 +488,7 @@ func build_ui() -> void:
 	controls.position = Vector2(52,1016)
 	hud.add_child(controls)
 	var cross := ui_label("·",32,Color(0.8,0.86,0.83,0.7))
+	crosshair = cross
 	cross.position = Vector2(954,514)
 	hud.add_child(cross)
 	prompt = ui_label("",23,Color(0.98,0.82,0.5))
@@ -505,13 +516,14 @@ func build_ui() -> void:
 	brain_view = Control.new()
 	brain_view.set_script(BrainViewScript)
 	brain_view.director = director
+	brain_view.mobile = touch_mode
 	hud.add_child(brain_view)
 	brain_view.close_requested.connect(toggle_brain_details)
 	menu = Control.new()
 	menu.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.add_child(menu)
 	var shade := ColorRect.new()
-	shade.color = Color(0.007,0.018,0.026,0.86)
+	shade.color = Color(0.007,0.018,0.026,0.96 if touch_mode else 0.86)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	menu.add_child(shade)
 	var strip := ColorRect.new()
@@ -544,9 +556,9 @@ func build_ui() -> void:
 	mode_choice.item_selected.connect(func(_index): save_settings())
 	column.add_child(mode_choice)
 	start_button = button("BAŞLAT", start_game,column)
-	button("AYARLAR",func(): settings.visible = not settings.visible; science_note.visible = not settings.visible; memory_text.visible = not settings.visible,column)
+	button("AYARLAR",toggle_settings,column)
 	button("ANA SAYFA" if OS.has_feature("web") else "ÇIKIŞ",quit_game,column)
-	column.add_child(ui_label("WASD / Fare · E etkileşim · F el feneri",17))
+	column.add_child(ui_label("Sol alanda hareket · Sağ alanda bakış\nEtkileşim, fener ve duraklatma ekranda." if touch_mode else "WASD / Fare · E etkileşim · F el feneri",17))
 	settings = VBoxContainer.new()
 	settings.position = Vector2(850,340)
 	settings.custom_minimum_size.x = 560
@@ -556,7 +568,7 @@ func build_ui() -> void:
 	add_slider("Ses · 0 = tamamen sessiz",0,0.7,volume,set_volume)
 	add_slider("Efekt yoğunluğu · 0 = olaylar kapalı",0,1,intensity,func(v): intensity=v)
 	add_slider("Karar aralığı · saniye (yeni turda)",2,5,decision_interval,func(v): decision_interval=v)
-	add_slider("Fare hassasiyeti",0.0007,0.004,player.sensitivity,func(v): player.sensitivity=v)
+	add_slider("Bakış hassasiyeti" if touch_mode else "Fare hassasiyeti",0.0007,0.004,player.sensitivity,func(v): player.sensitivity=v)
 	settings.add_child(ui_label("Tohum · yeni turda uygulanır",18))
 	seed_box = SpinBox.new()
 	seed_box.max_value = 4294967295
@@ -564,9 +576,11 @@ func build_ui() -> void:
 	seed_box.value_changed.connect(func(_value): save_settings())
 	settings.add_child(seed_box)
 	if not OS.has_feature("web"):
-		button("Öğrenilen karar katmanını kaydet",func(): director.send({"type":"save"}),settings)
-		button("Öğrenilen karar katmanını sıfırla",func(): director.send({"type":"reset"}),settings)
-	button("Tam ekran / pencere",toggle_fullscreen,settings)
+		button("Karar katmanını kaydet" if touch_mode else "Öğrenilen karar katmanını kaydet",func(): director.send({"type":"save"}),settings)
+		button("Öğrenmeyi sıfırla" if touch_mode else "Öğrenilen karar katmanını sıfırla",func(): director.send({"type":"reset"}),settings)
+	if not OS.has_feature("web") or bool(JavaScriptBridge.eval("document.fullscreenEnabled || document.webkitFullscreenEnabled")):
+		button("Tam ekran / pencere",toggle_fullscreen,settings)
+	if touch_mode: button("AYARLARI KAPAT",toggle_settings,settings)
 	settings.visible = false
 	memory_text = ui_label("",20)
 	memory_text.position = Vector2(850,345)
@@ -574,14 +588,82 @@ func build_ui() -> void:
 	var science := ui_label("GERÇEK VERİ. TASARLANMIŞ EŞLEME.\n\nMaleCNS v1.0 bağlantıları üzerinde sayısal sinir etkinliği.\nSinek oyuncuyu yönetmez; odadaki olayları seçer.\nÖğrenme, beyin üzerine eklenen karar katmanındadır.\nTepki puanı korkunun kesin ölçüsü değildir.\n\nTamamen yerel · Kamera ve mikrofon kullanılmaz.",21)
 	if OS.has_feature("web"):
 		science.text = "HER OYUN ORTAK ÖĞRENMEYE KATILIR.\n\nOyun içi hareketlerin ve 1 / 2 / 3 değerlendirmelerin\nkimlik bilgisi olmadan öğrenme için kaydedilir.\nBaşlat'a basarak bu katkıyla oynamayı seçersin.\nKamera, mikrofon ve gerçek konum kullanılmaz.\n\nSinir ağı gerçek bağlantı verisinden hesaplanır.\nÖğrenme dış karar katmanındadır; korku garantisi yoktur."
+		if touch_mode: science.text = science.text.replace("1 / 2 / 3 değerlendirmelerin","verdiğin değerlendirmeler")
 	science_note = science
 	science.position = Vector2(850,720 if OS.has_feature("web") else 800)
 	menu.add_child(science)
 	notice = ui_label("Beyin verisi yükleniyor…",17,Color(0.49,0.72,0.66))
 	notice.position = Vector2(110,974)
 	menu.add_child(notice)
+	if touch_mode:
+		controls.hide()
+		brain_view.hide()
+		strip.hide()
+		mobile_scroll = ScrollContainer.new()
+		mobile_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		mobile_scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		mobile_scroll.offset_left = 20
+		mobile_scroll.offset_right = -20
+		mobile_scroll.offset_top = 16
+		mobile_scroll.offset_bottom = -16
+		menu.add_child(mobile_scroll)
+		var content := VBoxContainer.new()
+		content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		content.add_theme_constant_override("separation",16)
+		mobile_scroll.add_child(content)
+		for part in [eyebrow,title,subtitle,column,settings,memory_text,science,notice]: part.reparent(content)
+		for part in menu.find_children("*","Control",true,false):
+			part.custom_minimum_size.x = 0
+			if part is Label:
+				part.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				part.add_theme_font_size_override("font_size",16)
+			elif part is BaseButton or part is Range:
+				part.custom_minimum_size.y = 48
+				part.add_theme_font_size_override("font_size",18)
+		title.add_theme_font_size_override("font_size",48)
+		eyebrow.add_theme_font_size_override("font_size",11)
+		subtitle.text = "Anahtarı bul. Çıkışa ulaş.\n\nHareketlerin ve değerlendirmen anonim ortak öğrenmeye katılır. Kamera ve mikrofon kullanılmaz." if OS.has_feature("web") else "Anahtarı bul. Çıkışa ulaş."
+		touch_controls = Control.new()
+		touch_controls.set_script(TouchControlsScript)
+		touch_controls.game = self
+		hud.add_child(touch_controls)
 	hud.visible = false
 	start_button.grab_focus()
+
+func toggle_settings() -> void:
+	settings.visible = not settings.visible
+	science_note.visible = not settings.visible
+	memory_text.visible = not settings.visible
+	if touch_mode:
+		if settings.visible: mobile_scroll.ensure_control_visible.call_deferred(settings)
+		else: mobile_scroll.scroll_vertical = 0
+
+func layout_mobile() -> void:
+	if not touch_mode or not is_instance_valid(touch_controls): return
+	var logical_size := get_window().size
+	if OS.has_feature("web"):
+		logical_size = Vector2i(int(JavaScriptBridge.eval("document.getElementById('canvas').clientWidth")),int(JavaScriptBridge.eval("document.getElementById('canvas').clientHeight")))
+	if get_window().content_scale_size != logical_size:
+		if player.active: pause_game()
+		get_window().content_scale_size = logical_size
+	var screen := Vector2(logical_size)
+	objective.position = Vector2(16,14)
+	objective.size = Vector2(screen.x-128,44)
+	objective.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	objective.add_theme_font_size_override("font_size",16)
+	badge.position = Vector2(16,64)
+	badge.size = Vector2(screen.x-128,50)
+	badge.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	badge.add_theme_font_size_override("font_size",11)
+	crosshair.position = screen/2-Vector2(5,24)
+	prompt.position = Vector2(16,screen.y/2+24)
+	prompt.size = Vector2(screen.x-32,48)
+	prompt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	prompt.add_theme_font_size_override("font_size",17)
+	feedback_text.position = Vector2(12,112)
+	feedback_text.size = Vector2(screen.x-24,36)
+	feedback_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	feedback_text.add_theme_font_size_override("font_size",13)
 
 func set_volume(value: float) -> void:
 	volume = clampf(value,0,0.7)
@@ -646,7 +728,7 @@ func start_game() -> void:
 	director.start_session()
 	menu.visible = false
 	hud.visible = true
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if touch_mode else Input.MOUSE_MODE_CAPTURED
 
 func pause_game() -> void:
 	player.active = false
@@ -656,6 +738,7 @@ func pause_game() -> void:
 	clear_effects()
 	menu.visible = true
 	start_button.text = "DEVAM ET"
+	if touch_mode: mobile_scroll.scroll_vertical = 0
 	mode_choice.disabled = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	start_button.grab_focus()
@@ -669,7 +752,7 @@ func resume_game() -> void:
 	fly.active = true
 	director.resume_session()
 	menu.visible = false
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if touch_mode else Input.MOUSE_MODE_CAPTURED
 
 func toggle_brain_details() -> void:
 	if brain_view.expanded:
@@ -722,9 +805,11 @@ func _unhandled_input(event: InputEvent) -> void:
 					if menu.visible: resume_game()
 					else: pause_game()
 			KEY_TAB:
-				debug_panel.visible = not debug_panel.visible
+				if touch_mode: toggle_brain_details()
+				else: debug_panel.visible = not debug_panel.visible
 			KEY_B:
 				if brain_view.expanded: close_brain_details()
+				elif touch_mode: toggle_brain_details()
 				else: brain_view.visible = not brain_view.visible
 			KEY_V:
 				toggle_brain_details()
@@ -796,6 +881,7 @@ func apply_action(action_name: String, id: int) -> void:
 func finish_game() -> void:
 	completed = true
 	player.active = false
+	player.reset_motion()
 	fly.active = false
 	director.finish_session("won")
 	clear_effects()
@@ -844,6 +930,8 @@ func _process(delta: float) -> void:
 	feedback_text.text = ""
 	if player.active and director.feedback_id >= 0 and director.now() < director.feedback_until:
 		feedback_text.text = director.feedback_status if not director.feedback_status.is_empty() else "%s · İstersen değerlendir:  1 Etkilemedi   2 Gerildim   3 Korktum" % ACTION_NAMES.get(director.feedback_action,"")
+		if touch_mode and director.feedback_status.is_empty(): feedback_text.text = ACTION_NAMES.get(director.feedback_action,"")+" · İstersen değerlendir"
+	if touch_mode: prompt.text = prompt.text.replace("[ E ]   ","")
 	if memory_text.is_visible_in_tree() and not director.memory.is_empty():
 		var saved: Dictionary = director.memory
 		memory_text.text = ("ORTAK ÖĞRENME / TÜM OYUNCULAR\n\n%d oyun bölümü · %d öğrenme örneği\n" if OS.has_feature("web") else "KALICI ÖĞRENME / BU MAC\n\n%d kayıtlı tur · %d kişisel öğrenme örneği\n") % [int(saved.get("rounds",0)),int(saved.get("updates",0))]

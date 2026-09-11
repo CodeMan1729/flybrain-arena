@@ -2,22 +2,25 @@
 <html lang="tr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="FLYFEAR: seni izleyen bir sinek, gerçek sinir bağlantıları ve her oyundan öğrenen bir korku oyunu. Tarayıcıda oyna.">
 <meta name="theme-color" content="#081218">
 <title>FLYFEAR · Tarayıcıda oyna</title>
 <style>
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#050c11;color:#e4e9df;font:16px/1.5 system-ui,sans-serif}body{display:grid;place-items:center;overflow:hidden}canvas{display:block;width:min(100vw,177.7778vh);height:min(100vh,56.25vw);outline:none;background:#050c11}#loading{position:fixed;inset:0;display:grid;place-content:center;padding:2rem;background:#081218}#loading[hidden]{display:none}article{max-width:38rem;border-left:3px solid #b37742;padding-left:1.5rem}h1{font-size:clamp(2.5rem,8vw,4.5rem);letter-spacing:.04em;line-height:1;margin:.6rem 0 1.2rem}p{margin:.7rem 0;color:#c0cfc8}small{font-size:.875rem;color:#92aaa2}progress{width:100%;height:.6rem;accent-color:#72baa6;margin:1.5rem 0 .5rem}a,button{font:inherit;color:#d9e5df}button{background:#173129;border:1px solid #659482;padding:.7rem 1rem;cursor:pointer;margin-top:1rem}button:focus-visible,a:focus-visible{outline:3px solid #e1ad70;outline-offset:4px}#failure{color:#f2bb8f}noscript{position:fixed;background:#081218;padding:2rem}
 </style>
+<style>
+canvas{touch-action:none}body.touch{display:block;height:100dvh;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}body.touch canvas{width:100%;height:100%}#loading{overflow-y:auto}body.touch #loading{place-content:start center;padding:24px max(20px,env(safe-area-inset-right)) 24px max(20px,env(safe-area-inset-left))}body.touch article{border-left-width:2px;padding-left:16px}body.touch h1{font-size:48px}
+</style>
 $GODOT_HEAD_INCLUDE
 </head>
 <body>
-<canvas id="canvas" width="1920" height="1080" tabindex="0" aria-label="FLYFEAR oyunu. WASD hareket, fare bakış, E etkileşim, F el feneri, Escape duraklatma.">Bu oyun WebGL 2 destekleyen bir tarayıcı gerektirir.</canvas>
+<canvas id="canvas" width="1920" height="1080" tabindex="0" aria-label="FLYFEAR oyunu. Dokunmatik: solda hareket, sağda bakış; ekrandaki düğmelerle etkileşim, fener ve duraklatma. Klavye: WASD, fare, E, F, Escape.">Bu oyun WebGL 2 destekleyen bir tarayıcı gerektirir.</canvas>
 <div id="loading"><article>
 <small>GERÇEK BAĞLANTILAR · ORTAK ÖĞRENME</small>
 <h1>FLYFEAR</h1>
 <p>Üç odada anahtarı ara. Sinek seni izliyor.</p>
-<p>Klavye ve fareyle oynanır. Kulaklık önerilir; sesi oyun içinden ayarlayabilirsin.</p>
+<p>Telefonda dokunarak, bilgisayarda klavye ve fareyle oyna. Kulaklık önerilir; sesi oyun içinden ayarlayabilirsin.</p>
 <p>Oyun içi hareketler ve verdiğin değerlendirmeler kimlik bilgisi olmadan ortak öğrenmeye katılır. Kamera ve mikrofon kullanılmaz.</p>
 <progress id="progress" aria-label="Oyunun yüklenmesi"></progress>
 <p id="status" role="status" aria-live="polite">Oyun hazırlanıyor…</p>
@@ -29,6 +32,20 @@ $GODOT_HEAD_INCLUDE
 <script src="$GODOT_URL"></script>
 <script>
 const config = $GODOT_CONFIG;
+window.flyfearTouch = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
+const canvas = document.getElementById('canvas');
+if (window.flyfearTouch) document.body.classList.add('touch');
+function resizeTouchCanvas() {
+  if (!window.flyfearTouch) return;
+  const rect = canvas.getBoundingClientRect();
+  // ponytail: cap the buffer at 1.5×; raise only after phone GPU measurements.
+  const scale = Math.min(devicePixelRatio || 1, 1.5);
+  canvas.width = Math.max(1, Math.round(rect.width * scale));
+  canvas.height = Math.max(1, Math.round(rect.height * scale));
+}
+resizeTouchCanvas();
+window.addEventListener('resize', resizeTouchCanvas);
+canvas.addEventListener('touchcancel', () => window.flyfearPause?.());
 const engine = new Engine(config);
 const overlay = document.getElementById('loading');
 const progress = document.getElementById('progress');

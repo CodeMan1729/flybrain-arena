@@ -1,5 +1,6 @@
 extends CharacterBody3D
 
+signal motion_reset
 var camera: Camera3D
 var torch: SpotLight3D
 var active := false
@@ -10,6 +11,7 @@ var previous_yaw := 0.0
 var auto_target := Vector3.ZERO
 var auto_walk := false
 var turn_samples: Array[Vector2] = []
+var touch_axis := Vector2.ZERO
 
 func reset_motion() -> void:
 	# Key-up can be lost outside the window, including while a menu is open.
@@ -24,6 +26,8 @@ func reset_motion() -> void:
 	turn_rate = 0
 	previous_yaw = rotation.y
 	turn_samples.clear()
+	touch_axis = Vector2.ZERO
+	motion_reset.emit()
 
 func _ready() -> void:
 	var shape := CollisionShape3D.new()
@@ -49,10 +53,13 @@ func _ready() -> void:
 	torch.shadow_reverse_cull_face = true # Closed meshes avoid flashlight shadow stripes on Metal.
 	camera.add_child(torch)
 
+func look(relative: Vector2) -> void:
+	rotate_y(-relative.x * sensitivity)
+	camera.rotation.x = clampf(camera.rotation.x - relative.y * sensitivity, -1.3, 1.3)
+
 func _unhandled_input(event: InputEvent) -> void:
 	if active and event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		rotate_y(-event.relative.x * sensitivity)
-		camera.rotation.x = clampf(camera.rotation.x - event.relative.y * sensitivity, -1.3, 1.3)
+		look(event.relative)
 	if active and event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_F:
 		torch.visible = not torch.visible
 
@@ -68,7 +75,8 @@ func _physics_process(delta: float) -> void:
 				direction = Vector3.ZERO
 		else:
 			var axis := Vector2(float(Input.is_physical_key_pressed(KEY_D))-float(Input.is_physical_key_pressed(KEY_A)), float(Input.is_physical_key_pressed(KEY_S))-float(Input.is_physical_key_pressed(KEY_W)))
-			direction = (basis * Vector3(axis.x, 0, axis.y)).normalized()
+			axis = (axis+touch_axis).limit_length()
+			direction = basis * Vector3(axis.x, 0, axis.y)
 	velocity.x = direction.x * 3.2
 	velocity.z = direction.z * 3.2
 	if not is_on_floor():

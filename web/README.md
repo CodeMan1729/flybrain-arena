@@ -4,6 +4,15 @@ Oyun: [furkancakir.dev/flyfear/](https://furkancakir.dev/flyfear/).
 Godot oyunu WebGL 2 ile tarayıcıda çizilir. Tam MaleCNS ağı ve ortak öğrenen
 karar katmanı Python hizmetinde çalışır. Yeni bir oyun motoru veya ücretli API yoktur.
 
+Telefonda sol alanda hareket, sağ alanda bakış kontrol edilir; iki parmak aynı
+anda kullanılabilir. Etkileşim, fener, duraklatma, beyin ve değerlendirme
+düğmeleri ekrandadır. Menü ve ayarlar dikey kaydırılır; ekran çevrilince oyun
+duraklar ve eski dokunmalar temizlenir. Masaüstü klavye/fare düzeni korunur.
+Web paketi tek iş parçacıklı Godot şablonunu ve masaüstü/mobil doku biçimlerini
+kullanır. Mobil çizim tamponu 1,5× piksel oranıyla sınırlandırılır; arayüz
+CSS boyutunda kalır. [Mobil doğrulama](../reports/web/mobile-check.json)
+tarayıcı emülasyonuna aittir; fiziksel iOS/Android performans ölçümü değildir.
+
 ## Derleme
 
 macOS kurulumunu `./setup.sh` ile tamamladıktan sonra:

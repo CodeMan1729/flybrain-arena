@@ -1,0 +1,122 @@
+extends SceneTree
+
+var failures: Array[String] = []
+
+func verify(condition: bool, message: String) -> void:
+	print(("PASS: " if condition else "FAIL: ")+message)
+	if not condition: failures.append(message)
+
+func _initialize() -> void:
+	run_checks.call_deferred()
+
+func touch(index: int, position: Vector2, pressed: bool, canceled := false) -> void:
+	var event := InputEventScreenTouch.new()
+	event.index=index; event.position=position; event.pressed=pressed; event.canceled=canceled
+	Input.parse_input_event(event)
+	Input.flush_buffered_events()
+
+func drag(index: int, position: Vector2, relative: Vector2) -> void:
+	var event := InputEventScreenDrag.new()
+	event.index=index; event.position=position; event.relative=relative; event.screen_relative=relative
+	Input.parse_input_event(event)
+	Input.flush_buffered_events()
+
+func run_checks() -> void:
+	root.size=Vector2i(390,844)
+	var game=load("res://main.tscn").instantiate()
+	game.settings_path=""
+	game.touch_mode=true
+	root.add_child(game)
+	game.director.set_process(false)
+	game.set_volume(0)
+	game.ambience.stop()
+	await process_frame
+	await process_frame
+	for screen in [Vector2i(320,568),Vector2i(390,844),Vector2i(844,390),Vector2i(568,320)]:
+		root.size=screen
+		await process_frame
+		await process_frame
+		verify(game.get_viewport().get_visible_rect().size.is_equal_approx(Vector2(screen)),"Mobile viewport matches "+str(screen))
+		var fits := true
+		for part in game.mobile_scroll.find_children("*","Control",true,false):
+			if part.is_visible_in_tree() and part is BaseButton:
+				fits = fits and part.get_global_rect().position.x>=0 and part.get_global_rect().end.x<=screen.x
+				fits = fits and part.size.y>=44
+		verify(fits,"Menu buttons fit horizontally with 44px targets: "+str(screen))
+		game.toggle_settings()
+		await process_frame
+		await process_frame
+		verify(game.mobile_scroll.get_v_scroll_bar().max_value>game.mobile_scroll.size.y,"Settings remain scrollable: "+str(screen))
+		game.toggle_settings()
+		game.start_game()
+		await process_frame
+		game.toggle_brain_details()
+		await process_frame
+		await process_frame
+		verify(game.brain_view.get_global_rect().end.x<=screen.x and game.brain_view.graph_rect().end.y+104<=game.brain_view.size.y,"Mobile brain view fits: "+str(screen))
+		game.close_brain_details()
+	root.size=Vector2i(390,844)
+	game.layout_mobile()
+	game.resume_game()
+	await process_frame
+	await physics_frame
+	var controls=game.touch_controls
+	touch(0,Vector2(90,700),true)
+	drag(0,Vector2(90,650),Vector2(0,-50))
+	var position: Vector3=game.player.position
+	var yaw: float=game.player.rotation.y
+	touch(1,Vector2(250,500),true)
+	drag(1,Vector2(290,500),Vector2(40,0))
+	await create_timer(0.2).timeout
+	verify(game.player.position.distance_to(position)>0.4 and absf(game.player.rotation.y-yaw)>0.2,"Two fingers move and aim together")
+	verify(game.player.telemetry().speed<=3.21,"Touch movement respects the existing speed limit")
+	var torch: bool=game.player.torch.visible
+	touch(2,controls.buttons[2].position,true)
+	touch(2,controls.buttons[2].position,false)
+	verify(game.player.torch.visible!=torch and controls.move_finger==0 and controls.look_finger==1,"Third finger toggles torch without stealing either gesture")
+	touch(0,Vector2(90,650),false)
+	await create_timer(0.1).timeout
+	verify(game.player.touch_axis==Vector2.ZERO and game.player.telemetry().speed==0 and controls.look_finger==1,"Releasing movement stops immediately and retains look finger")
+	yaw=game.player.rotation.y
+	drag(0,Vector2(140,650),Vector2(50,0))
+	verify(game.player.rotation.y==yaw,"Released finger cannot turn the camera")
+	touch(1,Vector2(290,500),false,true)
+	verify(not game.player.active and controls.move_finger<0 and controls.look_finger<0,"Canceled touch pauses and clears all gesture ownership")
+	game.resume_game()
+	await process_frame
+	touch(0,Vector2(90,700),true)
+	drag(0,Vector2(90,650),Vector2(0,-50))
+	touch(1,controls.buttons[0].position,true)
+	verify(not game.player.active and game.player.touch_axis==Vector2.ZERO,"On-screen pause cancels held movement")
+	touch(1,controls.buttons[0].position,false)
+	game.resume_game()
+	await create_timer(0.1).timeout
+	verify(game.player.telemetry().speed==0,"Explicit resume never replays stale touch input")
+	touch(0,Vector2(90,700),true)
+	drag(0,Vector2(90,650),Vector2(0,-50))
+	root.size=Vector2i(844,390)
+	await process_frame
+	await process_frame
+	verify(not game.player.active and game.player.touch_axis==Vector2.ZERO,"Rotation pauses play and cancels held touch")
+	root.size=Vector2i(390,844)
+	await process_frame
+	await process_frame
+	game.resume_game()
+	game.director.feedback_id=90
+	game.director.feedback_until=game.director.now()+8
+	game.director.feedback_status=""
+	await process_frame
+	await process_frame
+	touch(2,controls.ratings[1].position,true)
+	touch(2,controls.ratings[1].position,false)
+	verify(game.director.feedback_status=="Gönderiliyor…","Touch rating uses the existing feedback validation path")
+	game.key_object.position=game.KEY_SPOTS[0]
+	game.player.position=Vector3(-7.4,0,-7.9)
+	game.player.camera.look_at(game.key_object.global_position)
+	await physics_frame
+	await physics_frame
+	touch(2,controls.buttons[1].position,true)
+	touch(2,controls.buttons[1].position,false)
+	verify(game.has_key and not game.key_object.visible,"Touch interaction collects a nearby visible key")
+	game.pause_game()
+	await game.quit_game(0 if failures.is_empty() else 1)

@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 godot = str(ROOT / 'tools/Godot.app/Contents/MacOS/Godot')
 templates = (Path.home() / 'Library/Application Support/Godot/export_templates' if sys.platform == 'darwin'
              else Path(os.environ.get('XDG_DATA_HOME', Path.home() / '.local/share')) / 'godot/export_templates') / '4.5.2.stable'
-if not (templates / 'web_release.zip').exists():
+if not (templates / 'web_nothreads_release.zip').exists():
     archive = ROOT / 'tools/Godot_v4.5.2-stable_export_templates.tpz'
     if not archive.exists():
         temporary = archive.with_suffix('.partial')

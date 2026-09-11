@@ -11,6 +11,7 @@ const OUTPUT_NAMES := ["L1", "L2", "L3", "Mi1"]
 signal close_requested
 var director: Node
 var expanded := false
+var mobile := false
 var last_stamp := -1.0
 var last_round := ""
 var snapshot := {}
@@ -30,7 +31,7 @@ var redraw_clock := 0.0
 var dragging := false
 var drag_position := Vector2.ZERO
 var moved := 0.0
-var toolbar: HBoxContainer
+var toolbar: Container
 var group_choice: OptionButton
 var color_choice: OptionButton
 var dots := MultiMesh.new()
@@ -54,7 +55,7 @@ func _ready() -> void:
 	dots.transform_format=MultiMesh.TRANSFORM_2D
 	dots.use_colors=true
 	dots.mesh=mesh
-	toolbar = HBoxContainer.new()
+	toolbar = HFlowContainer.new() if mobile else HBoxContainer.new()
 	toolbar.position = Vector2(22,53)
 	toolbar.add_theme_constant_override("separation",14)
 	add_child(toolbar)
@@ -68,14 +69,23 @@ func _ready() -> void:
 	color_choice.add_item("Renk: hücre grubu")
 	color_choice.item_selected.connect(func(_i): redraw_network())
 	toolbar.add_child(color_choice)
-	for item in [["En etkin nöron",select_peak],["Görünümü sıfırla",reset_view],["Geri [V]",func(): close_requested.emit()]]:
+	for item in [["En etkin" if mobile else "En etkin nöron",select_peak],["Sıfırla" if mobile else "Görünümü sıfırla",reset_view],["Geri" if mobile else "Geri [V]",func(): close_requested.emit()]]:
 		var button := Button.new()
 		button.text = item[0]
 		button.pressed.connect(item[1])
 		toolbar.add_child(button)
 	for child in toolbar.get_children():
-		child.custom_minimum_size.y=36
-		child.add_theme_font_size_override("font_size",17)
+		child.custom_minimum_size.y=44 if mobile else 36
+		child.add_theme_font_size_override("font_size",14 if mobile else 17)
+	if mobile:
+		for direction in [-1,1]:
+			var zoom_button := Button.new()
+			zoom_button.text = "−" if direction<0 else "+"
+			zoom_button.custom_minimum_size = Vector2(44,44)
+			zoom_button.pressed.connect(func(): zoom=clampf(zoom*pow(1.2,direction),0.55,2.5); project_points(); redraw_network())
+			toolbar.add_child(zoom_button)
+		toolbar.resized.connect(layout)
+		toolbar.minimum_size_changed.connect(layout)
 	get_viewport().size_changed.connect(layout)
 	set_expanded(false)
 
@@ -97,11 +107,19 @@ func layout() -> void:
 	var screen := get_viewport_rect().size
 	size=screen-Vector2(140,140) if expanded else Vector2(520,430)
 	position=Vector2(70,70) if expanded else screen-Vector2(550,500)
+	if mobile:
+		size=screen-Vector2(24,24)
+		position=Vector2(12,12)
+		toolbar.position=Vector2(12,40)
+		toolbar.size=Vector2(size.x-24,toolbar.get_minimum_size().y)
 	dots.custom_aabb=AABB(Vector3.ZERO,Vector3(size.x,size.y,1))
 	project_points()
 	redraw_network()
 
 func graph_rect() -> Rect2:
+	if mobile:
+		var top := toolbar.position.y+toolbar.size.y+8
+		return Rect2(12,top,size.x-24,maxf(40,size.y-top-110))
 	return Rect2(24,106,size.x-460,size.y-302) if expanded else Rect2(18,65,size.x-36,185)
 
 func reset_view() -> void:
@@ -328,6 +346,17 @@ func draw_network() -> void:
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO,size),Color(0.012,0.032,0.041,1.0 if expanded else 0.95))
 	draw_rect(Rect2(Vector2.ZERO,size),Color(0.19,0.39,0.36),false,1)
+	if mobile:
+		text_at(Vector2(12,20),"SİNEK BEYNİ · SON ÖLÇÜM",17)
+		text_at(Vector2(12,36),status_text(),11,GREEN,size.x-24)
+		var bottom := graph_rect().end.y+16
+		text_at(Vector2(12,bottom),"%d soma · %d nöron" % [ids.size(),int(director.info.get("neurons",0))],12,MUTED,size.x-24)
+		var output: Array = snapshot.get("output",[])
+		for i in 4:
+			text_at(Vector2(12+(i%2)*(size.x/2),bottom+20+(i/2)*20),OUTPUT_NAMES[i]+("  %+.5f" % float(output[i]) if output.size()==4 else "  —"),14)
+		text_at(Vector2(12,bottom+66),"ID: "+str(ids[selected]) if selected>=0 else "Sürükle: döndür · Dokun: nöron seç",13,MUTED,size.x-24)
+		text_at(Vector2(12,bottom+88),"Model etkinliği; biyolojik kayıt değildir.",12,MUTED,size.x-24)
+		return
 	text_at(Vector2(20,28),"SİNEK BEYNİ / " + ("AYRINTILI İNCELEME" if expanded else "ÖLÇÜMLER [B]"),21 if expanded else 17)
 	if not expanded: text_at(Vector2(size.x-90,28),"V ayrıntı",15,GREEN)
 	if director==null: return

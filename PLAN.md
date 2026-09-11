@@ -2,6 +2,21 @@
 
 ## Sürekli geliştirme
 
+- Kullanıcı yayın sırası: her doğrulanmış güncellemede önce canlı siteyi
+  güncelle ve doğrula, sonra GitHub'a pushla. Açık oyunları ve öğrenme
+  kayıtlarını koru; yayımlanmayan değişikliği yayında diye bildirme.
+- [x] Mobil web uyumluluğu tamamlandı. Kabul: dar/dikey ve
+  yatay ekranda okunur, kaydırılabilir menü/ayarlar; eşzamanlı dokunmatik
+  hareket ve bakış; etkileşim, fener, duraklat/devam ve değerlendirme
+  düğmeleri; bırakma/iptal/odak kaybında takılı hareket olmaması; yön
+  değişiminde taşma olmaması. Masaüstü kontrolleri ve kişisel kayıtlar
+  korunur. Gerçek web paketi ayrı test beyniyle mobil tarayıcı emülasyonunda
+  sınandı. 12 Python testi ve 189 Godot kontrolü geçti; bunun 27 kontrolü
+  mobil girdiler/düzene ait. Dört ekran boyutu ve 3× piksel yoğunluğunda
+  gerçek web paketi doğrulandı; fiziksel iOS/Android cihazı sınanmadı.
+  Canlı yayın doğrulandı; beyin süreci, mevcut WSS ve öğrenme dosyaları
+  korundu. Kanıt: reports/web/mobile-check.json. Önce yayın, sonra push.
+
 - [x] Tarayıcıda oynanabilir Godot sürümü ve HTTPS/WSS yayını.
   Normal masaüstü/web oyunu her turda öğrenir; web ziyaretçileri ayrı
   sinir durumlarıyla ortak kalıcı karar katmanını günceller. İki istemci,

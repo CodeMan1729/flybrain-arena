@@ -414,3 +414,52 @@ oyun turu başlatılmadı. Statik oyun paketi değişmedi.
 Yazma hatası yalnızca geçici yerel sunucuda oluşturuldu. Bu deneme geçici
 dosyanın açılamamasını sınar; fiziksel disk arızası veya güç kesintisi testi
 değildir. Kişisel kayıtlar kullanılmadı, canlı belleğe test ödülü yazılmadı.
+
+
+## Mobil web — 11 Eylül 2026
+
+Sol alandaki dokunmatik çubuk hareketi, sağ alandaki sürükleme bakışı
+yönetir. Etkileşim, fener, duraklatma, beyin görünümü ve üç değerlendirme
+ekrandadır. Menü/ayarlar doğal Godot kaydırma alanını, oyun düğmeleri
+çoklu dokunmayı destekleyen TouchScreenButton kullanır. Ekran dönüşü,
+odak kaybı ve dokunma iptali hareketi temizler; devam açık kullanıcı girdisi
+gerektirir. Masaüstü klavye/fare düzeni korunur. Yeni bağımlılık eklenmedi.
+
+Web paketi mobil uyumluluk için tek iş parçacıklı şablona ve mobil/masaüstü
+doku biçimlerine geçirildi. Mobil çizim tamponu 1,5× ile sınırlı, arayüz
+CSS piksel boyutundadır. Yeniden boyutlandırma sırasında eski pencere
+boyutunun kullanılması web'de görüntüyü sıkıştırıyordu; boyut sinyali
+ertelenerek gerçek yatay/dikey geçiş düzeltildi.
+
+- `./test.sh`: **12 Python testi (40,66 sn), 189 Godot kontrolü** başarılı.
+  Bunların 27'si mobil düzene/girdilere ait: dört ekran boyutu, aynı anda
+  iki parmak, üçüncü parmakla fener, bırakma/iptal, yön değişimi, devam,
+  değerlendirme ve gerçek fizik engeli olmayan anahtarı dokunarak alma.
+- Chromium'da 320×568, 390×844, 568×320 ve 844×390 düzenleri incelendi.
+  3× piksel yoğunluğunda 390×844 CSS / 585×1266 çizim tamponu doğrulandı.
+  Masaüstü 1280×720 görünümü 1920×1080 oyun tuvalini korudu.
+- Sentetik DOM dokunmalarıyla gerçek, ayrı 166.700 nöronlu test beynine
+  hareket ve değerlendirme ulaştı. “Gerildim” kabul edildi; aynı olayın
+  hareket ödülü 0,5 doğrudan puanla düzeltilirken örnek sayısı 3 kaldı.
+- Yeni web şablonunda iki gerçek WebAudio çıkışından 81.920'şer örnek
+  ölçüldü. Ses 0,45 iken ortam sesi var; sıfırda iki çıkış da sıfır.
+  Ses saatleri ilerliyordu. Fiziksel dinleme yapılmadı.
+- Semgrep uygulama kapsamı: **353 kural / 39 hedef / 0 bulgu**.
+  WebSocket vekilinin Upgrade değeri sabit `websocket` yapıldı. Tüm
+  Upgrade değerlerini eşleyen genel h2c kuralı bu güvenli sabit değerde
+  de uyarı verdiği için gerekçeli, yalnızca o satıra ait istisna eklendi.
+  İndirilen araştırma HTML'indeki canonical bağlantı uyarısı çalıştırılan
+  uygulamaya ait değildir; araştırma arşivi uygulama taramasına alınmadı.
+
+Statik paket **önce canlıya yayımlandı**. JS, WASM ve PCK dosyalarının
+HTTPS SHA256 özetleri yerel paketle aynı. HTML kaynağı da aynı; CDN'nin
+eklediği güvenlik betiği ayrıca tanındı. Canlı mobil menü hatasız açıldı;
+kontrol için tur başlatılmadı. Nginx yapılandırması doğrulanıp nazikçe
+yenilendi; önceden açık WSS bağlantısı ping/pong ile çalışmaya devam etti.
+Beyin süreci yeniden başlamadı, öğrenme ve tur dosyalarının baytları
+değişmedi. Sağlık yanıtı yayın kontrolünde 24 örnek / 4 tur gösteriyordu.
+
+[Makine tarafından okunabilir sonuçlar](mobile-check.json). Tarayıcı
+denemeleri emülasyon ve sentetik dokunma olaylarıdır; fiziksel iOS/Android,
+Safari donanımı veya telefon FPS ölçümü değildir. Testler kişisel ve
+canlı öğrenmeyi kullanmadı. Geçici test sunucuları ve tarayıcı kapandı.
