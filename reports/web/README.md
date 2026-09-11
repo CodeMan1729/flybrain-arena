@@ -221,3 +221,57 @@ korku klibi veya başka tarayıcılar için aynı sonucu garanti etmez.
 Mevcut **112 ses/oynanış kontrolü** geçti. Semgrep'in üretim/test kapsamı
 44 hedefte 216 kuralla tamamlandı: **0 bulgu**, hata veya uyarı yok.
 Geçici test sekmesi ve sunucu kapatıldı.
+
+
+## Kaybolan tuş bırakma olayı — 11 Eylül 2026
+
+Oyun sırasında W basıldıktan sonra sayfa gizlendiğinde duraklatma çalışıyordu.
+Ancak W'nin bırakılma olayı sayfaya ulaşmazsa Godot'un fiziksel tuş durumu
+basılı kalıyordu. Açık DEVAM ET işleminden sonra oyuncu kendiliğinden
+yürümeye devam ediyordu. Bu, ayrı localhost originindeki üretim web
+paketinde kontrollü olarak yeniden üretildi.
+
+Ortak `pause_game()` yolu artık W/A/S/D için
+[Godot'un yerleşik girdi işleme yöntemine](https://docs.godotengine.org/en/4.5/classes/class_input.html#class-input-method-parse-input-event)
+bırakma olayları gönderir. ESC, pencere/sekme odak kaybı, bağlantı kesintisi
+ve ayrıntılı beyin paneli aynı duraklatma yolundan geçer. Yeni bağımlılık
+veya ayrı bir tuş durumu sistemi eklenmedi.
+
+| Devam sonrası ölçüm | Önce | Sonra |
+| --- | ---: | ---: |
+| Gözlenen telemetri örneği | 10 | 10 |
+| İlk ve son örnek arasındaki süre | 0,933 sn | 0,918 sn |
+| En yüksek hız | 3,2 birim/sn | 0 |
+| İstenmeyen yatay yer değiştirme | 2,987 birim | 0 |
+
+Her iki denemede tuş basımından yaklaşık 419 ms sonra sayfa gizlendi.
+Tuş bırakma olayı gönderilmedi; görünürlük geri gelince menü açık kaldı.
+Duraklama ile açık devam arasında yeni hareket/karar/ödül mesajı oluşmadı.
+Düzeltmeden sonra verilen yeni W basımı yine **3,2 birim/sn** hareket üretti.
+
+Mevcut `tests/gameplay.gd` kontrolü, basılı fiziksel tuş durumunu oluşturur,
+tuş bırakma göndermeden duraklatıp devam eder ve oyuncunun yatay konumunun
+korunduğunu doğrular. Ardından yeni basımın hareket ürettiğini kontrol eder.
+Test eski oyun kodunda başarısız oldu; düzeltmeden sonra geçti. Girdi
+oluşturulurken Godot'un olay tamponu boşaltılır; böylece basılı tuşun
+gerçekten kaydedildiği önkoşulu kontrol edilir.
+
+**114 oynanış, 17 ayar, 3 HUD ve 24 beyin görünümü kontrolü** geçti.
+Ayar testindeki iki beklenen bozuk dosya/yedekleme hatası dışında hata veya
+uyarı yoktu. Semgrep üretim/test taraması: 44 hedef, 216 kural, **0 bulgu**;
+hata veya uyarı yok.
+
+[Önce/sonra ölçümleri ve paket SHA256'ları](focus-input-check.json).
+Web denemesinde tuş basımı sentetik bir DOM `KeyboardEvent` idi; görünürlük
+`Emulation.setFocusEmulationEnabled` ile değiştirilip `document.hidden`
+üzerinden doğrulandı. Fiziksel klavye veya elle sekme değiştirme denemesi
+yapılmadı. Menü zaten açıkken basılan tuşlar bu turun kapsamı dışındadır.
+Ses ve efekt yoğunluğu sıfırdı; geçici gerçek MaleCNS sunucusunun öğrenme
+sayacı sıfır kaldı. Kişisel ve canlı ortak öğrenme testlerde kullanılmadı.
+
+Düzeltilmiş statik web paketi yayımlandı; HTTPS'den alınan paket özeti
+sınanan yerel paketle eşleşti. Beyin hizmetinin süreç kimliği değişmedi,
+ortak öğrenme hizmeti yeniden başlatılmadı. Canlı menü oyun başlatılmadan
+açıldı; önceden belgelenen Emscripten ana iş parçacığı uyarısı sürüyordu,
+yeni bir GDScript yükleme hatası görülmedi. Geçici sekmeler ve yerel test
+sunucusu kapatıldı; önceki web sürümü sunucuda korundu.

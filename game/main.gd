@@ -650,6 +650,12 @@ func start_game() -> void:
 
 func pause_game() -> void:
 	player.active = false
+	# Key-up may have happened outside the window while the game was hidden.
+	for key_code in [KEY_W,KEY_A,KEY_S,KEY_D]:
+		var released := InputEventKey.new()
+		released.keycode = key_code
+		released.physical_keycode = key_code
+		Input.parse_input_event(released)
 	player.reset_motion()
 	fly.active = false
 	director.pause_session()

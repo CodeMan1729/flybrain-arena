@@ -102,12 +102,21 @@
   kapalı kaldı. Üretim kodu değişmedi. Kapsam: Chrome menü ortam sesi,
   çıkış başına 40 mono örnek penceresi; fiziksel dinleme veya tüm korku
   klipleri için web doğrulaması değildir. Kanıt: reports/web/audio-check.json.
-- [ ] Sıradaki hedef: web'de basılı hareket tuşu sırasında odak kaybından
-  sonra takılı kalan hareket olup olmadığını doğrula. Kabul: ayrı origin
-  ve geçici beyinle W basılıyken odak kaybı oyunu duraklatır; tuş bırakma
-  sayfaya ulaşmasa bile açık DEVAM ET işleminden sonra oyuncu kendiliğinden
-  yürümez. Kişisel oyun/öğrenme kullanılmaz; hata çıkmazsa üretim kodunu
-  değiştirme, tarayıcı emülasyonu ile fiziksel kullanım sınırını kaydet.
+- [x] Oyun sırasında kaybolan tuş bırakma olayı düzeltildi. Ortak duraklatma
+  yolu W/A/S/D için bırakma girdisi üretir. Eski web paketinde W basımı →
+  gizlenme → açık devam sonrası 2,99 birim istenmeyen yürüyüş görüldü;
+  yeni pakette aynı konum sabit kaldı, yeni tuşla 3,2 birim/sn hareket sürdü.
+  Eski kodda başarısız olan regresyon testi geçti; toplam 158 Godot kontrolü
+  başarılı. DOM tuş olayı ve Chrome görünürlük emülasyonu kullanıldı;
+  fiziksel klavye/sekme geçişi sınanmadı. Kişisel/ortak öğrenme kullanılmadı.
+  Statik web paketi yayımlandı; HTTPS özeti eşleşti, beyin süreci değişmedi.
+  Kanıt: reports/web/focus-input-check.json ve reports/web/README.md.
+- [ ] Sıradaki hedef: menü zaten açıkken basılan ve bırakma olayı odak
+  değişiminde kaybolan hareket tuşunun yeni/devam edilen tura taşınıp
+  taşınmadığını doğrula. Kabul: ayrı origin ve geçici beyinle ilk menü ve
+  duraklatılmış menü ayrı sınanır; açık başlat/devam sonrasında oyuncu
+  yeni bir hareket girdisi olmadan yürümez. Yalnızca yeniden üretilen
+  hata için değişiklik yap; fiziksel kullanım/emülasyon sınırını kaydet.
 
 ## Önceki tamamlanan hedefler
 

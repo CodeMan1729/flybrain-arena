@@ -1,0 +1,42 @@
+{
+  "date": "2026-09-11",
+  "before_package_sha256": "7d65c04a78e8a186c2c85c6a3410e08e448ec78579e8a69fcd446676f3dca32f",
+  "after_package_sha256": "cdb2f01d3e1e5f3e174a90ad9a89e35343b3f188d18a33f19df20a4c0f4791a2",
+  "method": "DOM KeyboardEvent keydown W with no keyup; Chrome focus emulation changes actual document visibility; explicit resume button",
+  "isolation": "Separate localhost origin and temporary real MaleCNS server; volume and intensity 0",
+  "learning_updates": 0,
+  "comparison": {
+    "before": {
+      "keydown_to_hidden_ms": 418.11,
+      "hidden_seconds": 20.966,
+      "no_w_keyup": true,
+      "paused_application_messages": 0,
+      "resume_telemetry_samples": 10,
+      "resume_sample_span_seconds": 0.933,
+      "maximum_resumed_speed": 3.20000004768372,
+      "resumed_horizontal_displacement": 2.986666503183589
+    },
+    "after": {
+      "keydown_to_hidden_ms": 419.92,
+      "hidden_seconds": 18.54,
+      "no_w_keyup": true,
+      "paused_application_messages": 0,
+      "resume_telemetry_samples": 10,
+      "resume_sample_span_seconds": 0.918,
+      "maximum_resumed_speed": 0.0,
+      "resumed_horizontal_displacement": 0.0
+    }
+  },
+  "fresh_key_after_fix_max_speed": 3.20000004768372,
+  "native_checks": {
+    "gameplay": 114,
+    "settings": 17,
+    "hud": 3,
+    "brain_view": 24
+  },
+  "limitations": [
+    "Synthetic DOM keydown is untrusted; no physical keyboard or manual tab-switch trial.",
+    "Visibility transition is real document.hidden via Chrome focus emulation.",
+    "Firefox, Safari and OS-specific physical focus transitions were not tested."
+  ]
+}

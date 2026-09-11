@@ -98,10 +98,26 @@ func run_checks() -> void:
 	game.fly.position=game.player.camera.global_position+Vector3(0,0,-13)
 	var outside := await sound_levels(capture)
 	verify(outside.length()<0.00000001,"Fly buzz is inaudible beyond its range")
+	var held_key := InputEventKey.new()
+	held_key.keycode=KEY_W
+	held_key.physical_keycode=KEY_W
+	held_key.pressed=true
+	Input.parse_input_event(held_key)
+	Input.flush_buffered_events()
+	var key_was_held := Input.is_physical_key_pressed(KEY_W)
 	game.pause_game()
 	verify(not game.fly.buzz.playing,"Pause stops fly buzz immediately")
 	game.resume_game()
 	verify(game.fly.buzz.playing and game.fly.buzz.stream.loop_mode==AudioStreamWAV.LOOP_FORWARD,"Resume restarts looping fly buzz")
+	var stopped_at: Vector3=game.player.position
+	await create_timer(0.2).timeout
+	verify(key_was_held and not Input.is_physical_key_pressed(KEY_W) and Vector2(game.player.position.x-stopped_at.x,game.player.position.z-stopped_at.z).length()<0.001,"Pause releases a held movement key even when its key-up event never arrives")
+	stopped_at=game.player.position
+	Input.parse_input_event(held_key)
+	await create_timer(0.2).timeout
+	verify(game.player.position.distance_to(stopped_at)>0.25,"Fresh movement input still works after resuming")
+	held_key.pressed=false
+	Input.parse_input_event(held_key)
 	game.set_volume(0)
 	verify(AudioServer.is_bus_mute(0),"Zero volume mutes every game sound")
 	game.set_volume(0.45)
