@@ -94,11 +94,20 @@
   olduğu için Chrome fare yakalaması ve fiziksel fare dönüşü sınanamadı.
   Üretim kodu değişmedi; kişisel ayarlar ve canlı ortak bellek kullanılmadı.
   Kanıt: reports/web/README.md ve reports/web/settings-check.json.
-- [ ] Sıradaki hedef: web ses ayarını tarayıcının gerçek ses örnekleriyle
-  doğrula. Kabul: ayrı origin ve geçici beyinle sıfır ses düzeyinde dijital
-  sessizlik; sıfırdan büyük düzeyde aynı ses yolunda ölçülebilir örnekler.
-  Sistem sesi kapalı kalır; mikrofon veya kişisel ses kaydı kullanılmaz.
-  Ölçüm yapılamazsa veya hata çıkmazsa üretim kodunu değiştirme.
+- [x] Web ses ayarı gerçek WebAudio örnekleriyle doğrulandı: 0,45 düzeyinde
+  ortam sesi var; sıfırda iki çıkışın örnekleri sıfır; yeniden açınca ses
+  geri geliyor, yenilemede sessizlik korunuyor. Her aşamada ses saati
+  ilerledi; sıfır sonuç askıdaki bir tarayıcıdan alınmadı. Ayrı origin ve
+  geçici gerçek beyin kullanıldı; tur/öğrenme başlatılmadı. Sistem sesi
+  kapalı kaldı. Üretim kodu değişmedi. Kapsam: Chrome menü ortam sesi,
+  çıkış başına 40 mono örnek penceresi; fiziksel dinleme veya tüm korku
+  klipleri için web doğrulaması değildir. Kanıt: reports/web/audio-check.json.
+- [ ] Sıradaki hedef: web'de basılı hareket tuşu sırasında odak kaybından
+  sonra takılı kalan hareket olup olmadığını doğrula. Kabul: ayrı origin
+  ve geçici beyinle W basılıyken odak kaybı oyunu duraklatır; tuş bırakma
+  sayfaya ulaşmasa bile açık DEVAM ET işleminden sonra oyuncu kendiliğinden
+  yürümez. Kişisel oyun/öğrenme kullanılmaz; hata çıkmazsa üretim kodunu
+  değiştirme, tarayıcı emülasyonu ile fiziksel kullanım sınırını kaydet.
 
 ## Önceki tamamlanan hedefler
 

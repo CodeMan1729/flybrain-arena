@@ -182,3 +182,42 @@ kullanılmaz; değiştirilmedi. Bütün depo için sıfır bulgu iddiası yoktur
 [Ölçüm özeti ve paket SHA256'sı](settings-check.json).
 
 ![Yenilemeden sonraki gerçek turda korunan web ayarları](settings-after-reload.png)
+
+
+## Tarayıcı ses çıkışı — 11 Eylül 2026
+
+Üretim menüsünün ortam sesi, ayrı localhost origininde ve geçici gerçek
+MaleCNS sunucusuyla ölçüldü. Oyun turu başlatılmadı; sunucu yalnızca ilk
+bağlantı bilgilerini gönderdi, tur ve öğrenme sayıları sıfır kaldı.
+
+Geçici test HTML'ine, Godot yüklenmeden önce bir ölçüm betiği eklendi.
+`AudioDestinationNode` hedefine bağlanan `GainNode` ve `AudioWorkletNode`
+çıkışlarının her birine ek bir
+[AnalyserNode ölçüm dalı](https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode)
+bağlandı; özgün ses bağlantıları korundu. Oyun paketi, WASM ve Godot
+JavaScript dosyası değiştirilmedi. Her aşamada çıkış başına 40 pencere ×
+2.048 mono örnek alındı; örnekleme hızı 48 kHz, pencere aralığı yaklaşık
+50 ms, gözlem süresi yaklaşık 2,04 saniyeydi. Bu, sürekli stereo kayıt değildir.
+
+| Menü ses düzeyi | Ortam sesinin RMS değeri | Tepe değer | Diğer çıkış RMS |
+| --- | ---: | ---: | ---: |
+| 0,45 | 0,005007 | 0,008601 | 0 |
+| 0 | 0 | 0 | 0 |
+| Yeniden 0,45 | 0,004381 | 0,008093 | 0 |
+| 0 kaydedilip sayfa yenilendi | 0 | 0 | 0 |
+
+Tüm aşamalarda ses bağlamı `running` durumundaydı ve ses saati yaklaşık
+2,04 saniye ilerledi. Böylece sıfır örneklerin askıya alınmış ses bağlamından
+kaynaklanmadığı kontrol edildi. Sıfır düzeyindeki iki aşamada, iki çıkıştan
+alınan örneklerin tamamı sıfırdı. Farklı anlarda alınan pozitif RMS değerleri
+fiziksel ses yüksekliği ölçümü değildir.
+
+[Ham sayısal ölçüm özeti ve paket SHA256'sı](audio-check.json).
+Mac'in sistem sesi kapalı kaldı; dinleme, mikrofon veya kişisel ses kaydı
+yapılmadı. Bu kontrol Chrome'daki menü ortam sesini kapsar; her konumsal
+korku klibi veya başka tarayıcılar için aynı sonucu garanti etmez.
+
+Üretim kodunda hata çıkmadı; değişiklik ve yeniden yayın gerekmedi.
+Mevcut **112 ses/oynanış kontrolü** geçti. Semgrep'in üretim/test kapsamı
+44 hedefte 216 kuralla tamamlandı: **0 bulgu**, hata veya uyarı yok.
+Geçici test sekmesi ve sunucu kapatıldı.

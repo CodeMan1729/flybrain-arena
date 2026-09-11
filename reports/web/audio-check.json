@@ -1,0 +1,116 @@
+{
+  "date": "2026-09-11",
+  "package_sha256": "7d65c04a78e8a186c2c85c6a3410e08e448ec78579e8a69fcd446676f3dca32f",
+  "browser": "Chrome",
+  "isolation": "Separate localhost origin and temporary real MaleCNS server; only initial menu, no round or learning",
+  "method": {
+    "source": "Production ambient loop at volume 0.45, 0, 0.45, then 0 and page reload",
+    "probe": "Side-branch AnalyserNode on each node connected to AudioDestinationNode; original connections preserved",
+    "fft_size": 2048,
+    "windows_per_phase": 40,
+    "interval_ms": 50,
+    "sample_type": "Mono time-domain Float32 samples; not a continuous stereo recording",
+    "injection": "Temporary local HTML shell only, before index.js; game PCK/WASM/JS unchanged"
+  },
+  "phases": {
+    "positive": {
+      "duration_ms": 2043.1150000095367,
+      "outputs": [
+        {
+          "audio_seconds": 2.042666666666669,
+          "peak": 0.008600612170994282,
+          "rms": 0.005006875586841085,
+          "sample_count": 81920,
+          "sample_rate": 48000,
+          "source": "GainNode",
+          "state": "running"
+        },
+        {
+          "audio_seconds": 2.042666666666669,
+          "peak": 0,
+          "rms": 0,
+          "sample_count": 81920,
+          "sample_rate": 48000,
+          "source": "AudioWorkletNode",
+          "state": "running"
+        }
+      ]
+    },
+    "muted": {
+      "duration_ms": 2039.6549999713895,
+      "outputs": [
+        {
+          "audio_seconds": 2.042666666666662,
+          "peak": 0,
+          "rms": 0,
+          "sample_count": 81920,
+          "sample_rate": 48000,
+          "source": "GainNode",
+          "state": "running"
+        },
+        {
+          "audio_seconds": 2.042666666666662,
+          "peak": 0,
+          "rms": 0,
+          "sample_count": 81920,
+          "sample_rate": 48000,
+          "source": "AudioWorkletNode",
+          "state": "running"
+        }
+      ]
+    },
+    "restored": {
+      "duration_ms": 2046.204999923706,
+      "outputs": [
+        {
+          "audio_seconds": 2.048000000000002,
+          "peak": 0.008093214593827724,
+          "rms": 0.004381031814253918,
+          "sample_count": 81920,
+          "sample_rate": 48000,
+          "source": "GainNode",
+          "state": "running"
+        },
+        {
+          "audio_seconds": 2.048000000000002,
+          "peak": 0,
+          "rms": 0,
+          "sample_count": 81920,
+          "sample_rate": 48000,
+          "source": "AudioWorkletNode",
+          "state": "running"
+        }
+      ]
+    },
+    "muted_after_reload": {
+      "duration_ms": 2045.3250000476835,
+      "outputs": [
+        {
+          "audio_seconds": 2.048,
+          "peak": 0,
+          "rms": 0,
+          "sample_count": 81920,
+          "sample_rate": 48000,
+          "source": "GainNode",
+          "state": "running"
+        },
+        {
+          "audio_seconds": 2.048,
+          "peak": 0,
+          "rms": 0,
+          "sample_count": 81920,
+          "sample_rate": 48000,
+          "source": "AudioWorkletNode",
+          "state": "running"
+        }
+      ]
+    }
+  },
+  "gameplay_checks_passed": 112,
+  "limitations": [
+    "Chrome on this Mac only; no Safari or Firefox audio test.",
+    "Menu ambient audio was measured; this browser test does not cover each positional scare clip.",
+    "System output stayed muted; no listening trial, microphone access or personal audio capture.",
+    "RMS/peak describe sampled browser outputs, not physical loudness or an acoustic safety guarantee."
+  ]
+}
