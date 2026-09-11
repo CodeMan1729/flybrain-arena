@@ -50,6 +50,15 @@ async def run(port, token, log_dir, *, public_origin=None, allow_control=False, 
     def memory():
         return {**layer.summary(),'rounds':total_rounds if public else len(history),
                 'recent':[] if public else history[-5:],'shared':public}
+    def save_change(change, *args, **kwargs):
+        previous=copy.deepcopy(layer.__dict__)
+        try:
+            change(*args,**kwargs)
+            layer.save()
+        except Exception:
+            # Every session references this same policy object; restore it in place.
+            layer.__dict__=previous
+            raise
     def health(ws, request):
         if public and request.path=='/health':
             response=ws.respond(HTTPStatus.OK,json.dumps({'ready':True,'learning':True,'neurons':brain.info['neurons'],
@@ -112,7 +121,7 @@ async def run(port, token, log_dir, *, public_origin=None, allow_control=False, 
         async def reward_event(event, reward, source, motion_reward=None):
             nonlocal window
             if mode=='learn':
-                layer.update(event['action'],event['features'],reward,source=source);layer.save()
+                save_change(layer.update,event['action'],event['features'],reward,source=source)
             event['reward']=reward;event['update_index']=layer.updates
             round_data['rewards']+=1;round_data['reward_sum']+=reward
             record('reward',id=event['id'],action=event['action'],reward=reward,source=source,motion_reward=motion_reward,
@@ -175,8 +184,9 @@ async def run(port, token, log_dir, *, public_origin=None, allow_control=False, 
                             if layer.path.exists():
                                 backup=layer.path.with_name('learning-before-reset-'+str(time.time_ns())+'.json')
                                 backup.write_bytes(layer.path.read_bytes())
-                            layer.reset()
-                        layer.save();record(kind,updates=layer.updates)
+                            save_change(layer.reset)
+                        else:layer.save()
+                        record(kind,updates=layer.updates)
                         await send({'type':'parameters','operation':kind,'updates':layer.updates,'memory':memory()})
                     elif kind=='applied':
                         if enabled and pending and msg.get('id')==pending['id'] and now-pending['time']<1.5:
@@ -199,8 +209,8 @@ async def run(port, token, log_dir, *, public_origin=None, allow_control=False, 
                             raise ValueError('Geri bildirim geçersiz, yinelenmiş veya süresi dolmuş')
                         reward=rating/2;previous=feedback_event['reward']
                         if previous is not None:
-                            layer.correct(feedback_event['action'],feedback_event['features'],previous,reward,feedback_event['update_index'])
-                            layer.save();round_data['reward_sum']+=reward-previous
+                            save_change(layer.correct,feedback_event['action'],feedback_event['features'],previous,reward,feedback_event['update_index'])
+                            round_data['reward_sum']+=reward-previous
                             feedback_event['reward']=reward
                             await send({'type':'reward','id':seq,'reward':reward,'source':'rating','updates':layer.updates,'memory':memory()})
                         else:

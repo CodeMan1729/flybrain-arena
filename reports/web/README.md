@@ -365,3 +365,52 @@ OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 .venv/bin/python -m unittest tests.test
 yapılmadı. Bu, kontrollü yerel bağlantı kesintisi doğrulamasıdır; internet
 gecikmesi, tarayıcı arayüzü veya sekiz eşzamanlı oyuncu için yük testi değildir.
 Geçici sunucular kapandı; kişisel ve canlı ortak bellek kullanılmadı.
+
+
+## Öğrenme kaydı hatasında belleğin geri alınması — 11 Eylül 2026
+
+Model dosyası yazılamadığında eski dosya zaten korunuyordu, ancak öğrenme
+güncellemesi RAM'de geri alınmıyordu. Sonuç: başarılı ödül yanıtı gitmemesine
+rağmen kapanan turun `end_updates` alanı diskteki **2** yerine **3** diyordu.
+Bu, kaydedilmemiş bir örneğin öğrenme ölçümünde sayılmasıydı.
+
+Sunucudaki küçük ortak kayıt işlevi, karar katmanının durumunu değişiklikten
+önce kopyalar; güncelleme/kayıt başarısız olursa aynı nesnenin eski durumunu
+geri yükler ve hatayı mevcut hata yönetimine iletir. Oturumların ortak
+karar nesnesine referansları korunur. Yeni ödül, önceki ödülün düzeltilmesi
+ve yerel araştırma modundaki sıfırlama bu işlevi kullanır. Biyolojik bağlantı
+matrisi kopyalanmaz; yeni bağımlılık eklenmedi.
+
+Mevcut public entegrasyon testinde, iki geçerli test ödülünden sonra yeni
+bir gerçek sinir kararı alınır ve olay uygulanır. Yalnızca geçici kayıt
+klasöründe modelin `.tmp` dosyası yoluna bir klasör konur. Sonraki doğrudan
+değerlendirme gerçek bir dosya sistemi yazma hatası üretir.
+
+| Kontrol | Önce | Sonra |
+| --- | --- | --- |
+| Asıl model dosyasının baytları | Korunuyor | Korunuyor |
+| Başarılı ödül / değerlendirme yanıtı | Gönderilmiyor | Gönderilmiyor |
+| Hatalı oturumun son öğrenme sayacı | **3 — yanlış** | **2 — kayıtlı değer** |
+| Hatalı istemci / diğer istemci kapanışı | 1011 / 1001 | 1011 / 1001 |
+| Yeniden açılışta öğrenme | 2 geçerli örnek | 2 geçerli örnek |
+
+Sayaç kontrolü eski üretim kodunda `3 != 2` ile başarısız oldu. Düzeltmeden
+sonra **12 Python/sunucu testi 40,62 saniyede geçti**; gerçek Godot istemcisi,
+iki public oturum, bağlantı kesintisi, başarılı ödül düzeltme ve sıfırlama
+kontrolleri de bu dizide bulunur. Hata olan turda ödül/geri bildirim kaydı
+oluşmadı; yalnızca sıfır ödüllü tur kapanışı yazıldı. Semgrep: 44 hedef,
+216 kural, **0 bulgu**, hata veya uyarı yok.
+
+```sh
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 .venv/bin/python -m unittest discover -s tests -v
+```
+
+Canlı sunucu bağlı oyuncu yokken güncellendi; önceki kod yedeklendi ve yeni
+dosyanın özeti doğrulandı. Yeniden başlatma boyunca ortak model ve tur
+dosyalarının baytları değişmedi; **11 öğrenme / 2 tur** korundu. HTTPS sağlık
+kontrolü ve gerçek WSS `hello` yanıtı hazır durumu doğruladı; kontrol için
+oyun turu başlatılmadı. Statik oyun paketi değişmedi.
+
+Yazma hatası yalnızca geçici yerel sunucuda oluşturuldu. Bu deneme geçici
+dosyanın açılamamasını sınar; fiziksel disk arızası veya güç kesintisi testi
+değildir. Kişisel kayıtlar kullanılmadı, canlı belleğe test ödülü yazılmadı.

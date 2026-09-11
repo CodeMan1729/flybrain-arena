@@ -130,12 +130,23 @@
   son public tekrarı geçti; Semgrep 44 hedef/216 kural/0 bulgu. Üretim
   hatası bulunmadı; canlı hizmet ve kişisel bellek kullanılmadı. Kanıt:
   reports/web/README.md içindeki hesaplama sırasında kesinti bölümü.
-- [ ] Sıradaki hedef: öğrenme dosyası yazılamadığında kalıcı belleğin
-  korunmasını gerçek sunucuda doğrula. Kabul: yalnızca geçici kayıtlarla
-  kontrollü yazma hatasında önceki model baytları korunur; istemci başarılı
-  ödül yanıtı almaz, hizmet güvenli kapanır ve yeniden başlatma son geçerli
-  modeli yükler. Kişisel/canlı kayıtlar kullanılmaz; yalnızca kanıtlanan
-  hatayı düzelt.
+- [x] Öğrenme dosyası yazılamadığında diskteki model korunuyor, fakat
+  kaydedilemeyen değişiklik RAM'de kalıp tur kaydında 2 yerine 3 güncelleme
+  gösteriyordu. Değişiklik ve kayıt tek yoldan yapılır; hata halinde aynı
+  ortak karar nesnesi önceki durumuna döner. Ödül, düzeltme ve yerel
+  sıfırlama bu yolu kullanır. Geçici dosya yolundaki gerçek yazma hatası
+  eski kodda sayaç kontrolünü başarısız kıldı; yeni kodda 12 Python testi
+  geçti. Başarılı ödül yanıtı yok, iki bağlantı kapanıyor, model baytları
+  korunuyor ve yeniden başlatmada son geçerli model yükleniyor. Semgrep:
+  44 hedef/216 kural/0 bulgu. Bağlı oyuncu yokken canlı hizmet güncellendi;
+  ortak model/tur baytları değişmedi, HTTPS/WSS hazır, 11 öğrenme/2 tur
+  korundu. Hata enjeksiyonu yalnızca geçici yerel kayıtlarda yapıldı.
+  Kanıt: reports/web/README.md içindeki kayıt hatası bölümü.
+- [ ] Sıradaki hedef: olay uygulama onayındaki istek kimliği türünü
+  doğrula. Kabul: ayrı public testinde mantıksal veya ondalıklı kimlik
+  geçerli tamsayı kimliğin yerine geçemez, olay bütçesi/tepki penceresi
+  açmaz; doğru tamsayı onayı çalışır. Kişisel/canlı öğrenme kullanılmaz;
+  yalnızca yeniden üretilen tür doğrulama hatasını düzelt.
 
 ## Önceki tamamlanan hedefler
 

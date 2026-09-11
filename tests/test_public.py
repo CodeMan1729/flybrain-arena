@@ -245,6 +245,42 @@ class PublicTests(unittest.IsolatedAsyncioTestCase):
                     with self.assertRaises(ConnectionClosed):
                         await ws.recv()
                     self.assertEqual(ws.close_code, 1008)
+                # A real write error must preserve the model and close every connected client.
+                async with connect(uri, origin=origin, proxy=None) as fault, connect(uri, origin=origin, proxy=None) as observer:
+                    for visitor in (fault, observer):
+                        self.assertEqual((await receive(visitor, 'hello'))['memory']['updates'], 2)
+                    await send(fault, 'start', mode='learn', seed=3, interval=2)
+                    failed_session = (await receive(fault, 'started'))['session']
+                    await asyncio.sleep(2)
+                    await send(fault, 'decision', id=60, telemetry=inputs[0])
+                    self.assertNotEqual((await receive(fault, 'decision'))['action'], 'wait')
+                    await send(fault, 'applied', id=60, accepted=True, telemetry=inputs[0])
+                    await receive(fault, 'feedback_open')
+                    blocked = directory / 'learning-v3.tmp'
+                    blocked.mkdir()
+                    await send(fault, 'feedback', id=60, rating=2)
+                    for visitor in (fault, observer):
+                        with self.assertRaises(ConnectionClosed):
+                            await asyncio.wait_for(visitor.recv(), 5)
+                    self.assertEqual(fault.close_code, 1011)
+                    self.assertEqual(fault.close_reason, 'Öğrenme kaydı kullanılamıyor')
+                    self.assertEqual(observer.close_code, 1001)
+                self.assertEqual(await asyncio.to_thread(process.wait, 10), 0)
+                self.assertEqual((directory / 'learning-v3.json').read_bytes(), saved_bytes)
+                failed_events = [event for event in map(json.loads, (directory / 'gameplay.jsonl').read_text().splitlines())
+                                 if event['session'] == failed_session]
+                self.assertEqual([e['type'] for e in failed_events], ['finished'])
+                self.assertEqual(failed_events[0]['summary']['rewards'], 0)
+                self.assertEqual(failed_events[0]['summary']['end_updates'], 2)
+                blocked.rmdir()
+                process = subprocess.Popen(command, cwd=ROOT, env=env, stdout=output, stderr=output)
+                restored = await ready()
+                async with restored:
+                    hello = await receive(restored, 'hello')
+                    self.assertEqual(hello['memory']['updates'], 2)
+                    self.assertEqual(hello['memory']['feedback_counts']['rating'], 2)
+                    self.assertEqual((directory / 'learning-v3.json').read_bytes(), saved_bytes)
+                print('Write failure: no reward ACK; both clients closed; original model bytes restored after restart', flush=True)
             finally:
                 if process.poll() is None:
                     process.terminate()
