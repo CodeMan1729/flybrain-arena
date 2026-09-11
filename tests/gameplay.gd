@@ -235,6 +235,26 @@ func run_checks() -> void:
 	verify(not game.fly.buzz.playing,"Focus loss also stops fly buzz")
 	verify(not game.footsteps.playing,"Focus loss also cancels scare audio")
 	await key_search_checks(game)
+	for menu_phase in ["new round","resume"]:
+		game.finish_game()
+		if menu_phase=="resume":
+			game.start_game()
+			game.pause_game()
+		held_key.pressed=true
+		Input.parse_input_event(held_key.duplicate())
+		Input.flush_buffered_events()
+		key_was_held=Input.is_physical_key_pressed(KEY_W)
+		game.start_game()
+		stopped_at=game.player.position
+		await create_timer(0.2).timeout
+		verify(key_was_held and not Input.is_physical_key_pressed(KEY_W) and Vector2(game.player.position.x-stopped_at.x,game.player.position.z-stopped_at.z).length()<0.001,"Menu key without key-up cannot leak into "+menu_phase)
+		stopped_at=game.player.position
+		Input.parse_input_event(held_key.duplicate())
+		await create_timer(0.2).timeout
+		verify(game.player.position.distance_to(stopped_at)>0.25,"Fresh input works after menu entry: "+menu_phase)
+		held_key.pressed=false
+		Input.parse_input_event(held_key.duplicate())
+		Input.flush_buffered_events()
 	await game.quit_game(0 if failures.is_empty() else 1)
 
 func key_search_checks(game: Node) -> void:

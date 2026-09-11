@@ -12,6 +12,13 @@ var auto_walk := false
 var turn_samples: Array[Vector2] = []
 
 func reset_motion() -> void:
+	# Key-up can be lost outside the window, including while a menu is open.
+	for key_code in [KEY_W,KEY_A,KEY_S,KEY_D]:
+		var released := InputEventKey.new()
+		released.keycode = key_code
+		released.physical_keycode = key_code
+		Input.parse_input_event(released)
+	Input.flush_buffered_events()
 	velocity = Vector3.ZERO
 	pause_seconds = 0
 	turn_rate = 0

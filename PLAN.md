@@ -111,12 +111,20 @@
   fiziksel klavye/sekme geçişi sınanmadı. Kişisel/ortak öğrenme kullanılmadı.
   Statik web paketi yayımlandı; HTTPS özeti eşleşti, beyin süreci değişmedi.
   Kanıt: reports/web/focus-input-check.json ve reports/web/README.md.
-- [ ] Sıradaki hedef: menü zaten açıkken basılan ve bırakma olayı odak
-  değişiminde kaybolan hareket tuşunun yeni/devam edilen tura taşınıp
-  taşınmadığını doğrula. Kabul: ayrı origin ve geçici beyinle ilk menü ve
-  duraklatılmış menü ayrı sınanır; açık başlat/devam sonrasında oyuncu
-  yeni bir hareket girdisi olmadan yürümez. Yalnızca yeniden üretilen
-  hata için değişiklik yap; fiziksel kullanım/emülasyon sınırını kaydet.
+- [x] Menüde kaybolan tuş bırakma olayı ilk turda ve devamda yeniden üretildi
+  ve düzeltildi. Tuş temizliği mevcut player.reset_motion() içine taşındı;
+  devam yolu da aynı işlevi kullanır, olay tamponu hareket başlamadan
+  boşalır. Web'de 2,72 / 3,09 birim istenmeyen hareket iki durumda da sıfır;
+  yeni girdiler çalışıyor. Eski kodda iki regresyon başarısızken yeni kodda
+  toplam 162 Godot kontrolü geçti. DOM girdisi/görünürlük emülasyonu
+  kullanıldı; fiziksel klavye ve elle sekme değişimi sınanmadı. Statik
+  paket yayımlandı; HTTPS özeti eşleşti, beyin süreci değişmedi. Kanıt:
+  reports/web/focus-input-check.json içindeki menu_activation ve web raporu.
+- [ ] Sıradaki hedef: iki public istemciden biri sinir hesabı sürerken
+  koptuğunda diğer oturumun etkilenmediğini doğrula. Kabul: ayrı yerel
+  sunucu/geçici kayıtlarla kalan istemci mevcut zaman aşımı içinde karar
+  alır, sonradan yeni bağlantı kabul edilir, yarım olaydan ödül yazılmaz.
+  Kişisel/canlı öğrenme kullanılmaz; yalnızca yeniden üretilen hatayı düzelt.
 
 ## Önceki tamamlanan hedefler
 

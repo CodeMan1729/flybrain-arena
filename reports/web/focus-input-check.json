@@ -38,5 +38,63 @@
     "Synthetic DOM keydown is untrusted; no physical keyboard or manual tab-switch trial.",
     "Visibility transition is real document.hidden via Chrome focus emulation.",
     "Firefox, Safari and OS-specific physical focus transitions were not tested."
-  ]
+  ],
+  "menu_activation": {
+    "date": "2026-09-11",
+    "before_package_sha256": "cdb2f01d3e1e5f3e174a90ad9a89e35343b3f188d18a33f19df20a4c0f4791a2",
+    "after_package_sha256": "6ef8fa3ded31f5dde8ba4ef3a9d57ab1ef4e700eabf081c83771f1bc458dbddb",
+    "method": "W keydown while initial or paused menu is already open; hide/show document through Chrome focus emulation, never dispatch W keyup; explicitly start/resume",
+    "isolation": "Separate localhost origin and temporary real MaleCNS server, volume and intensity 0",
+    "learning_updates": 0,
+    "comparison": {
+      "initial": {
+        "before": {
+          "hidden_seconds": 21.509,
+          "no_w_keyup": true,
+          "telemetry_samples": 9,
+          "sample_span_seconds": 0.851,
+          "max_speed": 3.20000004768372,
+          "horizontal_displacement_between_samples": 2.7199982251291894
+        },
+        "after": {
+          "hidden_seconds": 10.61,
+          "no_w_keyup": true,
+          "telemetry_samples": 9,
+          "sample_span_seconds": 0.85,
+          "max_speed": 0.0,
+          "horizontal_displacement_between_samples": 0.0
+        }
+      },
+      "paused": {
+        "before": {
+          "hidden_seconds": 18.77,
+          "no_w_keyup": true,
+          "telemetry_samples": 10,
+          "sample_span_seconds": 0.962,
+          "max_speed": 3.20000004768372,
+          "horizontal_displacement_between_samples": 3.093332134747643
+        },
+        "after": {
+          "hidden_seconds": 8.632,
+          "no_w_keyup": true,
+          "telemetry_samples": 10,
+          "sample_span_seconds": 0.926,
+          "max_speed": 0.0,
+          "horizontal_displacement_between_samples": 0.0
+        }
+      }
+    },
+    "fresh_web_key_max_speed": 3.20000004768372,
+    "native_checks": {
+      "gameplay": 118,
+      "settings": 17,
+      "hud": 3,
+      "brain_view": 24
+    },
+    "limitations": [
+      "Synthetic DOM keydown, not physical keyboard use.",
+      "Actual document.hidden transition via Chrome focus emulation, not manual tab switching.",
+      "Other browsers and physical keyboard layouts were not tested."
+    ]
+  }
 }

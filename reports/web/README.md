@@ -275,3 +275,49 @@ ortak öğrenme hizmeti yeniden başlatılmadı. Canlı menü oyun başlatılmad
 açıldı; önceden belgelenen Emscripten ana iş parçacığı uyarısı sürüyordu,
 yeni bir GDScript yükleme hatası görülmedi. Geçici sekmeler ve yerel test
 sunucusu kapatıldı; önceki web sürümü sunucuda korundu.
+
+
+## Menüden oyuna geçerken bekleyen tuşlar — 11 Eylül 2026
+
+Önceki kontrolün dışında kalan iki durum da aynı gün ayrı olarak sınandı:
+ilk menü açıkken W basılması ve duraklatılmış menü açıkken W basılması.
+Her ikisinde de sayfa gizlendi, tuş bırakma olayı gönderilmedi ve görünürlük
+geri geldikten sonra kullanıcı işlemiyle BAŞLAT / DEVAM ET seçildi.
+Önceki paket iki durumda da oyuncuyu yeni hareket girdisi olmadan yürüttü.
+
+Tuş temizliği `pause_game()` içinden mevcut `player.reset_motion()` işlevine
+taşındı; devam yolu da artık bu işlevi çağırır. Başlangıç, duraklatma ve
+devam aynı temizliği kullanır. Godot'un olay tamponu sıfırlama sırasında
+boşaltılır; fizik işleme sırasından bağımsız olarak eski tuş durumu hareket
+başlamadan temizlenir. Yeni bir durum sistemi veya yardımcı sınıf eklenmedi.
+
+| Menüden giriş | Önceki istenmeyen yer değiştirme | Düzeltmeden sonra |
+| --- | ---: | ---: |
+| İlk tur | 2,72 birim | 0 |
+| Devam edilen tur | 3,09 birim | 0 |
+
+Yer değiştirmeler, her denemedeki ilk ve son telemetri örneği arasındadır;
+örnekler yaklaşık 0,85–0,96 saniyelik aralığı kapsar. Önceki pakette iki
+durumda da hız **3,2 birim/sn** idi. Yeni pakette bütün örnekler başlangıç
+konumunda, sıfır hızla kaldı. Sonradan gönderilen yeni W basımı yine
+**3,2 birim/sn** hareket üretti.
+
+Mevcut oynanış testine yeni tur ve devam için aynı senaryoyu çalıştıran
+kısa bir döngü eklendi. Her aşama önce basılı tuş önkoşulunu, ardından
+hareketsizliği ve yeni girdinin çalışmasını doğrular. İki kontrol eski
+oyun kodunda başarısız oldu; düzeltmeden sonra geçti. **118 oynanış,
+17 ayar, 3 HUD ve 24 beyin görünümü kontrolü** başarılı. Önceki aktif oyun
+duraklatma kontrolü de geçmeye devam ediyor. Beklenen iki bozuk ayar dosyası
+hatası dışında hata veya uyarı yok. Semgrep üretim/test kapsamı: 44 hedef,
+216 kural, **0 bulgu**, hata veya uyarı yok.
+
+[Ölçümlerin `menu_activation` bölümü ve paket özetleri](focus-input-check.json).
+Web ölçümü ayrı localhost origininde, geçici gerçek MaleCNS sunucusuyla
+yapıldı. Ses ve efekt yoğunluğu sıfırdı; öğrenme sayacı sıfır kaldı.
+Sentetik DOM tuş girdisi ve Chrome görünürlük emülasyonu kullanıldı;
+fiziksel klavye/elle sekme geçişi veya farklı tarayıcılar sınanmadı.
+
+Yeni statik paket yayımlandı; HTTPS paket özeti ölçülen yerel sürümle
+eşleşti. Beyin hizmeti yeniden başlatılmadı ve süreç kimliği değişmedi.
+Geçici test sunucusu ve sekmesi kapatıldı; kişisel ayarlar ve canlı ortak
+öğrenme testlerde kullanılmadı.
