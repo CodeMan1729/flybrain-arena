@@ -211,9 +211,18 @@
   kontrolü geçti. Semgrep bulgusuz. Statik paket önce canlıya yayımlandı;
   Chrome normal yenileme, HTTPS özetleri, açık bağlantı ve öğrenme dosyaları
   doğrulandı. Kanıt: reports/FLY-DOORWAYS.md.
-- [ ] Sıradaki hedef: farklı ölçülmüş sinir çıktı düzeylerinde uçuşun hız
-  sınırını ve görüş kaybında güncel gizli oyuncu bilgisini kullanmadığını
-  mevcut fizik testinde doğrula; yalnızca yeniden üretilen sapmayı düzelt.
+- [x] Tam ağdan yeniden ölçülen üç sinir sürüşünde uçuş sınırı ve gizli
+  konum ayrımı doğrulandı. En yüksek hızlar 6,12878 / 6,64568 / 8,00000
+  birim/sn; aynı başlangıç/tohumla farklı duvar arkası oyuncu konumlarının
+  dört saniyelik uçuş izleri birebir aynı. Son konum hafızası ve sonrasındaki
+  arama boyunca gizli telemetri boş kaldı. Yeni altı kontrolle 31 uçuş
+  kontrolü geçti; Semgrep 47 genel kural / 0 bulgu. Üretim değişikliği
+  gerekmedi; canlı paket özeti ve sağlık yanıtı push öncesi doğrulandı.
+  Kanıt: reports/FLY-DOORWAYS.md içindeki ölçülmüş sürüş bölümü.
+- [ ] Sıradaki hedef: ölçülmüş düşük ve yüksek sinir sürüşleriyle mevcut
+  kesintisiz kapı rotasını doğrula. Oyuncuya yetişme ve uzun takılma
+  sınırlarını aynı fizik kontrolünde ölç; yalnızca yeniden üretilen
+  oynanış sorununu düzelt.
 
 ## Önceki tamamlanan hedefler
 

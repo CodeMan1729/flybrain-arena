@@ -49,3 +49,39 @@ başlatılmadı. Sağlık: hazır, 166.700 nöron, 27 öğrenme örneği / 5 tur
 Bu kontrolün kapsamı üç tohumlu sabit sürüş rotalarıdır; her olası oyuncu
 rotası için garanti değildir. Fiziksel telefon veya tarayıcıda elle bu
 halkanın tamamını yürüme testi yapılmadı. Mobil arayüz/girdi kodu değişmedi.
+
+
+## Ölçülmüş sinir sürüşü ve gizli konum ayrımı
+
+Ayrı bir `Connectome` örneğinde her örnek öncesi `reset()` çağrıldı;
+sekiz normalize girişin tamamı sırasıyla −1, 0 ve +1 olacak biçimde
+`step()` çalıştırıldı. Tam 166.700 nöronlu ağdan ölçülen dört çıktı,
+mevcut fizik testine sabit örnekler olarak eklendi. Öğrenme modeli veya
+kişisel kayıtlar açılmadı; bu normalize seviyeler biyolojik uyarım
+ölçümleri değildir.
+
+Her örnekte aynı başlangıç, tohum ve son görülen konum korundu. Oyuncu
+bir denemede arşivde, diğerinde makine odasında duvar arkasına taşındı.
+Görüş güncellendikten sonra iki uçuşun 240 fizik karesi karşılaştırıldı;
+bu dört saniye hem üç saniyelik konum hafızasını hem sonraki aramayı kapsar.
+Gizli oyuncu telemetrisi her karede boş kaldı; uçuş izleri birebir eşleşti.
+
+| Her normalize giriş | En yüksek hız, birim/sn | İki uçuş izi arasındaki en büyük fark |
+|---|---:|---:|
+| -1 | 6.12878 | 0.00000 |
+| +0 | 6.64568 | 0.00000 |
+| +1 | 8.00000 | 0.00000 |
+
+Her karede hız sonlu ve 8 birim/sn sınırı içindeydi. Aynı tohumlu iki
+başlangıcın karşılaştırması fizik karesinin aynı aşamasından başlatıldı.
+Yeni altı kontrolle `tests/fly.gd` normal oyun hızında **31 kontrolü**
+hatasız geçti. Semgrep, değişen testte 47 genel kural / 0 bulgu bildirdi;
+GDScript davranışı Godot ile doğrulandı.
+
+Üretim hatası bulunmadı; uygulama kodu değiştirilmedi. GitHub push'tan
+önce canlı HTML'nin güncel paketi gösterdiği ve HTTPS paket özeti
+doğrulandı; sağlık yanıtı hazır, 166.700 nöron, 27 örnek / 5 turdu.
+Çalışan hizmet değiştirilmedi; canlı öğrenme test için kullanılmadı.
+Bu test dondurulmuş üç
+ölçüm örneğini kapsar; sürekli değişen sinir akışı veya her oyuncu rotası
+üzerine bir garanti değildir.

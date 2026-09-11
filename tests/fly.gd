@@ -122,4 +122,46 @@ func run_checks() -> void:
 		verify(route_reached and not crossed_wall,"Continuous room route respects collisions: "+str(route_case))
 		verify(longest_miss<180 and game.fly.visible_player and route_distance<3,"Fly follows around side and rear doorway corners: "+str(route_case))
 		print(JSON.stringify({"doorway_seed":route_case[0],"direction":route_case[1],"longest_unseen_frames":longest_miss,"end_distance":route_distance,"crossed_wall":crossed_wall}))
+	# Measured full-graph outputs after reset + step([level]*8), levels -1, 0, 1.
+	var measured_drives := [
+		[-0.05011754855513573,-0.03581318259239197,-0.015312639996409416,0.01400546170771122],
+		[-0.13181547820568085,-0.09583783149719238,-0.042821671813726425,0.03679528459906578],
+		[-0.19101500511169434,-0.141165092587471,-0.0650838315486908,0.05314510688185692],
+	]
+	game.player.set_physics_process(false)
+	game.director.seed_value = 42
+	await physics_frame
+	for drive in measured_drives:
+		var reference: Array[Vector3] = []
+		var deviation := 0.0
+		var measured_peak := 0.0
+		var bounded := true
+		var exposed := false
+		var acquired := true
+		for side in [-1,1]:
+			game.player.position = Vector3(0,0,-3)
+			game.fly.reset_body()
+			game.fly.position = Vector3(0,1.5,0)
+			game.fly.gaze = Vector3.FORWARD
+			game.director.neural = {"output":drive}
+			for _frame in 2:
+				game.director.last_neural_time = game.director.now()
+				await physics_frame
+			acquired = acquired and game.fly.visible_player
+			game.player.position = Vector3(side*8,0,-11)
+			for _frame in 2:
+				game.director.last_neural_time = game.director.now()
+				await physics_frame
+			for frame in 240:
+				game.director.last_neural_time = game.director.now()
+				await physics_frame
+				exposed = exposed or game.fly.visible_player or not game.fly.sight.is_empty()
+				var measured_speed: float = game.fly.velocity.length()
+				bounded = bounded and is_finite(measured_speed) and measured_speed<=8.01
+				measured_peak = maxf(measured_peak,measured_speed)
+				if side==-1: reference.append(game.fly.position)
+				else: deviation = maxf(deviation,game.fly.position.distance_to(reference[frame]))
+		verify(bounded and measured_peak>0.1,"Measured neural drive stays finite and inside the flight speed limit")
+		verify(acquired and not exposed and deviation<0.00001 and game.fly.clock>game.fly.last_seen_until,"Hidden player location cannot change last-seen pursuit or later search")
+		print(JSON.stringify({"measured_drive":drive,"peak_speed":measured_peak,"hidden_trace_deviation":deviation}))
 	await game.quit_game(0 if failures.is_empty() else 1)
