@@ -1,0 +1,44 @@
+{
+  "date": "2026-09-11",
+  "package_sha256": "7d65c04a78e8a186c2c85c6a3410e08e448ec78579e8a69fcd446676f3dca32f",
+  "browser": "Chrome",
+  "isolation": "Separate localhost origin and temporary learning directory",
+  "reload_persistence": {
+    "values": {
+      "volume": 0.0,
+      "intensity": 0.0,
+      "sensitivity": 0.0015999999999999999
+    },
+    "menu_verified": true,
+    "indexeddb_verified": true
+  },
+  "zero_intensity_round": {
+    "duration_seconds": 170.587,
+    "selected_events": {
+      "lights": 2,
+      "silhouette": 52,
+      "steps": 2
+    },
+    "rejected_events": 56,
+    "rewards": 0,
+    "learning_updates": 0
+  },
+  "native_settings_checks": {
+    "headless_passed": 17,
+    "graphical_passed": 18,
+    "restored_sensitivity_input": {
+      "relative_pixels": [
+        100,
+        50
+      ],
+      "yaw_delta_radians": -0.16,
+      "pitch_delta_radians": -0.08
+    },
+    "mute_restored_before_playback": true
+  },
+  "limitations": [
+    "Mac locked: Chrome pointer lock unavailable; browser mouse turning was not verified.",
+    "Native input handler was checked with a supplied InputEventMouseMotion; no physical mouse trial.",
+    "System audio stayed muted; no listening test."
+  ]
+}

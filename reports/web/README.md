@@ -134,3 +134,51 @@ Canlı açılış menüsü, oyun başlatılmadan doğrulandı. Geçici test sür
 ve sekmeler kapatıldı.
 
 ![Yerel testte yeniden bağlanmış ve açık devam bekleyen menü](reconnected-menu.png)
+
+
+## Web ayarlarının kalıcılığı — 11 Eylül 2026
+
+Değiştirilmemiş üretim web paketi, ayrı localhost origininde gerçek MaleCNS
+sunucusuna bağlandı. Öğrenme için geçici klasör kullanıldı. Ses **0**, efekt
+yoğunluğu **0**, fare hassasiyeti **0,0016** olarak menüden kaydedildi.
+Sayfa yenilendikten sonra aynı değerler hem menüde hem tarayıcının IndexedDB
+ayar dosyasında doğrulandı.
+
+- Yenileme sonrası **170,59 saniyelik** gerçek turda beyin 2 ışık, 2 ses ve
+  52 siluet olayı seçti. İstemci 56 olayın tamamına `accepted: false` yanıtı
+  verdi. Ödül oluşmadı; turdan sonra yeni bağlantıyla okunan öğrenme sayacı
+  **0** kaldı. Bu, sıfır yoğunluğun yeniden açılan oyuna uygulandığını doğrular.
+- Mevcut ayar testine kayıtlı fare hassasiyeti için bir kontrol eklendi:
+  üretim girdi işleyicisine verilen 100 × 50 piksellik hareket, yatayda
+  −0,16 ve dikeyde −0,08 radyan dönüş üretti. **18 grafik Godot kontrolü**
+  geçti. **17 headless kontrolü** de geçti; headless ekran fareyi
+  yakalayamadığından bu ilave girdi kontrolü orada açıkça atlanır.
+- Aynı test, yeniden açılışta ana ses kanalının çalma öncesinde sessize
+  alındığını doğruladı. Bozuk dosya/yedekleme testlerinin iki beklenen hata
+  kaydı dışında script hatası veya uyarı yoktu.
+- Mac kilitli olduğundan Chrome pointer lock isteğini reddetti. Tarayıcıda
+  fiziksel fare dönüşü sınanamadı; Godot kontrolü verilen bir girdi olayıyla
+  yapıldı. Sistem sesi kapalı kaldı; bu turda dinleme veya tarayıcı ses
+  örneği ölçümü yapılmadı.
+- Hata yeniden üretilemedi; üretim kodu ve web yayını değiştirilmedi.
+  Kişisel ayarlar ve canlı ortak öğrenme kullanılmadı. Test sekmesi ve
+  geçici sunucu kapatıldı.
+
+Semgrep'in üretim/test kapsamı (`brain`, Python araçları/testleri, `game`,
+`web`) 44 hedefte 216 kuralla tamamlandı: **0 bulgu**, hata veya uyarı yok.
+GDScript mantığını yukarıdaki Godot kontrolleri sınar. Ayrıca tüm depo
+tarandığında arşivlenmiş DOOMFLY kaynağı `research/build_kernel.py:13` için
+bir subprocess uyarısı çıktı. Çağrı incelendi: sabit `clang++` komutu argüman
+listesiyle ve varsayılan `shell=False` ile çalışır; kullanıcı çıktıyı bir dosya
+yolu olarak seçer. Kabuk komutu birleştirilmediğinden bu çağrıda belirtilen
+kabuk enjeksiyonu yolu doğrulanmadı. Araştırma kopyası oyun çalışma yolunda
+kullanılmaz; değiştirilmedi. Bütün depo için sıfır bulgu iddiası yoktur.
+
+```sh
+./tools/Godot.app/Contents/MacOS/Godot --headless --path game --script ../tests/settings.gd
+./tools/Godot.app/Contents/MacOS/Godot --path game --audio-driver Dummy --script ../tests/settings.gd
+```
+
+[Ölçüm özeti ve paket SHA256'sı](settings-check.json).
+
+![Yenilemeden sonraki gerçek turda korunan web ayarları](settings-after-reload.png)

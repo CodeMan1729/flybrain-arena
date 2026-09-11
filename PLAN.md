@@ -86,11 +86,19 @@
   yeniden bağlantı sınandı; kendiliğinden başlama/öğrenme yok. Statik
   web paketi hizmet yeniden başlatılmadan yayımlandı; HTTPS hash eşleşti.
   Kanıt: reports/web/README.md ve reports/web/reconnected-menu.png.
-- [ ] Sıradaki hedef: web oyuncu ayarlarının sayfa yenileme sonrası
-  kalıcılığını doğrula. Kabul: ses, efekt yoğunluğu ve fare hassasiyeti
-  aynı izole tarayıcı origininde yenilemeden sonra korunur, oyuna uygulanır;
-  gerçek kullanıcı tarayıcı ayarları ve ortak öğrenme teste katılmaz.
-  Hata yeniden üretilemezse üretim kodunu değiştirme.
+- [x] Web ayarları aynı izole Chrome origininde yenilemeden sonra korundu:
+  ses 0, yoğunluk 0, hassasiyet 0,0016; menü ve IndexedDB kaydı eşleşti.
+  170,59 saniyelik gerçek turda 56 olay engellendi; ödül ve öğrenme yok.
+  17 headless ve 18 grafik Godot ayar kontrolü geçti; yeni kontrol kayıtlı
+  hassasiyetin iki eksende üretim girdisine uygulanmasını sınar. Mac kilitli
+  olduğu için Chrome fare yakalaması ve fiziksel fare dönüşü sınanamadı.
+  Üretim kodu değişmedi; kişisel ayarlar ve canlı ortak bellek kullanılmadı.
+  Kanıt: reports/web/README.md ve reports/web/settings-check.json.
+- [ ] Sıradaki hedef: web ses ayarını tarayıcının gerçek ses örnekleriyle
+  doğrula. Kabul: ayrı origin ve geçici beyinle sıfır ses düzeyinde dijital
+  sessizlik; sıfırdan büyük düzeyde aynı ses yolunda ölçülebilir örnekler.
+  Sistem sesi kapalı kalır; mikrofon veya kişisel ses kaydı kullanılmaz.
+  Ölçüm yapılamazsa veya hata çıkmazsa üretim kodunu değiştirme.
 
 ## Önceki tamamlanan hedefler
 

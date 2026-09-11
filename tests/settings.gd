@@ -50,6 +50,12 @@ func run_checks() -> void:
 	verify(game.mode_choice.selected==1 and game.seed_box.value==1234 and game.fullscreen,"Reopening restores mode, seed and fullscreen preference")
 	game.start_game()
 	verify(game.director.mode=="fixed" and game.director.seed_value==1234 and is_equal_approx(game.director.interval,4.2),"Restored experiment settings reach the actual round")
+	if DisplayServer.get_name() != "headless":
+		var mouse := InputEventMouseMotion.new()
+		mouse.relative = Vector2(100,50)
+		game.player._unhandled_input(mouse)
+		verify(is_equal_approx(game.player.rotation.y,-0.01) and is_equal_approx(game.player.camera.rotation.x,-0.08),"Restored mouse sensitivity scales yaw and pitch in the production input handler")
+	else: print("SKIP: Headless display cannot capture the mouse; run without --headless for the input check")
 	game.pause_game()
 	var original := FileAccess.get_file_as_bytes(path)
 	DirAccess.make_dir_absolute(path+".tmp")
