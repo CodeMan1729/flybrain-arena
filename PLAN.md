@@ -5,6 +5,18 @@
 - Kullanıcı yayın sırası: her doğrulanmış güncellemede önce canlı siteyi
   güncelle ve doğrula, sonra GitHub'a pushla. Açık oyunları ve öğrenme
   kayıtlarını koru; yayımlanmayan değişikliği yayında diye bildirme.
+  Web paketini tools/export_web.py ile üret; yeni yayın klasörüne mevcut
+  statik dosyaları da taşı, eski sürümlü dosyaları silme. Yalnızca temiz
+  tarayıcıyla yetinme; normal yenileme ve eski önbellekle açılışı doğrula.
+- [x] %100 yüklemede takılma Chrome'da yeniden üretildi ve giderildi:
+  önbellekteki eski iş parçacıklı JavaScript, yeni tek iş parçacıklı WASM
+  ile karışıyordu. Motor/ses dosyaları ve oyun paketi içerik özetli
+  adreslerle yayımlanıyor. Başlatma hataları yeniden deneme ekranına
+  düşüyor; indirme bitince “Oyun açılıyor…” gösteriliyor. Aynı takılan
+  canlı Chrome sekmesi önbelleği temizlenmeden normal yenilemeyle açıldı.
+  Mobil Chrome emülasyonunda canlı menü ve ayrı yerel beyinde oyun
+  başlangıcı geçti. 13 Python testi, altı JS yükleyici senaryosu ve
+  Semgrep başarılı. Kanıt: reports/web/loading-cache-check.json.
 - [x] Mobil web uyumluluğu tamamlandı. Kabul: dar/dikey ve
   yatay ekranda okunur, kaydırılabilir menü/ayarlar; eşzamanlı dokunmatik
   hareket ve bakış; etkileşim, fener, duraklat/devam ve değerlendirme

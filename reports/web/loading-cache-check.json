@@ -1,0 +1,106 @@
+{
+  "date": "2026-09-11",
+  "problem": "Loading reached 100% but the game did not start on desktop Chrome; user also reported mobile.",
+  "reproduction": {
+    "browser": "Existing Chrome profile, cache enabled",
+    "old_js_from_disk_cache": true,
+    "old_js_characters": 358024,
+    "old_js_cache_control": "max-age=14400",
+    "new_js_bytes": 305185,
+    "new_wasm_from_disk_cache": false,
+    "error": "WebAssembly.instantiate(): Import #26 env godot_audio_worklet_start_no_threads: function import requires a callable",
+    "cause": "Previously cached threaded index.js was paired with the newer single-threaded WASM."
+  },
+  "fix": {
+    "runtime_prefix": "engine-f2a80bf62b3680c2",
+    "pack": "game-bc16b0a5fd30fac4.pck",
+    "runtime_hash_includes_audio_worklets": true,
+    "pack_changes_preserve_runtime_url": true,
+    "old_versioned_assets_retained": true,
+    "html_written_after_assets": true,
+    "startup_errors_show_retry": true,
+    "download_complete_status": "Oyun açılıyor…"
+  },
+  "validation": {
+    "python_tests": 13,
+    "python_passed": true,
+    "loader_node_scenarios": 6,
+    "loader_node_passed": true,
+    "loader_scenarios": [
+      "success",
+      "rejected download",
+      "unhandled WASM rejection with late completion",
+      "constructor exception",
+      "missing engine script",
+      "missing WebGL"
+    ],
+    "chrome_blocked_wasm_showed_error": true,
+    "chrome_retry_button_opened_menu": true,
+    "same_previously_stuck_live_chrome_tab_opened_after_normal_reload": true,
+    "cache_cleared": false,
+    "cache_disabled": false,
+    "second_live_reload_opened": true,
+    "live_mobile_emulation": {
+      "width": 390,
+      "height": 844,
+      "device_pixel_ratio": 3,
+      "canvas": [
+        585,
+        1266
+      ],
+      "menu_opened": true
+    },
+    "local_mobile_emulation_started_game": true,
+    "local_brain_isolated": true,
+    "live_round_started": false,
+    "post_fix_live_console_errors": 0,
+    "semgrep_application": {
+      "rules": 353,
+      "files": 39,
+      "findings": 0,
+      "exit_code": 0
+    },
+    "semgrep_changed_code_and_new_tests": {
+      "rules": 492,
+      "files": 4,
+      "findings": 0,
+      "exit_code": 0
+    }
+  },
+  "published": true,
+  "deployment": {
+    "release": "web-20260911-loading-cache",
+    "previous_release": "web-20260911-mobile",
+    "asset_hashes_match": true,
+    "backend_restarted": false,
+    "nginx_reloaded": false,
+    "backend_pid_unchanged": true,
+    "learning_files_unchanged": true,
+    "existing_wss_survived_deployment": true,
+    "wss_no_round_started": true
+  },
+  "https_verification": {
+    "assets_match": true,
+    "loader_source_matches": true,
+    "assets": {
+      "engine-f2a80bf62b3680c2.js": "8a7c7d57f7da69bb71da9de302480b87e4c7ecb467ce643665b4a288683cd18f",
+      "engine-f2a80bf62b3680c2.wasm": "6ead2ac528d007fe9627aae650444f9187f89420d7603c22460d8f3279545240",
+      "engine-f2a80bf62b3680c2.audio.worklet.js": "5b476a9c9ce642c0ee4256436d1bc31d9c38f868aca0f9a8e2a57c18d2dec2a3",
+      "engine-f2a80bf62b3680c2.audio.position.worklet.js": "be33985bc7160d6bf9646f259cd86b259cd67b02ccb297ee5c44f8ac84327bc8",
+      "game-bc16b0a5fd30fac4.pck": "bc16b0a5fd30fac4a7ecfa16549aee96f0d6c80fcccd60005b995cda261c35df"
+    },
+    "health": {
+      "ready": true,
+      "learning": true,
+      "neurons": 166700,
+      "updates": 24,
+      "rounds": 4
+    }
+  },
+  "limits": [
+    "Physical Android/iOS and Safari were not tested.",
+    "Node tests mock the shell DOM and Engine; real browser checks additionally cover successful loading and a blocked WASM request.",
+    "Old hashed assets are retained; no automatic pruning policy is introduced.",
+    "CDN-injected scripts mean the complete served HTML is not byte-identical; the application loader source and all five referenced runtime/pack assets match."
+  ]
+}

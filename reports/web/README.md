@@ -463,3 +463,45 @@ değişmedi. Sağlık yanıtı yayın kontrolünde 24 örnek / 4 tur gösteriyor
 denemeleri emülasyon ve sentetik dokunma olaylarıdır; fiziksel iOS/Android,
 Safari donanımı veya telefon FPS ölçümü değildir. Testler kişisel ve
 canlı öğrenmeyi kullanmadı. Geçici test sunucuları ve tarayıcı kapandı.
+
+
+## %100 yüklemede takılma — 2026-09-11
+
+Sorun gerçek Chrome profilinde yeniden üretildi. `index.js` disk
+önbelleğinden eski iş parçacıklı sürüm olarak geldi (`max-age=14400`);
+WASM yeni tek iş parçacıklı sürümdü. JavaScript 358.024 karakter, yeni
+dosya 305.185 bayttı. `godot_audio_worklet_start_no_threads` eksikliği
+WASM başlatmasını durdurdu. İndirme göstergesi %100'de kaldı.
+
+Dışa aktarıcı artık motor JS/WASM/ses dosyalarına ortak içerik özetli ad,
+PCK'ya kendi içerik özetli ad verir. Godot'un `executable`, `mainPack` ve
+`fileSizes` alanları birlikte güncellenir. Yeni HTML en son atomik yazılır;
+eski sürümlü dosyalar açık yükleyiciler için korunur. Yalnızca PCK
+değiştiğinde motorun adresi değişmez. Başlatma aşamasındaki yakalanmamış
+WASM hatası, normal Promise reddi veya yüklenmeyen JS, görünür hata ve
+yeniden deneme düğmesine ulaşır; indirme sonrası “Oyun açılıyor…” görünür.
+
+- 13 Python testi geçti. Yeni regresyon: aynı içerikte sabit adres, PCK
+  değişiminde sabit motor, ses modülü değişiminde yeni motor, eski
+  dosyaların korunması ve eksik dışa aktarımda mevcut HTML'nin korunması.
+- `node tests/web_loader.mjs`: altı açılış/hata/yeniden deneme senaryosu
+  geçti. Bu kontrol Node standart modülleriyle sahte DOM/Engine kullanır.
+- Gerçek Chrome'da WASM isteği bilerek engellendi: hata gösterildi;
+  engel kaldırılıp yeniden deneme düğmesine basılınca menü açıldı.
+- Yayından önce takılan aynı canlı Chrome sekmesi, önbelleği temizlemeden
+  ve devre dışı bırakmadan normal yenilemeyle açıldı. Yeni JS/WASM/PCK
+  adresleri HTTP 200 verdi; ikinci normal yenileme de başarılıydı.
+- Canlı Chrome 390×844 / 3× mobil emülasyonunda menü açıldı; yerelde
+  aynı pakette dokunarak tur başlatıldı ve oda/ekran kontrolleri çizildi.
+  Yerel beyin ayrıydı; canlıda test turu başlatılmadı. Fiziksel telefon
+  veya Safari doğrulaması değildir. Düzeltme sonrası canlı konsol hatası yok.
+- Semgrep uygulama kapsamı: 353 kural / 39 dosya / 0 bulgu. Değişen
+  yükleyici, dışa aktarıcı ve iki yeni test ayrıca açık dosya yollarıyla
+  tarandı: 492 kural / 4 dosya / 0 bulgu; iki tarama da hatasız tamamlandı.
+- `web-20260911-loading-cache` yayını önceki statik dosyaları koruyarak
+  atomik etkinleştirildi. Beyin PID'si, öğrenme dosyaları ve açık WSS
+  korundu; Nginx/beyin yeniden başlatılmadı. HTTPS'teki beş motor/paket
+  dosyasının SHA256 değerleri ve uygulama yükleyicisi yerel çıktıyla
+  eşleşti. Sağlık: hazır, öğrenme açık, 166.700 nöron, 24 örnek / 4 tur.
+
+Ayrıntılı sonuç: [loading-cache-check.json](loading-cache-check.json).

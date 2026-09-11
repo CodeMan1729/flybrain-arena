@@ -25,6 +25,13 @@ Betik Godot 4.5.2 web şablonları eksikse resmi sürüm arşivini indirir,
 depodaki SHA512 ile doğrular ve yalnızca web şablonlarını çıkarır.
 İlk şablon arşivi yaklaşık 1,29 GB; oyuncuya gönderilen sıkıştırılmış oyun
 yaklaşık 9 MiB'dir. `build/web/` yayımlanacak dosyaları içerir ve Git'e girmez.
+Motorun JS/WASM/ses dosyaları aynı içerik özetini, PCK ayrı bir içerik
+özetini dosya adında taşır. Böylece eski Chrome/CDN önbelleği yeni motorla
+karışmaz; yalnızca oyun değişince motorun adresi korunur. Yeni yayın
+klasörünü mevcut statik dosyalardan başlatıp bu çıktıyla güncelleyin ve
+doğrulama sonrası `public` bağlantısını atomik değiştirin. Eski sürümlü
+dosyaları açık yükleyiciler için koruyun; otomatik temizleme yapılmaz.
+Yalnızca `index.html` dışa aktarmak yerine bu betiği kullanın.
 
 ## Sunucu kurulumu
 
@@ -98,7 +105,8 @@ da WebSocket sunucusuna HTTP/1.1 ile bağlanmalıdır.
   bir süreç düzeni gerekir.
 - İnternet kesilince web oyunu duraklar. Geç kalan karar uygulanmaz;
   hazır olduğunda kullanıcı devam eder. Güncel masaüstü Chrome/Edge/Firefox
-  ve WebGL 2 hedeflenir. Safari ve dokunmatik oynanış doğrulanmadı.
+  ve WebGL 2 hedeflenir. Dokunmatik başlangıç Chrome mobil emülasyonunda
+  doğrulandı; fiziksel iOS/Android cihazı ve Safari sınanmadı.
 
 ## Doğrulama
 
@@ -107,5 +115,8 @@ bağlantı verisiyle iki eşzamanlı sinir durumunu, ortak öğrenmeyi, yeniden
 başlatmada kalıcılığı, origin ve kapasite sınırlarını, tekrar eden
 değerlendirmeyi, kimlik alanlarının kayda sızmamasını ve mesaj hızını sınar.
 [Yayın kontrol raporu](../reports/web/README.md).
+Yükleyicinin altı başarı/hata/yeniden deneme kontrolü, kurulu Node ile
+`node tests/web_loader.mjs` komutunda çalışır; ek paket gerekmez.
+Sürüm değişimi ve eski dosyaların korunması normal Python testlerine dahildir.
 
 Resmi kaynak: [Godot 4.5 web dışa aktarma](https://docs.godotengine.org/en/4.5/tutorials/export/exporting_for_web.html).

@@ -46,7 +46,6 @@ function resizeTouchCanvas() {
 resizeTouchCanvas();
 window.addEventListener('resize', resizeTouchCanvas);
 canvas.addEventListener('touchcancel', () => window.flyfearPause?.());
-const engine = new Engine(config);
 const overlay = document.getElementById('loading');
 const progress = document.getElementById('progress');
 const statusText = document.getElementById('status');
@@ -61,25 +60,46 @@ document.addEventListener('pointerlockchange', () => {
 });
 window.addEventListener('blur', () => window.flyfearPause?.());
 document.addEventListener('visibilitychange', () => { if (document.hidden) window.flyfearPause?.(); });
-function fail(error) {
+let startupFailed = false;
+const startupError = event => fail(event.reason || event.error || new Error(event.message));
+function stopWatchingStartup() {
+  window.removeEventListener('error', startupError);
+  window.removeEventListener('unhandledrejection', startupError);
+}
+function fail(error, message = 'Oyun dosyaları açılamadı. Yeniden yükle düğmesiyle tekrar deneyebilirsin.') {
+  startupFailed = true;
+  stopWatchingStartup();
   console.error(error);
   overlay.hidden = false;
   progress.hidden = true;
   statusText.textContent = 'Oyun açılamadı.';
-  failure.textContent = 'Güncel Chrome, Edge veya Firefox ile tekrar deneyebilirsin. Donanım hızlandırması ve WebGL 2 açık olmalı.';
+  failure.textContent = message;
   failure.hidden = false;
   retry.hidden = false;
 }
+window.addEventListener('error', startupError);
+window.addEventListener('unhandledrejection', startupError);
+try {
 const missing = Engine.getMissingFeatures({threads: $GODOT_THREADS_ENABLED});
-if (missing.length) fail(new Error(missing.join(', ')));
-else engine.startGame({
-  canvas: document.getElementById('canvas'),
+if (missing.length) fail(new Error(missing.join(', ')), 'Tarayıcıda WebGL 2 ve donanım hızlandırması açık olmalı. Güncel Chrome, Edge veya Firefox ile deneyebilirsin.');
+else new Engine(config).startGame({
+  canvas,
   onProgress(current, total) {
-    if (total > 0) { progress.max = total; progress.value = current; statusText.textContent = 'Yükleniyor · %' + Math.round(current * 100 / total); }
-    else statusText.textContent = 'Oda hazırlanıyor…';
+    if (startupFailed) return;
+    if (total > 0 && current < total) {
+      progress.max = total; progress.value = current;
+      statusText.textContent = 'Yükleniyor · %' + Math.min(99, Math.round(current * 100 / total));
+    } else {
+      progress.removeAttribute('value');
+      statusText.textContent = 'Oyun açılıyor…';
+    }
   },
   onExit(code) { if (code !== 0) fail(new Error('Game exited')); }
-}).then(() => { overlay.hidden = true; document.getElementById('canvas').focus(); }, fail);
+}).then(() => {
+  stopWatchingStartup();
+  if (!startupFailed) { overlay.hidden = true; canvas.focus(); }
+}, fail);
+} catch (error) { fail(error); }
 </script>
 </body>
 </html>
