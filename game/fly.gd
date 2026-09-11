@@ -17,6 +17,11 @@ var gaze := Vector3.FORWARD
 var body: Node3D
 var clock := 0.0
 var avoided := Vector3.ZERO
+var last_seen_target := Vector3.ZERO
+var last_seen_until := -1.0
+var dart := Vector3.ZERO
+var dart_until := 0.0
+var flight_rng := RandomNumberGenerator.new()
 
 func mesh(part: Mesh, pos: Vector3, color: Color, parent: Node3D) -> MeshInstance3D:
 	var node := MeshInstance3D.new()
@@ -35,10 +40,11 @@ func _ready() -> void:
 	collision_mask = 1
 	var shape := CollisionShape3D.new()
 	var sphere := SphereShape3D.new()
-	sphere.radius = 0.2
+	sphere.radius = 0.1
 	shape.shape = sphere
 	add_child(shape)
 	body = Node3D.new()
+	body.scale = Vector3.ONE*0.5
 	add_child(body)
 	var abdomen := SphereMesh.new()
 	abdomen.radius = 0.12
@@ -68,7 +74,7 @@ func _ready() -> void:
 	var light := OmniLight3D.new()
 	light.light_color = Color(0.36,0.77,0.62)
 	light.light_energy = 0.24
-	light.omni_range = 0.9
+	light.omni_range = 0.45
 	add_child(light)
 	buzz = AudioStreamPlayer3D.new()
 	var sound = load("res://audio/buzz.wav") as AudioStreamWAV
@@ -93,11 +99,17 @@ func reset_body() -> void:
 	avoided = Vector3.ZERO
 	sight = {}
 	visible_player = false
+	clock = 0
+	last_seen_target = Vector3.ZERO
+	last_seen_until = -1
+	dart = Vector3.ZERO
+	dart_until = 0
+	flight_rng.seed = int(director.seed_value)+1701
 
 func _physics_process(delta: float) -> void:
 	if not active: return
 	clock += delta
-	buzz.pitch_scale = move_toward(buzz.pitch_scale,0.94 + minf(velocity.length(),3.0)*0.07,delta*0.3)
+	buzz.pitch_scale = move_toward(buzz.pitch_scale,0.94 + minf(velocity.length(),8.0)*0.035,delta*2.5)
 	# Wing flapping is a cosmetic animation, never a neural activity measurement.
 	for i in wings.size(): wings[i].rotation.z=sin(clock*85)*(0.65 if i==0 else -0.65)
 	var target: Vector3 = player.global_position+Vector3.UP*1.25
@@ -105,33 +117,45 @@ func _physics_process(delta: float) -> void:
 	var ray := PhysicsRayQueryParameters3D.create(global_position,target,1)
 	ray.exclude=[get_rid(),player.get_rid()]
 	var hit := get_world_3d().direct_space_state.intersect_ray(ray)
-	visible_player=relative.length()<12 and gaze.dot(relative.normalized())>0.25 and hit.is_empty()
+	visible_player=relative.length()<18 and gaze.dot(relative.normalized())>-0.8 and hit.is_empty()
 	var output: Array = director.neural.get("output",[0,0,0,0])
 	var fresh: bool = director.connected and director.last_neural_time>=0 and director.now()-director.last_neural_time<director.interval+1.5
-	if not fresh:
+	if not fresh or output.all(func(value): return absf(float(value))<0.000001):
 		velocity = Vector3.ZERO
 		avoided = Vector3.ZERO
+		sight = {}
 		return
 	var lateral := clampf((float(output[0])-float(output[1]))*15,-1,1)
-	var climb := clampf((float(output[2])+float(output[3]))*5,-0.45,0.45)
-	var speed := minf(absf(float(output[0]))*14,1.9)
+	var climb := clampf((float(output[2])+float(output[3]))*5,-0.75,0.75)
+	var speed := clampf(absf(float(output[0]))*40,4.8,8.0)
+	if clock>=dart_until:
+		dart_until=clock+flight_rng.randf_range(0.18,0.42)
+		dart=Vector3(flight_rng.randf_range(-2.8,2.8),flight_rng.randf_range(-1.6,1.6),flight_rng.randf_range(-0.8,0.8))
 	if visible_player:
-		gaze=gaze.lerp(relative.normalized(),delta*2).normalized()
+		last_seen_target=target
+		last_seen_until=clock+3.0
 		var telemetry: Dictionary = player.telemetry()
 		telemetry.x=relative.x
 		telemetry.z=relative.z-5 # Existing z normalization becomes relative distance / 11.
 		sight=telemetry
 	else:
-		# Neural steering must not cancel the search turn and strand the fly facing a wall.
-		gaze=gaze.rotated(Vector3.UP,delta*(0.6+absf(lateral))*(-1.0 if lateral<0 else 1.0))
 		sight={}
+	var tracking := visible_player or clock<last_seen_until
+	if tracking:
+		relative=last_seen_target-global_position
+		gaze=gaze.lerp(relative.normalized(),1-exp(-10*delta)).normalized()
+	else:
+		# ponytail: local search and last-seen pursuit; add navigation only if doorway tests show trapping.
+		gaze=gaze.rotated(Vector3.UP,delta*(1.8+absf(lateral))*(-1.0 if lateral<0 else 1.0))
 	var desired := gaze*speed
-	if visible_player: desired*=clampf((relative.length()-2.3),-0.7,1.0)
-	desired += gaze.cross(Vector3.UP)*lateral*0.85+Vector3.UP*climb+avoided
-	if position.y<0.7: desired.y=maxf(desired.y,0.5)
-	if position.y>2.8: desired.y=minf(desired.y,-0.5)
-	velocity=velocity.move_toward(desired,delta*2)
+	if tracking: desired*=clampf(relative.length()-2.3,-0.75,1.0)
+	else: desired*=0.65
+	desired += gaze.cross(Vector3.UP)*(lateral*0.65+dart.x)+Vector3.UP*(climb+dart.y)+gaze*dart.z+avoided
+	if position.y<0.7: desired.y=maxf(desired.y,1.5)
+	if position.y>2.7: desired.y=minf(desired.y,-1.5)
+	velocity=velocity.move_toward(desired.limit_length(8.0),delta*24)
 	move_and_slide()
-	avoided=avoided.move_toward(Vector3.ZERO,delta)
-	for i in get_slide_collision_count(): avoided+=get_slide_collision(i).get_normal()*0.6
+	avoided=avoided.move_toward(Vector3.ZERO,delta*4)
+	for i in get_slide_collision_count(): avoided+=get_slide_collision(i).get_normal()*3
+	avoided=avoided.limit_length(4)
 	if gaze.length()>0.1: body.look_at(global_position+gaze,Vector3.UP)

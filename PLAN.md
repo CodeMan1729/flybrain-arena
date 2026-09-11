@@ -2,6 +2,14 @@
 
 ## Sürekli geliştirme
 
+- [x] Sineğin gövdesi/kanatları ve çarpışma yarıçapı yarıya indirildi.
+  Hız ve ivme artırıldı; geniş görüş, üç saniyelik son görülen konum takibi
+  ve kısa uçuş yön değişimleri eklendi. Kontrollü yürüyüşte takip mesafesi
+  10,39'dan 2,14 birime düştü; gerçek beyinle mobil web oyununda yaklaşık
+  7 metrelik yürüyüş boyunca görüş korundu. Son pakette 13 uçuş ve 48 tam
+  tur kontrolü geçti. Semgrep: 353 kural, 0 bulgu. Canlı menü ve normal
+  yenileme doğrulandı; açık bağlantı/beyin süreci/öğrenme kayıtları korundu.
+  Önce canlıya yayımlandı. Kanıt: reports/web/fly-flight-check.json.
 - Kullanıcı yayın sırası: her doğrulanmış güncellemede önce canlı siteyi
   güncelle ve doğrula, sonra GitHub'a pushla. Açık oyunları ve öğrenme
   kayıtlarını koru; yayımlanmayan değişikliği yayında diye bildirme.

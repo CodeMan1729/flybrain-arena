@@ -196,6 +196,7 @@ func run_checks() -> void:
 	verify(absf(game.player.telemetry().turn_rate)<0.01,"Old turn expires instead of producing repeated reactions")
 	game.player.active=false
 
+	game.player.position=Vector3(8,0,0) # Occluded by the room wall even with the wider visual field.
 	game.fly.position=Vector3(0,1.6,0)
 	game.fly.gaze=Vector3.FORWARD
 	game.fly.active=true

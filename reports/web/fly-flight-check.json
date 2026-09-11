@@ -1,0 +1,120 @@
+{
+  "date": "2026-09-11",
+  "request": "Halve the fly dimensions, improve player tracking, and make flight faster with short darting movements.",
+  "changes": {
+    "mesh_scale": 0.5,
+    "collision_radius": 0.1,
+    "vision_distance": 18,
+    "vision_dot_threshold": -0.8,
+    "last_seen_seconds": 3,
+    "maximum_speed": 8,
+    "acceleration": 24,
+    "dart_interval_seconds": [
+      0.18,
+      0.42
+    ],
+    "target_distance": 2.3,
+    "buzz_pitch_follows_speed": true
+  },
+  "controlled_comparison": {
+    "method": "Same game physics, seed and fixed test neural drive [0.16, 0.06, 0.08, 0.04]; player walks at 3.2 units/s for 240 physics frames, then stops for 180 frames. These are gameplay measurements, not biological measurements.",
+    "before": {
+      "following_distance": 10.3865060806274,
+      "frames": 240,
+      "peak_speed": 2.11164164543152,
+      "short_turns": 0,
+      "visible_frames": 230
+    },
+    "after": {
+      "following_distance": 2.14352321624756,
+      "frames": 240,
+      "peak_speed": 7.26794338226318,
+      "short_turns": 20,
+      "visible_frames": 240
+    }
+  },
+  "validation": {
+    "final_flight_checks": 13,
+    "final_flight_passed": true,
+    "final_full_round_smoke": {
+      "passed": true,
+      "checks": 48
+    },
+    "regression_suite": {
+      "python_tests": 13,
+      "godot_pass_lines": 202,
+      "passed": true,
+      "scope": "Full suite passed before restoring the original 2.3-unit target distance; the final flight checks and full-round smoke were rerun after that single constant adjustment."
+    },
+    "isolated_real_neural_web_game": {
+      "final_pack": "game-69f84cebd654b962.pck",
+      "samples": 366,
+      "moving_samples": 22,
+      "player_distance_during_hold": 6.986662256172021,
+      "max_sampled_fly_speed": 5.312749138907425,
+      "latest_fly_distance": 2.302432498100808,
+      "seen_fraction": 1.0
+    },
+    "web_environment": {
+      "browser": "Chrome mobile emulation",
+      "width": 390,
+      "height": 844,
+      "device_pixel_ratio": 3,
+      "input": "Touch start and held virtual movement stick",
+      "isolated_test_brain": true
+    },
+    "live_chrome": {
+      "menu_opened": true,
+      "normal_reload_opened": true,
+      "final_pack_loaded": true,
+      "cache_cleared": false,
+      "cache_disabled": false,
+      "console_errors": 0,
+      "round_started": false
+    },
+    "semgrep": {
+      "rules": 353,
+      "files": 40,
+      "findings": 0,
+      "exit_code": 0
+    }
+  },
+  "published": true,
+  "deployment": {
+    "release": "web-20260911-fast-fly",
+    "previous_release": "web-20260911-loading-cache",
+    "asset_hashes_match": true,
+    "backend_restarted": false,
+    "nginx_reloaded": false,
+    "backend_pid_unchanged": true,
+    "learning_files_unchanged": true,
+    "existing_wss_survived_deployment": true,
+    "wss_no_round_started": true
+  },
+  "https_verification": {
+    "assets_match": true,
+    "loader_source_matches": true,
+    "old_pack_retained": true,
+    "assets": {
+      "engine-f2a80bf62b3680c2.js": "8a7c7d57f7da69bb71da9de302480b87e4c7ecb467ce643665b4a288683cd18f",
+      "engine-f2a80bf62b3680c2.wasm": "6ead2ac528d007fe9627aae650444f9187f89420d7603c22460d8f3279545240",
+      "engine-f2a80bf62b3680c2.audio.worklet.js": "5b476a9c9ce642c0ee4256436d1bc31d9c38f868aca0f9a8e2a57c18d2dec2a3",
+      "engine-f2a80bf62b3680c2.audio.position.worklet.js": "be33985bc7160d6bf9646f259cd86b259cd67b02ccb297ee5c44f8ac84327bc8",
+      "game-69f84cebd654b962.pck": "69f84cebd654b962ee1b26303a0bba04a689d486612ff3cef07a929e94c1569d"
+    },
+    "health": {
+      "ready": true,
+      "learning": true,
+      "neurons": 166700,
+      "updates": 27,
+      "rounds": 5
+    }
+  },
+  "limits": [
+    "Flight is an engineering controller modulated by neural outputs, not a biological aerodynamics model or learned navigation.",
+    "Physical Android/iOS and Safari were not tested.",
+    "Desktop browser pointer-lock gameplay could not be verified because the test environment rejected pointer lock; touch gameplay was verified in mobile emulation.",
+    "Audio pitch logic was checked; physical sound listening was not performed with the Mac muted.",
+    "Asset and loader checks cover application files; CDN-added HTML scripts are outside the exported package."
+  ]
+}
