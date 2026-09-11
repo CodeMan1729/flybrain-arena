@@ -464,6 +464,40 @@ denemeleri emülasyon ve sentetik dokunma olaylarıdır; fiziksel iOS/Android,
 Safari donanımı veya telefon FPS ölçümü değildir. Testler kişisel ve
 canlı öğrenmeyi kullanmadı. Geçici test sunucuları ve tarayıcı kapandı.
 
+### Uzun mobil hata metinleri — 11 Eylül 2026
+
+Mevcut `tests/mobile.gd`, gerçek sunucu sıfırlama reddi ve uzun ayar
+yedekleme hatasıyla genişletildi. 320×568, 390×844, 844×390 ve 568×320
+boyutlarında iki mesaj × menü/ayarlar görünümü: **16 yeni durum** geçti.
+Etiketlerin bütün satırları yerleşime sığıyor, etiketler düğmelerle
+çakışmıyor ve kaydırma alanı ekranın yatay sınırında kalıyor. Her görünür
+düğme ile durum satırı, yerleşik `ensure_control_visible` üzerinden
+tamamen görülebilir alana getirilebiliyor.
+
+Önceki test ilk boyuttan sonra oyuna geçtiği için sonraki menü kontrolleri
+görünmeyen düğmeleri atlıyordu. Her boyutun başında mevcut duraklatma yolu
+menüyü açar; yeni kontroller görünür etiket/düğme listesinin boş olmasını
+da başarısız sayar. Toplam **43 mobil kontrol geçti**; hata/uyarı yok.
+Geçici test kopyasında yalnızca durum etiketinin satır kaydırması
+kapatıldığında 12 yeni kontrol ve üç mevcut genişlik kontrolü başarısız
+oldu; geniş 844×390 görünüm metin sığdığı için geçti. Üretim kodu değişmedi.
+
+```sh
+./tools/Godot.app/Contents/MacOS/Godot --headless --path game --script ../tests/mobile.gd
+```
+
+Semgrep: bir dosyada **49 genel kural / 0 bulgu**, hata/uyarı yok.
+Bu kontrol gerçek Godot yerleşimini headless çalıştırır; fiziksel
+telefon, tarayıcı çizimi veya parmakla menü kaydırma denemesi değildir.
+Mevcut dokunmatik hareket/değerlendirme kontrolleri de aynı çalışmada
+geçti. Kişisel kayıtlar ve canlı öğrenme kullanılmadı.
+
+Push öncesi canlı HTML'nin mevcut `game-01113e1eb9072136.pck` paketini
+gösterdiği ve HTTPS paketinin SHA256 özetinin yerel yayınla eşleştiği
+doğrulandı. Sağlık yanıtı hazır, 166.700 nöron / 27 öğrenme / 5 tur.
+Oyun dosyaları değişmediğinden yeni dağıtım gerekmedi; canlı hizmete
+ve açık oyunlara müdahale edilmedi.
+
 
 ## %100 yüklemede takılma — 2026-09-11
 

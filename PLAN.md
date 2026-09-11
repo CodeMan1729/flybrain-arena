@@ -226,9 +226,19 @@
   Duvar geçişi veya uzun takılma yok. Normal hızda 55 kontrol ve Semgrep
   geçti; üretim değişikliği gerekmedi. Canlı paket ve sağlık yanıtı
   push öncesi doğrulandı. Kanıt: reports/FLY-DOORWAYS.md.
-- [ ] Sıradaki hedef: dar mobil ekranda uzun bağlantı/hata metinlerinin
-  menü düğmelerini kapatmadığını ve yatay taşma oluşturmadığını mevcut
-  mobil düzen testinde doğrula; yalnızca yeniden üretilen sorunu düzelt.
+- [x] Uzun sunucu/ayar hata metinleri dört mobil ekran boyutunda, menü
+  ve ayarlar açıkken doğrulandı. Metinler eksiksiz sarılıyor; düğmelerle
+  çakışma/yatay taşma yok, tüm düğmeler ve durum satırı kaydırmayla
+  erişilebilir. Önceki testin sonraki boyutları gizli menüde sınaması
+  düzeltildi. Yeni 16 durum dahil 43 kontrol geçti; satır kaydırmayı
+  yalnızca geçici testte kapatmak 12 yeni kontrolü beklenildiği gibi bozdu.
+  Semgrep: 49 genel kural / 0 bulgu. Üretim değişikliği gerekmedi;
+  canlı paket özeti ve sağlık yanıtı push öncesi doğrulandı. Kapsam:
+  headless Godot yerleşimi; fiziksel telefon denemesi değil.
+  Kanıt: reports/web/README.md içindeki uzun mobil hata metinleri bölümü.
+- [ ] Sıradaki hedef: kısa yatay mobil ekranda açık değerlendirme
+  satırının ve üç puan düğmesinin oyun üstbilgisiyle çakışmadığını mevcut
+  mobil testte doğrula; yalnızca yeniden üretilen düzen sorununu düzelt.
 
 ## Önceki tamamlanan hedefler
 

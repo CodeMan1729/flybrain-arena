@@ -33,6 +33,7 @@ func run_checks() -> void:
 	await process_frame
 	await process_frame
 	for screen in [Vector2i(320,568),Vector2i(390,844),Vector2i(844,390),Vector2i(568,320)]:
+		game.pause_game()
 		root.size=screen
 		await process_frame
 		await process_frame
@@ -48,6 +49,33 @@ func run_checks() -> void:
 		await process_frame
 		verify(game.mobile_scroll.get_v_scroll_bar().max_value>game.mobile_scroll.size.y,"Settings remain scrollable: "+str(screen))
 		game.toggle_settings()
+		for source in ["server","settings"]:
+			game.director.reason="Ortak öğrenme belleği oyuncular tarafından sıfırlanamaz"
+			game.settings_notice="Ayarlar açılamadı ve yedeklenemedi; önceki dosya korunuyor, değişiklikler bu oturum için geçerli." if source=="settings" else ""
+			game._process(0.1)
+			for expanded in [false,true]:
+				if game.settings.visible!=expanded: game.toggle_settings()
+				await process_frame
+				await process_frame
+				var scroll: Rect2=game.mobile_scroll.get_global_rect()
+				var labels=game.mobile_scroll.find_children("*","Label",true,false).filter(func(part): return part.is_visible_in_tree())
+				var buttons=game.mobile_scroll.find_children("*","BaseButton",true,false).filter(func(part): return part.is_visible_in_tree())
+				var readable: bool=game.menu.is_visible_in_tree() and not labels.is_empty() and not buttons.is_empty() and game.get_viewport().get_visible_rect().encloses(scroll)
+				for part in labels+buttons:
+					var rect: Rect2=part.get_global_rect()
+					readable=readable and rect.position.x>=scroll.position.x and rect.end.x<=scroll.end.x
+					if part is Label:
+						readable=readable and part.get_visible_line_count()==part.get_line_count()
+						for target in buttons: readable=readable and not rect.intersects(target.get_global_rect())
+				for target in buttons+[game.notice]:
+					game.mobile_scroll.ensure_control_visible(target)
+					await process_frame
+					readable=readable and scroll.encloses(target.get_global_rect())
+				readable=readable and (game.settings_notice if source=="settings" else game.director.reason) in game.notice.text
+				verify(readable,"Long "+source+" error wraps, avoids buttons and scrolls into view (settings="+str(expanded)+"): "+str(screen))
+			game.toggle_settings()
+		game.settings_notice=""
+		game.director.reason="Beyne bağlanılıyor"
 		game.start_game()
 		await process_frame
 		game.toggle_brain_details()
