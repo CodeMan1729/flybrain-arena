@@ -203,10 +203,17 @@
   Semgrep: 290 kural / 2 dosya / 0 bulgu. Üretim hatası bulunmadı; canlı
   paket ve sağlık yanıtı doğrulandı, çalışan hizmet değiştirilmedi.
   Kanıt: reports/web/README.md içindeki yeniden bağlantı bölümü.
-- [ ] Sıradaki hedef: hızlandırılmış sineğin odalar arası kapı geçişlerinde
-  yürüyen oyuncuyu yeniden bulabildiğini mevcut gerçek fizik ortamında
-  doğrula. Kabul: duvardan görmeden/geçmeden takip; uzun süre aynı kapı
-  kenarında sıkışma varsa önce yeniden üret, sonra en küçük yerel düzeltme.
+- [x] Sineğin kapı köşesinde takibi bırakması yeniden üretildi ve tek
+  satırda düzeltildi. Görüş kaybında son konumdan 2,3 birim uzakta beklemek
+  yerine o konuma kadar yaklaşır. Önceki iki başarısız rota dahil altı
+  sürekli rotada oyuncu yeniden bulundu; en uzun görüş kaybı 0,3 sn,
+  duvarı kesen hareket yok. 25 uçuş ve ayrı gerçek beyinle 48 tam tur
+  kontrolü geçti. Semgrep bulgusuz. Statik paket önce canlıya yayımlandı;
+  Chrome normal yenileme, HTTPS özetleri, açık bağlantı ve öğrenme dosyaları
+  doğrulandı. Kanıt: reports/FLY-DOORWAYS.md.
+- [ ] Sıradaki hedef: farklı ölçülmüş sinir çıktı düzeylerinde uçuşun hız
+  sınırını ve görüş kaybında güncel gizli oyuncu bilgisini kullanmadığını
+  mevcut fizik testinde doğrula; yalnızca yeniden üretilen sapmayı düzelt.
 
 ## Önceki tamamlanan hedefler
 

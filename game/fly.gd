@@ -148,7 +148,7 @@ func _physics_process(delta: float) -> void:
 		# ponytail: local search and last-seen pursuit; add navigation only if doorway tests show trapping.
 		gaze=gaze.rotated(Vector3.UP,delta*(1.8+absf(lateral))*(-1.0 if lateral<0 else 1.0))
 	var desired := gaze*speed
-	if tracking: desired*=clampf(relative.length()-2.3,-0.75,1.0)
+	if tracking: desired*=clampf(relative.length()-(2.3 if visible_player else 0.0),-0.75,1.0)
 	else: desired*=0.65
 	desired += gaze.cross(Vector3.UP)*(lateral*0.65+dart.x)+Vector3.UP*(climb+dart.y)+gaze*dart.z+avoided
 	if position.y<0.7: desired.y=maxf(desired.y,1.5)
