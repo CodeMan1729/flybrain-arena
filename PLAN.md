@@ -120,11 +120,22 @@
   kullanıldı; fiziksel klavye ve elle sekme değişimi sınanmadı. Statik
   paket yayımlandı; HTTPS özeti eşleşti, beyin süreci değişmedi. Kanıt:
   reports/web/focus-input-check.json içindeki menu_activation ve web raporu.
-- [ ] Sıradaki hedef: iki public istemciden biri sinir hesabı sürerken
-  koptuğunda diğer oturumun etkilenmediğini doğrula. Kabul: ayrı yerel
-  sunucu/geçici kayıtlarla kalan istemci mevcut zaman aşımı içinde karar
-  alır, sonradan yeni bağlantı kabul edilir, yarım olaydan ödül yazılmaz.
-  Kişisel/canlı öğrenme kullanılmaz; yalnızca yeniden üretilen hatayı düzelt.
+- [x] İki public istemciden biri gerçek sinir hesabının içinde koptuğunda
+  kalan istemci 414,20 ms'de karar aldı (web sınırı 5 sn). Sinir çıktısı
+  bağımsız referansla eşleşti; yeni bağlantı kabul edildi. Uygulanmadan
+  kesilen karar ve onaydan sonra yarım kalan tepki penceresi ödül üretmedi;
+  öğrenme dosyası bayt düzeyinde korundu. Mevcut public testine kontrollü
+  matris bekletmesi eklendi; yalnızca testte tek hesaplama yuvasına düşürme
+  aynı kontrolü beklendiği gibi zaman aşımına uğrattı. 12 Python testi ve
+  son public tekrarı geçti; Semgrep 44 hedef/216 kural/0 bulgu. Üretim
+  hatası bulunmadı; canlı hizmet ve kişisel bellek kullanılmadı. Kanıt:
+  reports/web/README.md içindeki hesaplama sırasında kesinti bölümü.
+- [ ] Sıradaki hedef: öğrenme dosyası yazılamadığında kalıcı belleğin
+  korunmasını gerçek sunucuda doğrula. Kabul: yalnızca geçici kayıtlarla
+  kontrollü yazma hatasında önceki model baytları korunur; istemci başarılı
+  ödül yanıtı almaz, hizmet güvenli kapanır ve yeniden başlatma son geçerli
+  modeli yükler. Kişisel/canlı kayıtlar kullanılmaz; yalnızca kanıtlanan
+  hatayı düzelt.
 
 ## Önceki tamamlanan hedefler
 

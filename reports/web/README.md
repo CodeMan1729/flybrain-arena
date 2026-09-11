@@ -321,3 +321,47 @@ Yeni statik paket yayımlandı; HTTPS paket özeti ölçülen yerel sürümle
 eşleşti. Beyin hizmeti yeniden başlatılmadı ve süreç kimliği değişmedi.
 Geçici test sunucusu ve sekmesi kapatıldı; kişisel ayarlar ve canlı ortak
 öğrenme testlerde kullanılmadı.
+
+
+## Sinir hesabı sırasında bağlantı kesintisi — 11 Eylül 2026
+
+Mevcut `tests/test_public.py` kontrolü, iki gerçek WebSocket istemcisinden
+birinin hesaplama sırasında aniden kopmasını da sınar. Ayrı localhost
+sunucusu tam **166.700 nöronluk MaleCNS** grafiğini kullanır; bütün öğrenme
+ve tur kayıtları geçici bir klasördedir.
+
+Yalnızca test sürecinde bir gerçek matris çarpımı tamamlandıktan sonra,
+sinir adımı geri dönmeden hesaplama iş parçacığı kontrollü bekletilir.
+Test, bu noktaya gelindiğini gördükten sonra ilk istemcinin TCP taşımasını
+aniden kapatır. Bekletme ancak ikinci istemci gerçek kararını ve olay
+onayını aldıktan sonra kaldırılır; zamanlamaya bağlı bir kesinti tahmini
+yapılmaz. Sinir çıktıları veya sunucunun karar/ödül işlevleri taklit edilmez.
+
+- Son çalışmada kalan istemcinin istek/yanıt süresi **414,20 ms** oldu;
+  üretim web istemcisinin **5 saniyelik** sınırı içinde kaldı.
+- On iki sinir okuması bağımsız, sıfırlanmış modelle `1e-7` mutlak
+  toleransta; gösterilen nöron etkinlikleri birebir eşleşti.
+- İlk turun kesinti kaydı tamamlandıktan sonra yeni ziyaretçi bağlandı
+  ve beklenen ortak bellek özetini aldı.
+- İlk istemcinin uygulanmamış kararı ve ikinci istemcinin olay onayından
+  sonra yarım kalan tepki penceresi **0 yeni ödül** üretti. İki tur da
+  `connection_lost` ile kapandı; uygulanmış olay sayıları sırasıyla 0 ve 1.
+  Önceki iki test ödülü korundu; model dosyasının baytları değişmedi ve
+  yeniden başlatılan sunucu aynı modeli yükledi.
+- Kontrolü sınamak için ayrı bir denemede yalnızca test sunucusunun
+  hesaplama kapasitesi 2'den 1'e düşürüldü. Kalan istemci tam bu kontrolün
+  5 saniyelik sınırında zaman aşımına uğradı; beklenen başarısızlık yakalandı.
+
+**12 Python/sunucu testi** geçti (37,47 sn). Olay onayını geciktirmemek için
+test sırası netleştirildikten sonra public kontrolü yeniden geçti (15,80 sn).
+Semgrep: 44 hedef, 216 kural, **0 bulgu**; hata veya uyarı yok.
+
+```sh
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 .venv/bin/python -m unittest discover -s tests -v
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 .venv/bin/python -m unittest tests.test_public -v
+```
+
+Üretim hatası bulunmadı; oyun/sunucu kodu değişmedi ve canlı hizmete dağıtım
+yapılmadı. Bu, kontrollü yerel bağlantı kesintisi doğrulamasıdır; internet
+gecikmesi, tarayıcı arayüzü veya sekiz eşzamanlı oyuncu için yük testi değildir.
+Geçici sunucular kapandı; kişisel ve canlı ortak bellek kullanılmadı.

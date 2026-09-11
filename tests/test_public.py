@@ -4,17 +4,41 @@ import copy
 import json
 import os
 from pathlib import Path
+import runpy
 import socket
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 
 import numpy as np
+from scipy.sparse import csr_matrix
 from websockets.asyncio.client import connect
 from websockets.exceptions import ConnectionClosed, InvalidStatus
 from brain.connectome import Connectome, ROOT
 from brain.director import normalize
+
+
+def run_disconnect_worker():
+    """Hold one real matrix operation so the disconnect cannot miss inference."""
+    directory = Path(sys.argv[sys.argv.index('--logs') + 1])
+    multiply = csr_matrix.__matmul__
+    def gated_multiply(matrix, state):
+        result = multiply(matrix, state)
+        try:
+            (directory / 'hold-compute').unlink()
+        except FileNotFoundError:
+            return result
+        (directory / 'computing').touch()
+        deadline = time.monotonic() + 10
+        while not (directory / 'release-compute').exists():
+            if time.monotonic() >= deadline:
+                raise RuntimeError('Test did not release neural computation')
+            time.sleep(.005)
+        return result
+    csr_matrix.__matmul__ = gated_multiply
+    runpy.run_module('brain.server', run_name='__main__')
 
 
 class PublicTests(unittest.IsolatedAsyncioTestCase):
@@ -36,7 +60,9 @@ class PublicTests(unittest.IsolatedAsyncioTestCase):
         with tempfile.TemporaryDirectory() as directory:
             directory = Path(directory)
             output = (directory / 'server.log').open('w')
-            command = [sys.executable, '-m', 'brain.server', '--port', str(port), '--logs', str(directory),
+            command = [sys.executable, '-c',
+                       'from tests.test_public import run_disconnect_worker; run_disconnect_worker()',
+                       '--port', str(port), '--logs', str(directory),
                        '--public-origin', origin, '--allow-control', '--max-clients', '3']
             env = {**os.environ, 'OPENBLAS_NUM_THREADS': '1', 'OMP_NUM_THREADS': '1'}
             process = subprocess.Popen(command, cwd=ROOT, env=env, stdout=output, stderr=output)
@@ -148,6 +174,47 @@ class PublicTests(unittest.IsolatedAsyncioTestCase):
                         await send(paused, 'finish', outcome='quit')
                         self.assertEqual((await receive(paused, 'finished'))['memory']['updates'], 2)
                         self.assertEqual((directory / 'learning-v3.json').read_bytes(), saved_bytes)
+                    # Drop one socket inside a real step; the other must still meet the web deadline.
+                    abandoned = []
+                    for ws in (first, other):
+                        await send(ws, 'start', mode='learn', seed=7, interval=2)
+                        abandoned.append((await receive(ws, 'started'))['session'])
+                    await asyncio.sleep(2)
+                    (directory / 'hold-compute').touch()
+                    await send(first, 'decision', id=50, telemetry=inputs[0])
+                    async with asyncio.timeout(5):
+                        while not (directory / 'computing').exists():
+                            await asyncio.sleep(.005)
+                    first.transport.abort()
+                    try:
+                        started = time.monotonic()
+                        await send(other, 'decision', id=51, telemetry=inputs[1])
+                        result = await asyncio.wait_for(receive(other, 'decision'), 5)
+                        elapsed = time.monotonic() - started
+                        self.assertEqual(result['id'], 51)
+                        self.assertLess(elapsed, 5)
+                        self.assertNotEqual(result['action'], 'wait')
+                        np.testing.assert_allclose(result['neural']['readout'], expected[1]['readout'], atol=1e-7)
+                        self.assertEqual(result['neural']['view_activity'], expected[1]['view_activity'])
+                        # ACK promptly, within the server's separate 1.5-second application limit.
+                        await send(other, 'applied', id=51, accepted=True, telemetry=inputs[1])
+                        await receive(other, 'feedback_open')
+                    finally:
+                        (directory / 'release-compute').touch()
+                    async with asyncio.timeout(5):
+                        while True:
+                            events = [json.loads(line) for line in (directory / 'gameplay.jsonl').read_text().splitlines()]
+                            if any(e['type'] == 'finished' and e['session'] == abandoned[0] for e in events):
+                                break
+                            await asyncio.sleep(.01)
+                    async with connect(uri, origin=origin, proxy=None) as replacement:
+                        hello = await receive(replacement, 'hello')
+                        self.assertEqual(hello['memory']['updates'], 2)
+                        # A confirmed event with an incomplete reaction window must not train either.
+                        await send(other, 'telemetry', telemetry=inputs[1])
+                        other.transport.abort()
+                    self.assertEqual((directory / 'learning-v3.json').read_bytes(), saved_bytes)
+                    print(f'Disconnect during neural step: survivor RTT {elapsed * 1000:.2f} ms < 5000 ms; replacement accepted', flush=True)
                 process.terminate()
                 await asyncio.to_thread(process.wait, 10)
                 records = (directory / 'gameplay.jsonl').read_text()
@@ -158,6 +225,11 @@ class PublicTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(len(rewards), 2)
                 self.assertTrue(all(len(e['features']) == 13 for e in rewards))
                 self.assertNotEqual(rewards[0]['session'], rewards[1]['session'])
+                lost = [e for e in events if e['type'] == 'finished' and e['session'] in abandoned]
+                self.assertEqual(len(lost), 2)
+                self.assertTrue(all(e['outcome'] == 'connection_lost' and e['summary']['rewards'] == 0 for e in lost))
+                self.assertEqual(sorted(e['summary']['events'] for e in lost), [0, 1])
+                self.assertEqual((directory / 'learning-v3.json').read_bytes(), saved_bytes)
                 # A later visitor and a new worker must see the same saved shared model.
                 process = subprocess.Popen(command, cwd=ROOT, env=env, stdout=output, stderr=output)
                 ws = await ready()
