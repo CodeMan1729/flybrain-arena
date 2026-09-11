@@ -505,3 +505,31 @@ yeniden deneme düğmesine ulaşır; indirme sonrası “Oyun açılıyor…” 
   eşleşti. Sağlık: hazır, öğrenme açık, 166.700 nöron, 24 örnek / 4 tur.
 
 Ayrıntılı sonuç: [loading-cache-check.json](loading-cache-check.json).
+
+
+## Olay onayında kimlik türü — 2026-09-11
+
+Python'da `True == 1` ve `1.0 == 1` eşitliği, public `applied` mesajında
+hatalı türdeki kimliğin bekleyen tamsayı olayını onaylamasına yol açıyordu.
+İki ayrı bağlantıda `true` ve `1.0` gönderildiğinde eski koddan beklenmeyen
+iki `feedback_open` geldi; yeni regresyon kontrolü 4,203 saniyede başarısız oldu.
+
+Ortak sunucu onay yoluna `type(id) is int` kontrolü eklendi. Yanlış türdeki
+onaylar bütçeye/tepki penceresine ulaşmadan yok sayılır. Test bu onayların
+ardından yapılan değerlendirmenin reddedildiğini, öğrenme dosyasının
+oluşmadığını ve aynı bekleyen kimliğe doğru tamsayı onayı verildiğinde
+ikisinin de normal öğrenebildiğini doğrular. Toplam kayıt iki güncellemedir.
+
+13 Python testi 39,958 saniyede geçti; buna gerçek Godot istemcisinin
+onay/geri bildirim akışı da dahildir. Semgrep uygulama taraması 353 kural /
+39 dosya, değişen sunucu ve public testinin açık yol taraması 321 kural /
+2 dosya: iki taramada da 0 bulgu, hata ve uyarı yok.
+
+İlk yayın kontrolünde bağlantı görüldüğü için hizmet değiştirilmedi.
+Bağlantı sayısı sıfırken kaynak özeti doğrulanıp yedeklenerek sunucu
+güncellendi ve yeniden başlatıldı. Canlı kaynak SHA256:
+`bf841e5d9471c3a50713f1460f4d8bff292c67586936c5b0d59a9adb66154451`.
+Model ve tur dosyaları bayt düzeyinde değişmedi; HTTPS/WSS yeniden
+doğrulandı: 166.700 nöron, 24 öğrenme örneği, 4 tur. Canlıda test turu
+başlatılmadı. `web-20260911-loading-cache` statik yayını ve sürümlü
+mobil oyun dosyaları korundu. Önce canlı yayın, ardından GitHub push.

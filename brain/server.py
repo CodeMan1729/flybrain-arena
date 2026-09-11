@@ -189,7 +189,7 @@ async def run(port, token, log_dir, *, public_origin=None, allow_control=False, 
                         record(kind,updates=layer.updates)
                         await send({'type':'parameters','operation':kind,'updates':layer.updates,'memory':memory()})
                     elif kind=='applied':
-                        if enabled and pending and msg.get('id')==pending['id'] and now-pending['time']<1.5:
+                        if enabled and pending and type(msg.get('id')) is int and msg['id']==pending['id'] and now-pending['time']<1.5:
                             accepted=msg.get('accepted') is True
                             baseline=movement(msg.get('telemetry',{}))
                             if accepted and budget.commit(pending['action'],now) and pending['action']!='wait':

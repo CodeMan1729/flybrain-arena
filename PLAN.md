@@ -169,11 +169,19 @@
   ortak model/tur baytları değişmedi, HTTPS/WSS hazır, 11 öğrenme/2 tur
   korundu. Hata enjeksiyonu yalnızca geçici yerel kayıtlarda yapıldı.
   Kanıt: reports/web/README.md içindeki kayıt hatası bölümü.
-- [ ] Sıradaki hedef: olay uygulama onayındaki istek kimliği türünü
-  doğrula. Kabul: ayrı public testinde mantıksal veya ondalıklı kimlik
-  geçerli tamsayı kimliğin yerine geçemez, olay bütçesi/tepki penceresi
-  açmaz; doğru tamsayı onayı çalışır. Kişisel/canlı öğrenme kullanılmaz;
-  yalnızca yeniden üretilen tür doğrulama hatasını düzelt.
+- [x] Olay uygulama onayında tamsayı tür kontrolü eklendi. Ayrı public
+  testinde `true` ve `1.0`, kimliği `1` olan olay için önce yanlışlıkla
+  değerlendirme penceresi açıyordu. İkisi de artık yok sayılıyor; öğrenme
+  dosyası oluşmuyor, aynı bekleyen olaya doğru tamsayı onayı ve değerlendirme
+  uygulanabiliyor. 13 Python testi, gerçek Godot geri bildirim akışı ve
+  Semgrep geçti. Bağlantı varken yayın ertelendi; bağlantı kalmayınca
+  sunucu güncellendi. Öğrenme dosyaları bayt düzeyinde korundu; canlı
+  HTTPS/WSS hazır, 24 örnek / 4 tur değişmedi. Sürümlü mobil web paketi
+  korundu. Kanıt: reports/web/README.md içindeki onay kimliği bölümü.
+- [ ] Sıradaki hedef: gecikmiş veya tekrarlanan public olay onayının
+  yeni bekleyen olayı iptal etmediğini ve ikinci ödül oluşturmadığını
+  gerçek ayrı sunucuda doğrula. Önce hatayı yeniden üret; üretim değişikliği
+  yalnızca başarısız kontrol varsa yap. Kişisel/canlı öğrenme kullanma.
 
 ## Önceki tamamlanan hedefler
 

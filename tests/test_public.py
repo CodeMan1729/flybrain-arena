@@ -121,6 +121,13 @@ class PublicTests(unittest.IsolatedAsyncioTestCase):
                         np.testing.assert_allclose(result['neural']['output'], prediction['output'], atol=1e-7)
                         np.testing.assert_allclose(result['neural']['readout'], prediction['readout'], atol=1e-7)
                         self.assertEqual(result['neural']['view_activity'], prediction['view_activity'])
+                    # JSON true and 1.0 compare equal to Python int 1 but cannot acknowledge its event.
+                    for index, (ws, bad_id) in enumerate(zip((first, other), (True, 1.0))):
+                        await send(ws, 'applied', id=bad_id, accepted=True, telemetry=inputs[index])
+                        await send(ws, 'feedback', id=1, rating=2)
+                    replies = await asyncio.gather(*(asyncio.wait_for(ws.recv(), 2) for ws in (first, other)))
+                    self.assertEqual([json.loads(raw)['type'] for raw in replies], ['error', 'error'])
+                    self.assertFalse((directory / 'learning-v3.json').exists())
                     for index, ws in enumerate((first, other)):
                         await send(ws, 'applied', id=1, accepted=True, telemetry=inputs[index])
                         await receive(ws, 'feedback_open')
