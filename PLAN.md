@@ -236,9 +236,18 @@
   canlı paket özeti ve sağlık yanıtı push öncesi doğrulandı. Kapsam:
   headless Godot yerleşimi; fiziksel telefon denemesi değil.
   Kanıt: reports/web/README.md içindeki uzun mobil hata metinleri bölümü.
-- [ ] Sıradaki hedef: kısa yatay mobil ekranda açık değerlendirme
-  satırının ve üç puan düğmesinin oyun üstbilgisiyle çakışmadığını mevcut
-  mobil testte doğrula; yalnızca yeniden üretilen düzen sorununu düzelt.
+- [x] Değerlendirme metni ve üç puan hedefi dört mobil boyutta, üç
+  gerçek olay adıyla doğrulandı. Yazı satırları üstbilgiye veya hedeflere
+  taşmıyor; üç 92×48 px hedef ekranda ve birbirinden ayrı. Yeni 12 durum
+  dahil 55 mobil kontrol geçti. Yalnızca geçici testte hedefleri yukarı
+  taşımak 12 yeni kontrolü başarısız kıldı. Semgrep: 49 genel kural /
+  0 bulgu. Üretim değişikliği gerekmedi; canlı paket özeti ve hazır sağlık
+  yanıtı push öncesi doğrulandı. Kapsam: headless Godot, fiziksel cihaz değil.
+  Kanıt: reports/web/README.md içindeki mobil değerlendirme yerleşimi.
+- [ ] Sıradaki hedef: public sunucunun izin verdiği sekiz eşzamanlı
+  istemcide karar gecikmesini, ayrı geçici gerçek beyinle ölç; beş
+  saniyelik web yanıt sınırını aşan somut darboğaz varsa düzelt. Canlı
+  hizmete yük testi yapma; kişisel ve ortak öğrenme kayıtlarını kullanma.
 
 ## Önceki tamamlanan hedefler
 

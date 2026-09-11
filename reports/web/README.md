@@ -498,6 +498,32 @@ doğrulandı. Sağlık yanıtı hazır, 166.700 nöron / 27 öğrenme / 5 tur.
 Oyun dosyaları değişmediğinden yeni dağıtım gerekmedi; canlı hizmete
 ve açık oyunlara müdahale edilmedi.
 
+### Mobil değerlendirme yerleşimi — 11 Eylül 2026
+
+Mevcut mobil teste dört ekran boyutu × üç gerçek olay adı eklendi:
+**12 yeni yerleşim durumu**, toplam **55 başarılı kontrol**. Kısa yatay
+568×320 ve 844×390 ile dar dikey 320×568 ve 390×844 sınandı. Uzun
+koridor hedefi açıkken ışık, ses ve siluet değerlendirmelerinin bütün
+satırları görünür; üstbilgi ve puan hedefleriyle çakışma yok. Üç puan
+hedefinin her biri 92×48 px, ekran içinde ve diğerlerinden ayrı.
+
+Karşılaştırma etiketlerin boş yer ayıran sabit kutusunu değil, mevcut
+font ve satır kaydırmanın hesapladığı metin yüksekliğini kullanır.
+Geçici test kopyasında puan hedeflerini 44 px yukarı taşımak **12 yeni
+kontrolün tamamını başarısız** kıldı; diğer 43 kontrol geçti. Gerçek
+uygulamada sorun bulunmadı ve üretim kodu değiştirilmedi.
+
+Kontrol `tests/mobile.gd` komutuyla headless Godot'ta çalıştı; bağlantı
+ve değerlendirme durumu yalnızca yerleşim için testte oluşturuldu.
+Ağ bağlantısı/öğrenme başlatılmadı; fiziksel telefon veya tarayıcı çizimi
+sınanmadı. Mevcut dokunma, iptal, yön değişimi ve değerlendirme girdisi
+kontrolleri de geçti. Semgrep: **49 genel kural / 0 bulgu**, hata/uyarı yok.
+
+Push öncesi canlı HTML ve mevcut oyun paketinin HTTPS SHA256 eşleşmesi
+doğrulandı; sağlık yanıtı hazır, 166.700 nöron / 27 öğrenme / 5 tur.
+Üretim dosyaları değişmediği için yeni dağıtım gerekmedi; açık oyunlar
+ve öğrenme kayıtları kullanılmadı.
+
 
 ## %100 yüklemede takılma — 2026-09-11
 

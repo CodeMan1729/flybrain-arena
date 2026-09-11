@@ -78,6 +78,32 @@ func run_checks() -> void:
 		game.director.reason="Beyne bağlanılıyor"
 		game.start_game()
 		await process_frame
+		game.has_key=true
+		game.director.connected=true
+		game.director.info={"neurons":166700}
+		for action in ["lights","steps","silhouette"]:
+			game.director.feedback_id=90
+			game.director.feedback_until=game.director.now()+8
+			game.director.feedback_action=action
+			game.director.feedback_status=""
+			game._process(0.1)
+			await process_frame
+			await process_frame
+			var occupied: Array[Rect2]=[]
+			var readable: bool=game.player.active and game.feedback_text.is_visible_in_tree() and game.ACTION_NAMES[action] in game.feedback_text.text
+			for label in [game.objective,game.badge,game.feedback_text]:
+				readable=readable and label.get_visible_line_count()==label.get_line_count()
+				occupied.append(Rect2(label.global_position,Vector2(label.size.x,label.get_minimum_size().y)))
+			for target in game.touch_controls.ratings:
+				readable=readable and target.is_visible_in_tree() and target.shape.size.x>=44 and target.shape.size.y>=44
+				occupied.append(Rect2(target.global_position-target.shape.size/2,target.shape.size))
+			for i in occupied.size():
+				readable=readable and game.get_viewport().get_visible_rect().encloses(occupied[i])
+				for j in range(i): readable=readable and not occupied[i].intersects(occupied[j])
+			verify(readable,"Mobile "+action+" rating text and targets fit without covering the HUD: "+str(screen))
+		game.has_key=false
+		game.director.connected=false
+		game.director.feedback_id=-1
 		game.toggle_brain_details()
 		await process_frame
 		await process_frame
