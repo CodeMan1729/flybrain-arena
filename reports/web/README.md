@@ -94,3 +94,43 @@ Kişisel ayarlar ve canlı ortak bellek kullanılmadı. Test sekmeleri ve geçic
 sunucu kapatıldı. Web yayınına dosya yüklenmedi.
 
 ![Görünürlük testinden sonra açık devam bekleyen izole oyun](paused-after-visibility.png)
+
+
+## Yeniden bağlantı menüsü düzeltmesi — 11 Eylül 2026
+
+Bağlantı yokken BAŞLAT veya DEVAM ET'e basılması menü başlığını kalıcı
+bir bağlantı mesajıyla değiştiriyordu. Beyin hazır olunca alt durum satırı
+güncelleniyor, üstte ise eski “Beyne bağlanılıyor… Hazır olunca Başlat'a bas”
+yazısı kalıyordu. Duraklatılmış turda düğme DEVAM ET olduğu için yönlendirme
+de yanlıştı.
+
+Başlık artık mevcut 10 Hz arayüz güncellemesinde oyun durumundan üretilir:
+ilk açılışta anahtar arama hedefi, duraklamada DURAKLATILDI, bitişte çıkış
+sonucu. Bağlantının güncel durumu mevcut alt satırda ve öğrenme alanında
+kalır. Başlığı farklı yerlerden değiştiren beş atama kaldırıldı.
+Bağlanma, başlatma ve devam etme koşulları değişmedi.
+
+- Mevcut HUD testine üç oyun durumu × iki bağlantı durumu kontrolü eklendi.
+  Tanısal eski başlık, güncel durum gösterilmeden önce bilerek yerleştirilir.
+  Kontrol eski kodda başarısız oldu; düzeltmeden sonra geçti. Başlık,
+  bağlantı durum satırı ve oyunun kendiliğinden başlamaması birlikte sınanır.
+- **3 HUD, 17 ayar ve 112 oynanış kontrolü** geçti. Ayar testinin beklenen
+  bozuk dosya/yedekleme kayıtları dışında script hatası veya uyarı yoktu.
+- Yeni web paketi, ayrı öğrenme klasörlü gerçek yerel beyinle Chrome'da
+  sınandı. İlk açılışta beyin durduruldu, BAŞLAT denendi, beyin açıldı:
+  hedef başlığı korundu ve oyun başlamadı. Gerçek tur duraklatılıp bağlantı
+  tekrar kesildi; DEVAM ET denendi ve beyin açıldı. Başlık DURAKLATILDI,
+  düğme DEVAM ET, alt satır “Gerçek bağlantı verisi hazır” olarak kaldı.
+- Yeniden bağlantı mesajında `paused: true` görüldü. Kontrol boyunca
+  otomatik `resume`, karar, uygulama veya ödül mesajı oluşmadı. İzole
+  öğrenme sayacı sıfır kaldı. Kişisel ve canlı ortak bellek test edilmedi.
+- Semgrep: 43 hedefte 131 kural, **0 bulgu**, hata veya uyarı yok.
+
+Web dışa aktarımı tamamlandı ve yalnızca statik dosyalar yayımlandı.
+Beyin hizmetinin süreç kimliği değişmedi. HTTPS'den alınan paket ile
+sınanan yerel paketin SHA256'sı aynı:
+`7d65c04a78e8a186c2c85c6a3410e08e448ec78579e8a69fcd446676f3dca32f`.
+Canlı açılış menüsü, oyun başlatılmadan doğrulandı. Geçici test süreçleri
+ve sekmeler kapatıldı.
+
+![Yerel testte yeniden bağlanmış ve açık devam bekleyen menü](reconnected-menu.png)

@@ -57,6 +57,25 @@ func check_layout() -> void:
     game._process(0.1)
     memory_ok=memory_ok and '28 kişisel öğrenme örneği' in game.memory_text.text and not 'Son alınan kayıt' in game.memory_text.text
     print(('PASS: ' if memory_ok else 'FAIL: ')+'Learning display distinguishes unavailable, real zero, retained offline and refreshed data')
+    var menu_ok := true
+    for phase in ['initial','paused','completed']:
+        game.playing=phase!='initial'
+        game.completed=phase=='completed'
+        game.elapsed=42
+        game.start_button.text={'initial':'BAŞLAT','paused':'DEVAM ET','completed':'YENİ TUR'}[phase]
+        # Reproduce the stale title observed after a web reconnect; game state and connection are current.
+        game.menu_title.text="Beyne bağlanılıyor… Hazır olunca Başlat'a bas."
+        for connected in [false,true]:
+            game.director.connected=connected
+            game.director.reason='Gerçek bağlantı verisi hazır' if connected else 'Bağlantı kesildi · güvenli bekleme'
+            game._process(0.1)
+            var expected: String={'initial':'Üç odada anahtarı ara. Çıkışa ulaş.','paused':'DURAKLATILDI · Odada zaman bekler.','completed':'ÇIKIŞ AÇILDI · Odadan çıktın.  42 sn'}[phase]
+            menu_ok=menu_ok and game.menu_title.text==expected and game.director.reason in game.notice.text
+            menu_ok=menu_ok and not game.player.active and not game.director.running and game.menu.visible
+    print(('PASS: ' if menu_ok else 'FAIL: ')+'Menu title follows game phase, connection status refreshes separately, and reconnect never resumes play')
+    game.playing=false
+    game.completed=false
+    game.elapsed=0
     game.director.connected=false
     game.hud.visible=true
     game.menu.visible=false
@@ -88,4 +107,4 @@ func check_layout() -> void:
         if fullscreen:
             passed=passed and DisplayServer.window_get_mode() in [DisplayServer.WINDOW_MODE_FULLSCREEN,DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN]
             print(('PASS: ' if passed else 'FAIL: ')+'Native fullscreen mode is active')
-    await game.quit_game(0 if passed and memory_ok and startup_ok else 1)
+    await game.quit_game(0 if passed and memory_ok and startup_ok and menu_ok else 1)

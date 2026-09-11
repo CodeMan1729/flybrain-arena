@@ -532,7 +532,7 @@ func build_ui() -> void:
 	column.position = Vector2(110,335)
 	column.add_theme_constant_override("separation",12)
 	menu.add_child(column)
-	menu_title = ui_label("Üç odada anahtarı ara. Çıkışa ulaş.",22,Color(0.88,0.69,0.42))
+	menu_title = ui_label("",22,Color(0.88,0.69,0.42))
 	column.add_child(menu_title)
 	column.add_child(ui_label("DENEY MODU" if research_modes else "ÖĞRENME HER TURDA AÇIK",15))
 	mode_choice = OptionButton.new()
@@ -616,7 +616,6 @@ func place_key() -> void:
 func start_game() -> void:
 	if OS.has_feature("web") and not director.connected:
 		director.connect_requested = true
-		menu_title.text = "Beyne bağlanılıyor… Hazır olunca Başlat'a bas."
 		return
 	if playing and not completed:
 		resume_game()
@@ -656,7 +655,6 @@ func pause_game() -> void:
 	director.pause_session()
 	clear_effects()
 	menu.visible = true
-	menu_title.text = "DURAKLATILDI · Odada zaman bekler."
 	start_button.text = "DEVAM ET"
 	mode_choice.disabled = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -665,7 +663,6 @@ func pause_game() -> void:
 func resume_game() -> void:
 	if OS.has_feature("web") and not director.connected:
 		director.connect_requested = true
-		menu_title.text = "Beyne yeniden bağlanılıyor…"
 		return
 	player.active = true
 	fly.active = true
@@ -802,7 +799,6 @@ func finish_game() -> void:
 	director.finish_session("won")
 	clear_effects()
 	menu.visible = true
-	menu_title.text = "ÇIKIŞ AÇILDI · Odadan çıktın.  %d sn" % int(elapsed)
 	start_button.text = "YENİ TUR"
 	mode_choice.disabled = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -812,7 +808,6 @@ func _process(delta: float) -> void:
 	if not is_instance_valid(player): return
 	if OS.has_feature("web") and player.active and not director.connected:
 		pause_game()
-		menu_title.text = "Bağlantı kesildi. Beyin hazır olunca devam edebilirsin."
 	var tick := Time.get_ticks_usec()
 	if player.active and elapsed > 2 and last_frame_usec > 0 and (smoke or benchmark):
 		frame_times.append((tick-last_frame_usec)/1000.0)
@@ -833,6 +828,8 @@ func _process(delta: float) -> void:
 	ui_clock+=delta
 	if ui_clock<0.1: return
 	ui_clock=0
+	if menu.visible:
+		menu_title.text = "ÇIKIŞ AÇILDI · Odadan çıktın.  %d sn" % int(elapsed) if completed else ("DURAKLATILDI · Odada zaman bekler." if playing else "Üç odada anahtarı ara. Çıkışa ulaş.")
 	objective.text = "03 / ÇIKIŞA İLERLE" if door_open else ("02 / KORİDORDAKİ ÇIKIŞI AÇ" if has_key else "01 / ODALARDAKİ ANAHTARI BUL")
 	prompt.text = ""
 	if not has_key and can_interact(key_object.global_position): prompt.text = "[ E ]   ANAHTARI AL"

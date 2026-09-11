@@ -78,12 +78,19 @@
   öğrenilememesi mevcut public sunucu testine eklendi ve geçti; 112
   oynanış kontrolü de geçti. Üretim değişikliği gerekmedi. Kanıt:
   reports/web/README.md ve reports/web/visibility-check.json.
-- [ ] Sıradaki hedef: web yeniden bağlantı menüsünün yanlış yönlendirmesini
-  düzelt. Bu testte beyin hazır olduğu halde “Beyne bağlanılıyor… Hazır
-  olunca Başlat'a bas” başlığı kaldı; görünen düğme DEVAM ET idi. Kabul:
-  başlık gerçek bağlantı durumuna ve düğmeye uysun; bağlantı kurulması
-  tek başına oyunu başlatmasın; ilk açılış, duraklama ve tur sonu korunsun.
-  Kişisel/canlı bellek yerine izole test kullan.
+- [x] Yeniden bağlantıdaki eski/yanlış menü başlığı düzeltildi. Başlık tek
+  yerde oyun durumundan üretiliyor; güncel bağlantı bilgisi mevcut durum
+  satırında. Üç oyun durumu × iki bağlantı durumu için önce başarısız olan
+  regresyon kontrolü geçti; toplam 3 HUD, 17 ayar ve 112 oynanış kontrolü
+  başarılı. Gerçek yerel web/beyin ile ilk bağlantı ve duraklatılmış
+  yeniden bağlantı sınandı; kendiliğinden başlama/öğrenme yok. Statik
+  web paketi hizmet yeniden başlatılmadan yayımlandı; HTTPS hash eşleşti.
+  Kanıt: reports/web/README.md ve reports/web/reconnected-menu.png.
+- [ ] Sıradaki hedef: web oyuncu ayarlarının sayfa yenileme sonrası
+  kalıcılığını doğrula. Kabul: ses, efekt yoğunluğu ve fare hassasiyeti
+  aynı izole tarayıcı origininde yenilemeden sonra korunur, oyuna uygulanır;
+  gerçek kullanıcı tarayıcı ayarları ve ortak öğrenme teste katılmaz.
+  Hata yeniden üretilemezse üretim kodunu değiştirme.
 
 ## Önceki tamamlanan hedefler
 
