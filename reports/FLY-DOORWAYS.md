@@ -85,3 +85,34 @@ doğrulandı; sağlık yanıtı hazır, 166.700 nöron, 27 örnek / 5 turdu.
 Bu test dondurulmuş üç
 ölçüm örneğini kapsar; sürekli değişen sinir akışı veya her oyuncu rotası
 üzerine bir garanti değildir.
+
+
+## Ölçülmüş sürüşle kesintisiz kapı rotası
+
+Aynı kapı testi, yukarıdaki ölçülmüş düşük ve yüksek giriş örnekleriyle
+çalıştırıldı. Üç tohum × iki yön × üç sürüş (önceki sabit denetim örneği
+ve iki ölçülmüş örnek), **18 kesintisiz rota** oluşturur. Ara noktalarda
+oyuncu beklemez; yalnızca rota sonunda takip mesafesinin üç birimin altına
+inmesi için en fazla iki saniye tanınır. Varış anındaki mesafe ayrıca
+kaydedildiği için bu bekleme yürüyüş sırasında geride kalmayı gizlemez.
+
+| Sürüş | Varış mesafesi aralığı | En uzun görüş kaybı | Üç birimden yakına gelmek için ek süre |
+|---|---:|---:|---:|
+| Önceki sabit denetim örneği | 2,719–2,889 | 0,300 sn | 0 sn |
+| Ölçülmüş düşük giriş | 2,803–3,055 | 0,483 sn | En fazla 0,050 sn |
+| Ölçülmüş yüksek giriş | 2,576–2,760 | 0,350 sn | 0 sn |
+
+Bütün ara noktalar ve dört kapı iki yönde geçildi; hareket parçalarını
+kesen duvar bulunmadı. Düşük girişteki 3,055 birimlik anlık mesafe uzun
+bir takılma değildi: oyuncu durunca üç fizik karesinde üç birimin altına
+indi. Bu ölçüm için uçuş hızları veya takip mesafesi değiştirilmedi.
+
+Mevcut test döngüsü ve sinir örnekleri tekrar kullanıldı. Normal oyun
+hızında **55 kontrol** hatasız geçti; buna boyut, duraklama, hız sınırı ve
+gizli konum karşılaştırmaları da dahildir. Semgrep: değişen GDScript
+üzerinde 47 genel kural / 0 bulgu; davranış kontrolü Godot ile yapıldı.
+Üretim değişikliği gerekmedi. Push öncesinde canlı HTML/paket SHA256 ve
+HTTPS sağlık yanıtı doğrulandı: hazır, 166.700 nöron, 27 örnek / 5 tur.
+Kişisel kayıtlar ve canlı öğrenme test için kullanılmadı. Sonuç, bu sabit
+ölçüm örneklerini ve rotaları kapsar; canlı değişken sinir akışı, fiziksel
+telefon veya her oyuncu rotası için garanti değildir.

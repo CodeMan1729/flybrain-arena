@@ -219,10 +219,16 @@
   kontrolü geçti; Semgrep 47 genel kural / 0 bulgu. Üretim değişikliği
   gerekmedi; canlı paket özeti ve sağlık yanıtı push öncesi doğrulandı.
   Kanıt: reports/FLY-DOORWAYS.md içindeki ölçülmüş sürüş bölümü.
-- [ ] Sıradaki hedef: ölçülmüş düşük ve yüksek sinir sürüşleriyle mevcut
-  kesintisiz kapı rotasını doğrula. Oyuncuya yetişme ve uzun takılma
-  sınırlarını aynı fizik kontrolünde ölç; yalnızca yeniden üretilen
-  oynanış sorununu düzelt.
+- [x] Ölçülmüş düşük/yüksek sinir sürüşleri mevcut kesintisiz kapı
+  rotasına eklendi: üç tohum × iki yön × üç sürüşte 18 rota geçti.
+  Düşük sürüşte en uzun görüş kaybı 0,483 sn; varışta en fazla 3,055 birim
+  mesafe, oyuncu durunca üç fizik karesinde üç birimin altına indi.
+  Duvar geçişi veya uzun takılma yok. Normal hızda 55 kontrol ve Semgrep
+  geçti; üretim değişikliği gerekmedi. Canlı paket ve sağlık yanıtı
+  push öncesi doğrulandı. Kanıt: reports/FLY-DOORWAYS.md.
+- [ ] Sıradaki hedef: dar mobil ekranda uzun bağlantı/hata metinlerinin
+  menü düğmelerini kapatmadığını ve yatay taşma oluşturmadığını mevcut
+  mobil düzen testinde doğrula; yalnızca yeniden üretilen sorunu düzelt.
 
 ## Önceki tamamlanan hedefler
 
