@@ -556,3 +556,36 @@ değişen test dosyası, sıfır bulgu/hata/uyarı. Üretim hatası yeniden
 üretilemedi; sunucu ve oyun kodu değiştirilmedi. Kişisel kayıtlar ve canlı
 öğrenme test için kullanılmadı. Mevcut canlı uygulama doğrulandı;
 yayımlanacak yeni üretim dosyası bulunmadığından çalışan hizmet korundu.
+
+
+## Açık puan penceresinde yeniden bağlantı — 2026-09-11
+
+Güncel `game-69f84cebd654b962.pck` iki ayrı geçici public beyinle Chrome
+390×844 / 3× mobil emülasyonunda sınandı. Uygulama mesajları değiştirilmedi;
+vekil, ilk `feedback_open` iletildikten yaklaşık 400 ms sonra iki TCP
+akışını aniden kapattı. Kişisel ayarlar ve canlı öğrenme kullanılmadı.
+
+- Her iki denemede eski olay kimliği 1 idi. İstemci 83,46 / 91,23 ms sonra
+  aynı tur kimliğiyle `paused:true` göndererek yeniden bağlandı. Menü
+  “DURAKLATILDI” gösterdi; değerlendirme düğmeleri kapandı.
+- İlk denemede 48,923 sn duraklama boyunca telemetri, karar, puan ve ödül
+  iletilmedi. İkinci denemede pencerenin açılmasından 7,402 sn sonra,
+  sekiz saniyelik eski süre henüz dolmamışken devam edildi. Duraklamada ve
+  devamın hemen ardından 3 tuşu kullanıldı; eski olaya puan/ödül gitmedi.
+- Yeni 4 numaralı olayda ilk denemede dokunmatik “Korktum”, ikinci denemede
+  aynı 3 tuşu kabul edildi. Her denemede yalnızca bir doğrudan değerlendirme
+  kaydoldu. Önceden hesaplanan hareket ödülü 1,0 doğrudan puanla düzeltildi;
+  o olayın örnek sayısı 1 kaldı. Böylece tuşun çalıştığı da doğrulandı.
+- Mevcut `tests/feedback.gd` gerçek sunucu kontrolü kesinti, yeniden bağlantı,
+  eski puanın reddi ve yeni olayın tek kalıcı puanı için genişletildi.
+  Oyunun 16 saniyelik aynı olay bekleme sınırı korunarak yeni olay beklenir.
+  `tests.test_socket` 26,878 sn'de geçti. Semgrep: 290 kural, 2 dosya,
+  0 bulgu; hata ve uyarı yok.
+
+Üretim hatası yeniden üretilemedi; uygulama kodu değişmedi. Canlı paket
+SHA256 özeti yerel üretim paketiyle eşleşti; HTTPS sağlık yanıtı hazır,
+166.700 nöron, 27 öğrenme örneği / 5 tur gösterdi. Çalışan hizmete müdahale
+edilmedi; bu doğrulama GitHub push'tan önce yapıldı. Kontrol tarayıcıları
+ve iki geçici beyin kapatıldı. Tarayıcı konsol hatası yoktu. Bu sonuç
+emülasyon ve kontrollü TCP kesintisine aittir; fiziksel telefon veya
+cihazın Wi-Fi bağlantısının elle kapatılması sınanmadı.

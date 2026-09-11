@@ -193,10 +193,20 @@
   doğru 51 onayı yine kabul edildi. Genişletilen public testi 20,867 sn'de
   geçti; Semgrep 321 kural / 1 dosya / 0 bulgu. Üretim hatası bulunmadı;
   mevcut uygulama kodu korundu. Kanıt: reports/web/README.md.
-- [ ] Sıradaki hedef: gerçek web istemcisinde ağ bağlantısı kopup geri
-  geldiğinde açık değerlendirme penceresinin eski oturuma puan göndermediğini
-  doğrula. Ayrı beyin ve geçici kayıt kullan; yeniden üretilen hata varsa
-  ortak bağlantı/geri bildirim yolunda en küçük düzeltmeyi yap.
+- [x] Açık değerlendirme penceresinde web bağlantısı kesilip yeniden
+  kurulduğunda eski puanın taşınmadığı doğrulandı. İki ayrı gerçek beyinde
+  pencere açıldıktan 0,4 sn sonra ağ akışı kesildi; bağlantı duraklatılmış
+  döndü. Bir denemede 48,92 sn sessiz bekleme, diğerinde eski sekiz saniyelik
+  pencere dolmadan 7,40 sn'de devam ve puan tuşu sınandı. Eski olayda puan/
+  ödül yok; yeni olayın tuş ve dokunmatik değerlendirmesi bir kez kaydoldu.
+  Mevcut gerçek Godot/WebSocket testi genişletildi ve 26,878 sn'de geçti.
+  Semgrep: 290 kural / 2 dosya / 0 bulgu. Üretim hatası bulunmadı; canlı
+  paket ve sağlık yanıtı doğrulandı, çalışan hizmet değiştirilmedi.
+  Kanıt: reports/web/README.md içindeki yeniden bağlantı bölümü.
+- [ ] Sıradaki hedef: hızlandırılmış sineğin odalar arası kapı geçişlerinde
+  yürüyen oyuncuyu yeniden bulabildiğini mevcut gerçek fizik ortamında
+  doğrula. Kabul: duvardan görmeden/geçmeden takip; uzun süre aynı kapı
+  kenarında sıkışma varsa önce yeniden üret, sonra en küçük yerel düzeltme.
 
 ## Önceki tamamlanan hedefler
 

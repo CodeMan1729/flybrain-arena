@@ -108,7 +108,7 @@ class SocketTests(unittest.IsolatedAsyncioTestCase):
                         '--headless','--path',str(ROOT/'game'),'--script','../tests/feedback.gd',
                         env={**os.environ,'FLYFEAR_TOKEN':token,'FLYFEAR_PORT':str(port)},stdout=game_output,stderr=game_output)
                     try:
-                        self.assertEqual(await asyncio.wait_for(game.wait(),20),0,(Path(tmp)/'godot-feedback.log').read_text())
+                        self.assertEqual(await asyncio.wait_for(game.wait(),35),0,(Path(tmp)/'godot-feedback.log').read_text())
                     finally:
                         if game.returncode is None:game.terminate();await game.wait()
                 saved=json.loads((Path(tmp)/'learning-v3.json').read_text())
