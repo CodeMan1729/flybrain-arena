@@ -1,0 +1,30 @@
+{
+  "game/main.gd": {
+    "original": "0d87d539fde1e5656549a8d8e62d65f6868bde0ab2ecdc3d61e910b26f61d5e1",
+    "modified": "efb1f67147629a8b65cb0dd3d89dcf6694170ac420fd6f8f9531ad8294abf8b1"
+  },
+  "game/touch_controls.gd": {
+    "original": "5ce833f85b9b5a4413d0900658f73a13b3bda48c2342a0888babdfe24afd67f3",
+    "modified": "d9d9ba21084794bfd93600a7d92783fccc12d3644c2c377b6664580399573132"
+  },
+  "STATUS.md": {
+    "original": "0c2161beac7a9b1ca15d0542938256c1f457d42e4e2a3bd32e532d549d4c6be5",
+    "modified": "86c546e7e5c5093927da8d4d7c9b3719b1efd6d25bdb9562cdac9b8a7da7503b"
+  },
+  "tests/mobile.gd": {
+    "original": "b7b7c5e055a762da318cfc39d50e30a1cab513008606218b6b38782d4a11af58",
+    "modified": "ec67c6655d37ad5f613f9ccc64d9589a883198f4471a2fa028c7d2a50ded7c2a"
+  },
+  "brain/server.py": {
+    "original": "4ec9d834ca89f1cd5542d29c4b6a1368d9dcc48084d396160a48a72cca70ec30",
+    "modified": "5c9f3faa9b4786418bda6e2e84b7a093613acd528a77b1662d7f57ffa0af7770"
+  },
+  "tests/hud.gd": {
+    "original": "d4d8f067347c6396c667dc27b13ec93f4fbfa5231656477bff906365d47891a0",
+    "modified": "f710f609ba3619440a7edaf06e20c6a706a83282917fb0a42aa8a1d3a488d1af"
+  },
+  "tests/combat_round.gd": {
+    "original": null,
+    "modified": "9366294b83ec5fc16ec56b256ccf38870abdc80c3b2dfd98c3418a7c6069389b"
+  }
+}

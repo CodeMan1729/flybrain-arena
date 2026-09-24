@@ -1,0 +1,15 @@
+{
+  "command": [
+    "tools/Godot_v4.5.2-stable_win64_console.exe",
+    "--headless",
+    "--path",
+    "game",
+    "--script",
+    "../tests/gameplay.gd",
+    "--quit-after",
+    "1800"
+  ],
+  "exit_status": 0,
+  "stdout": "Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org\r\n\r\nPASS: HUD text is reused between 10 Hz updates\r\nPASS: HUD refreshes changed gameplay state at the next update\r\nPASS: Hidden debug text does not rebuild every update\r\nPASS: Fly fits through side-room doorway: -1\r\nPASS: Fly fits through rear service doorway: -1\r\nPASS: Fly fits through side-room doorway: 1\r\nPASS: Fly fits through rear service doorway: 1\r\nPASS: Rear wall contains fly\r\nPASS: Rear wall contains player\r\nPASS: Rear passage cannot bypass sealed exit wall\r\nPASS: Direct hit on drone deals weapon_damage\r\nPASS: Fire cooldown blocks an immediate second shot\r\nPASS: Solid obstacle blocks the hitscan ray from reaching the drone\r\nPASS: Draining drone HP to zero deactivates it\r\nPASS: Drone HP reaching zero emits defeated\r\nPASS: Drone contact drains player HP to zero\r\nPASS: Player HP reaching zero emits defeated\r\nPASS: Fly buzz is silent before play\r\nPASS: Actual mixed fly buzz grows louder near the listener\r\nPASS: Actual mixed fly buzz follows left and right position\r\nPASS: Fly buzz is inaudible beyond its range\r\nPASS: Pause stops fly buzz immediately\r\nPASS: Resume restarts looping fly buzz\r\nPASS: Pause releases a held movement key even when its key-up event never arrives\r\nPASS: Fresh movement input still works after resuming\r\nPASS: Zero volume mutes every game sound\r\nPASS: Volume restores bounded game audio\r\n",
+  "stderr": "SCRIPT ERROR: Invalid call. Nonexistent function 'win_game' in base 'Node3D (main.gd)'.\r\n   at: run_checks (res://../tests/gameplay.gd:153)\r\n   GDScript backtrace (most recent call first):\r\n       [0] run_checks (res://../tests/gameplay.gd:153)\r\nWARNING: ObjectDB instances leaked at exit (run with --verbose for details).\r\n   at: cleanup (core/object/object.cpp:2514)\r\nERROR: 1 resources still in use at exit (run with --verbose for details).\r\n   at: clear (core/io/resource.cpp:804)\r\n"
+}

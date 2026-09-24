@@ -1,0 +1,15 @@
+{
+  "command": [
+    "tools/Godot_v4.5.2-stable_win64_console.exe",
+    "--headless",
+    "--path",
+    "game",
+    "--script",
+    "../tests/settings.gd",
+    "--quit-after",
+    "36000"
+  ],
+  "exit_status": 0,
+  "stdout": "Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org\r\n\r\nPASS: First launch uses defaults without writing a file\r\nPASS: Menu changes save through the production path\r\nPASS: Successful save replaces the file without leaving temporary data\r\nPASS: Reopening restores mute before playback\r\nPASS: Reopening restores effect intensity, interval and mouse sensitivity\r\nPASS: Reopening restores mode, seed and fullscreen preference\r\nPASS: Restored experiment settings reach the actual round\r\nSKIP: Headless display cannot capture the mouse; run without --headless for the input check\r\nPASS: Failed write preserves the previous file and reports the failure\r\nPASS: Isolated tests neither read nor write personal settings\r\nPASS: Out-of-range and infinite values cannot escape safe limits\r\nPASS: Wrong value types use safe defaults\r\nPASS: NaN is rejected\r\nPASS: Corrupt settings are backed up byte for byte before replacement\r\nPASS: Settings remain usable after corrupt-file recovery\r\nPASS: Failed backup prevents overwriting unreadable settings\r\nPASS: Normal play ignores old fixed/random preferences and hides control modes\r\nPASS: Normal rounds always start reward learning\r\n",
+  "stderr": "ERROR: ConfigFile parse error at C:/Users/Lenovo/AppData/Local/Temp/flyfear-settings-39804/settings.cfg:0: Unexpected EOF while parsing simple tag.\r\n   at: _parse (core/io/config_file.cpp:292)\r\n   GDScript backtrace (most recent call first):\r\n       [0] load_settings (res://main.gd:145)\r\n       [1] _ready (res://main.gd:92)\r\n       [2] open_game (res://../tests/settings.gd:13)\r\n       [3] run_checks (res://../tests/settings.gd:83)\r\n       [4] close_game (res://../tests/settings.gd:22)\r\nERROR: Failed to open 'C:/Users/Lenovo/AppData/Local/Temp/flyfear-settings-39804'.\r\n   at: copy (core/io/dir_access.cpp:420)\r\n   GDScript backtrace (most recent call first):\r\n       [0] load_settings (res://main.gd:149)\r\n       [1] _ready (res://main.gd:92)\r\n       [2] open_game (res://../tests/settings.gd:13)\r\n       [3] run_checks (res://../tests/settings.gd:91)\r\n       [4] close_game (res://../tests/settings.gd:22)\r\n"
+}

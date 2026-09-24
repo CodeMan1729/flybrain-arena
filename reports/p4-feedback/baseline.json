@@ -1,0 +1,14 @@
+{
+  "command": [
+    "tools/Godot_v4.5.2-stable_win64_console.exe",
+    "--headless",
+    "--path",
+    "game",
+    "--script",
+    "../tests/combat_feedback.gd"
+  ],
+  "cwd": "E:\\FlyBrain\\flyfear",
+  "stdout": "Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org\n\nFAIL: Combat feedback is installed\n",
+  "stderr": "",
+  "exit_code": 1
+}

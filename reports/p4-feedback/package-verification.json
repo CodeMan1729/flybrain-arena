@@ -1,0 +1,59 @@
+[
+  {
+    "command": [
+      "git",
+      "init",
+      "-q"
+    ],
+    "cwd": "E:\\FlyBrain\\flyfear\\reports\\p4-feedback\\patch-rehearsal",
+    "stdout": "",
+    "stderr": "",
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "git",
+      "apply",
+      "--check",
+      "E:\\FlyBrain\\flyfear\\reports\\p4-feedback\\changes.patch"
+    ],
+    "cwd": "E:\\FlyBrain\\flyfear\\reports\\p4-feedback\\patch-rehearsal",
+    "stdout": "",
+    "stderr": "",
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "git",
+      "apply",
+      "E:\\FlyBrain\\flyfear\\reports\\p4-feedback\\changes.patch"
+    ],
+    "cwd": "E:\\FlyBrain\\flyfear\\reports\\p4-feedback\\patch-rehearsal",
+    "stdout": "",
+    "stderr": "",
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "E:\\FlyBrain\\flyfear\\.venv\\Scripts\\python.exe",
+      "E:\\FlyBrain\\flyfear\\reports\\p4-feedback\\rollback.py",
+      "--root",
+      "E:\\FlyBrain\\flyfear\\reports\\p4-feedback\\rollback-rehearsal",
+      "--apply"
+    ],
+    "cwd": "E:\\FlyBrain\\flyfear",
+    "stdout": "Verified modified files and original hashes\nRollback verified: original bytes restored; added files removed\n",
+    "stderr": "",
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "E:\\FlyBrain\\flyfear\\.venv\\Scripts\\python.exe",
+      "E:\\FlyBrain\\flyfear\\reports\\p4-feedback\\rollback.py"
+    ],
+    "cwd": "E:\\FlyBrain\\flyfear",
+    "stdout": "Verified modified files and original hashes\n",
+    "stderr": "",
+    "exit_code": 0
+  }
+]

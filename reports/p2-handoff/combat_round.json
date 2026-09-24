@@ -1,0 +1,15 @@
+{
+  "command": [
+    "tools/Godot_v4.5.2-stable_win64_console.exe",
+    "--headless",
+    "--path",
+    "game",
+    "--script",
+    "../tests/combat_round.gd",
+    "--quit-after",
+    "3600"
+  ],
+  "exit_status": 0,
+  "stdout": "Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org\r\n\r\nPASS: Hitscan HP step 1\r\nPASS: Hitscan HP step 2\r\nPASS: Hitscan HP step 3\r\nPASS: Hitscan HP step 4\r\nPASS: Hitscan HP step 5\r\nPASS: Hitscan HP step 6\r\nPASS: Hitscan HP step 7\r\nPASS: Hitscan HP step 8\r\nPASS: Hitscan HP step 9\r\nPASS: Hitscan HP step 10\r\nPASS: Defeated signal settles a win\r\nPASS: Win stops both bodies and decisions\r\nPASS: Win clears audio\r\nPASS: Late loss does not overwrite a settled win\r\nPASS: Restart resets HP and result\r\nPASS: Contact signal settles defeat without restoring dead HP\r\nPASS: Defeat freezes round and returns to menu\r\nPASS: Late win preserves defeat and zero HP\r\nPASS: Restart after defeat is playable\r\n",
+  "stderr": ""
+}

@@ -1,0 +1,8 @@
+{
+  "game/main.gd": "0d87d539fde1e5656549a8d8e62d65f6868bde0ab2ecdc3d61e910b26f61d5e1",
+  "game/touch_controls.gd": "5ce833f85b9b5a4413d0900658f73a13b3bda48c2342a0888babdfe24afd67f3",
+  "STATUS.md": "0c2161beac7a9b1ca15d0542938256c1f457d42e4e2a3bd32e532d549d4c6be5",
+  "tests/mobile.gd": "b7b7c5e055a762da318cfc39d50e30a1cab513008606218b6b38782d4a11af58",
+  "brain/server.py": "4ec9d834ca89f1cd5542d29c4b6a1368d9dcc48084d396160a48a72cca70ec30",
+  "tests/hud.gd": "d4d8f067347c6396c667dc27b13ec93f4fbfa5231656477bff906365d47891a0"
+}

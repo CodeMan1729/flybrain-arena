@@ -1,0 +1,30 @@
+{
+  "game/fly.gd": {
+    "original": "cdbef77e9ab60414ffbaf8bd23a5780fc55f87b1deab7550dd5e37322ead0232",
+    "modified": "50bd54f9e7123c3c8eef5c2592964597dbb5cca7adffcd122e6ce90c33bd4ff8"
+  },
+  "game/drone.gd": {
+    "original": null,
+    "modified": "9828d38a4bf6645f689f8194866ab1bcad44ab4274878a7a04e96581745ec3f3"
+  },
+  "game/main.gd": {
+    "original": "cfb52b5b17494e090974b82134904dc3730836905f5c44043a4587f387016bc0",
+    "modified": "e36bf65ed05e48f7eae816d27fb06897818976844e1c9555dcfd62caf3aca645"
+  },
+  "game/main.tscn": {
+    "original": "39aed578b4ea0a36177f1d80d5204fa088ba24ab33449f26de9bed1bfe54b03e",
+    "modified": "a67fcfef37a5a9890c5c2ea96bb15c4e0f2682a832e79cabefe37ec93a55e76a"
+  },
+  "tests/fly.gd": {
+    "original": "a4f0f083ad6201fb942151f69ccb2f3aeae00fca65c52c68bb44bb322ce41e14",
+    "modified": "b9f2e9de9f19bc80e00b273ce60abb67ccd8a57d3eda23053f32d7d970b499b9"
+  },
+  "tests/drone_visual.gd": {
+    "original": null,
+    "modified": "2e3103a3703907a36ba6f2f4cbebe5b49681443378638e08eab680ab6d505ab6"
+  },
+  "STATUS.md": {
+    "original": "716cb907bca0ea2cc4c1fa06b06176748a0ad1addb84a56f4a7d5bbb500db5fd",
+    "modified": "55b6dce3109750756f176857706afb1efcd466662a89da0e7e1adac848a60a2b"
+  }
+}

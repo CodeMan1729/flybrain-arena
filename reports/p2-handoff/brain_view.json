@@ -1,0 +1,15 @@
+{
+  "command": [
+    "tools/Godot_v4.5.2-stable_win64_console.exe",
+    "--headless",
+    "--path",
+    "game",
+    "--script",
+    "../tests/brain_view.gd",
+    "--quit-after",
+    "36000"
+  ],
+  "exit_status": 0,
+  "stdout": "Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org\r\n\r\nPASS: Viewer accepts bounded anatomical metadata\r\nPASS: New measured sample updates history and live status\r\nPASS: Rendering does not invent neural samples\r\nPASS: Age text updates reuse the native network draw commands\r\nPASS: A new neural sample invalidates the cached network\r\nPASS: V opens an interactive paused inspector\r\nPASS: Paused view explicitly keeps the last measured activity and action\r\nPASS: Color controls invalidate cached network colors\r\nPASS: Mouse drag rotates actual 3D soma coordinates\r\nPASS: A coalesced drag remains rotation instead of an accidental neuron click\r\nPASS: Mouse wheel zooms the projected network\r\nPASS: Click selection resolves the biological record\r\nPASS: Peak selection uses measured absolute activity\r\nPASS: Group filter constrains neuron selection\r\nPASS: Reset restores the initial camera\r\nPASS: Disconnect never presents retained samples as live\r\nPASS: V returns to the original play state and compact projection\r\nPASS: Inspector preserves an already paused session and hidden compact panel\r\nPASS: Escape closes inspection into the pause menu\r\nPASS: A new round clears previous activity history\r\nPASS: Invalid edge indices stop drawing safely\r\nPASS: Non-finite soma coordinates are rejected\r\nPASS: Oversized normalized coordinates cannot overflow the projection\r\nPASS: Misaligned metadata cannot select the wrong neuron\r\n",
+  "stderr": ""
+}

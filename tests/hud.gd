@@ -35,41 +35,42 @@ func check_layout() -> void:
             if label.is_visible_in_tree():
                 startup_ok=startup_ok and game.get_viewport().get_visible_rect().encloses(label.get_global_rect())
                 startup_ok=startup_ok and label.get_visible_line_count()==label.get_line_count()
-        startup_ok=startup_ok and game.start_button.is_visible_in_tree() and game.start_button.text=='BAŞLAT'
-        startup_ok=startup_ok and ('bağlanılıyor' in game.memory_text.text)
+        startup_ok=startup_ok and game.start_button.is_visible_in_tree() and game.start_button.text=='START'
+        startup_ok=startup_ok and ('Connecting to the brain' in game.memory_text.text)
         if reopening: startup_ok=startup_ok and FileAccess.get_file_as_bytes(game.settings_path)==saved_settings
         print(('PASS: ' if startup_ok else 'FAIL: ')+('Saved fullscreen cold start' if reopening else 'Fullscreen preference saved')+'; menu text fits and mute is retained')
         if DisplayServer.get_name()!='headless':
             await RenderingServer.frame_post_draw
             startup_ok=game.get_viewport().get_texture().get_image().save_png(game.settings_path+'-menu.png')==OK and startup_ok
     game._process(0.1)
-    var memory_ok: bool='bağlanılıyor' in game.memory_text.text and not '0' in game.memory_text.text
+    var memory_ok: bool='Connecting to the brain' in game.memory_text.text and not '0' in game.memory_text.text
     game.director.connected=true
     game.director.memory={'rounds':0,'updates':0,'prior_events':8640}
     game._process(0.1)
-    memory_ok=memory_ok and '0 kişisel öğrenme örneği' in game.memory_text.text and '8640' in game.memory_text.text
+    memory_ok=memory_ok and '0 personal learning samples' in game.memory_text.text and '8640' in game.memory_text.text
     game.director.memory.updates=27
     game.director.connected=false
     game._process(0.1)
-    memory_ok=memory_ok and '27 kişisel öğrenme örneği' in game.memory_text.text and 'Son alınan kayıt' in game.memory_text.text
+    memory_ok=memory_ok and '27 personal learning samples' in game.memory_text.text and 'No connection' in game.memory_text.text
     game.director.memory.updates=28
     game.director.connected=true
     game._process(0.1)
-    memory_ok=memory_ok and '28 kişisel öğrenme örneği' in game.memory_text.text and not 'Son alınan kayıt' in game.memory_text.text
+    memory_ok=memory_ok and '28 personal learning samples' in game.memory_text.text and not 'No connection' in game.memory_text.text
     print(('PASS: ' if memory_ok else 'FAIL: ')+'Learning display distinguishes unavailable, real zero, retained offline and refreshed data')
     var menu_ok := true
-    for phase in ['initial','paused','completed']:
+    for phase in ['initial','paused','won','lost']:
         game.playing=phase!='initial'
-        game.completed=phase=='completed'
+        game.completed=phase in ['won','lost']
+        game.round_outcome=phase if game.completed else ''
         game.elapsed=42
-        game.start_button.text={'initial':'BAŞLAT','paused':'DEVAM ET','completed':'YENİ TUR'}[phase]
+        game.start_button.text={'initial':'START','paused':'RESUME','won':'NEW ROUND','lost':'NEW ROUND'}[phase]
         # Reproduce the stale title observed after a web reconnect; game state and connection are current.
-        game.menu_title.text="Beyne bağlanılıyor… Hazır olunca Başlat'a bas."
+        game.menu_title.text="Connecting to the brain… Press Start when ready."
         for connected in [false,true]:
             game.director.connected=connected
-            game.director.reason='Gerçek bağlantı verisi hazır' if connected else 'Bağlantı kesildi · güvenli bekleme'
+            game.director.reason='Real connection data ready' if connected else 'Connection lost · safe wait'
             game._process(0.1)
-            var expected: String={'initial':'Üç odada anahtarı ara. Çıkışa ulaş.','paused':'DURAKLATILDI · Odada zaman bekler.','completed':'ÇIKIŞ AÇILDI · Odadan çıktın.  42 sn'}[phase]
+            var expected: String={"initial":"Shoot the drone. Avoid contact.",'paused':'PAUSED · Arena is waiting.','won':'YOU WON · Drone disabled.','lost':'YOU LOST · Drone made contact.' }[phase]
             menu_ok=menu_ok and game.menu_title.text==expected and game.director.reason in game.notice.text
             menu_ok=menu_ok and not game.player.active and not game.director.running and game.menu.visible
     print(('PASS: ' if menu_ok else 'FAIL: ')+'Menu title follows game phase, connection status refreshes separately, and reconnect never resumes play')
@@ -83,9 +84,9 @@ func check_layout() -> void:
     game.director.neural={'output':[-0.1234,0.2345,-0.3456,0.4567], 'active_neurons':166700,
         'mean_abs':0.1234,'rss_mb':1234.5,'latency_ms':1234.5}
     game.director.updates=123456789
-    game.director.reason='Ortak öğrenme belleği oyuncular tarafından sıfırlanamaz'
+    game.director.reason='Shared learning memory cannot be reset by players'
     game._process(0.1)
-    game.hud.add_child(game.ui_label('YERLEŞİM TESTİ / YAPAY SAYILAR',20))
+    game.hud.add_child(game.ui_label('LAYOUT TEST / ARTIFICIAL NUMBERS',20))
     if fullscreen:
         await create_timer(1).timeout
         game.toggle_fullscreen()

@@ -1,0 +1,8 @@
+{
+  "game/drone.gd": "9828d38a4bf6645f689f8194866ab1bcad44ab4274878a7a04e96581745ec3f3",
+  "game/player.gd": "a0cd013fed0472eea8a068eaf0834c9767f15d7a31e54e354ab9b76b63d2bb56",
+  "game/weapon_view.gd": null,
+  "tests/weapon_view.gd": null,
+  "tests/pursuit.gd": "dc61912bdf7efa03062c56eb29e4c1de269f09b69ef9e04629bf54a3a3f1fe8f",
+  "STATUS.md": "55b6dce3109750756f176857706afb1efcd466662a89da0e7e1adac848a60a2b"
+}

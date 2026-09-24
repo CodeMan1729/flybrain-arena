@@ -1,0 +1,22 @@
+{
+  "game/fly.gd": {
+    "original": "b0c587fbea1c3003af24c723e38cef6b5a843176fa184e8ac267f6a334b45f11",
+    "modified": "cdbef77e9ab60414ffbaf8bd23a5780fc55f87b1deab7550dd5e37322ead0232"
+  },
+  "game/main.gd": {
+    "original": "efb1f67147629a8b65cb0dd3d89dcf6694170ac420fd6f8f9531ad8294abf8b1",
+    "modified": "cfb52b5b17494e090974b82134904dc3730836905f5c44043a4587f387016bc0"
+  },
+  "tests/fly.gd": {
+    "original": "86ff38e73da66e6a40a5318fc0cc4e2129a9fbdd9e1bdaa3ba18046f3c25cfa8",
+    "modified": "a4f0f083ad6201fb942151f69ccb2f3aeae00fca65c52c68bb44bb322ce41e14"
+  },
+  "tests/pursuit.gd": {
+    "original": null,
+    "modified": "dc61912bdf7efa03062c56eb29e4c1de269f09b69ef9e04629bf54a3a3f1fe8f"
+  },
+  "STATUS.md": {
+    "original": "86c546e7e5c5093927da8d4d7c9b3719b1efd6d25bdb9562cdac9b8a7da7503b",
+    "modified": "716cb907bca0ea2cc4c1fa06b06176748a0ad1addb84a56f4a7d5bbb500db5fd"
+  }
+}

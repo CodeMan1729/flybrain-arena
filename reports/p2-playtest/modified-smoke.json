@@ -1,0 +1,13 @@
+{
+  "command": [
+    "E:\\FlyBrain\\flyfear\\.venv\\Scripts\\python.exe",
+    "tools/launch.py",
+    "--headless",
+    "--smoke"
+  ],
+  "cwd": "E:\\FlyBrain\\flyfear",
+  "inputs": "real full MaleCNS graph; default spawn, shooting win and contact loss",
+  "stdout": "",
+  "stderr": "FLYFEAR zaten \u00e7al\u0131\u015f\u0131yor. A\u00e7\u0131k oyuna d\u00f6n\u00fcn.\n",
+  "exit_code": 1
+}

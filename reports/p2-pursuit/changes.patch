@@ -1,0 +1,181 @@
+--- a/game/fly.gd
++++ b/game/fly.gd
+@@ -26,6 +26,7 @@
+ var dart := Vector3.ZERO
+ var dart_until := 0.0
+ var flight_rng := RandomNumberGenerator.new()
++const CONTACT_DISTANCE := 0.6
+ 
+ func mesh(part: Mesh, pos: Vector3, color: Color, parent: Node3D) -> MeshInstance3D:
+ 	var node := MeshInstance3D.new()
+@@ -160,7 +161,9 @@
+ 		# ponytail: local search and last-seen pursuit; add navigation only if doorway tests show trapping.
+ 		gaze=gaze.rotated(Vector3.UP,delta*(1.8+absf(lateral))*(-1.0 if lateral<0 else 1.0))
+ 	var desired := gaze*speed
+-	if tracking: desired*=clampf(relative.length()-(2.3 if visible_player else 0.0),-0.75,1.0)
++	# Pursue contact rather than the horror controller's 2.3 m standoff.
++	# Slow only at a remembered point; never reverse away from a visible target.
++	if tracking: desired*=clampf(relative.length(),0.0,1.0)
+ 	else: desired*=0.65
+ 	desired += gaze.cross(Vector3.UP)*(lateral*0.65+dart.x)+Vector3.UP*(climb+dart.y)+gaze*dart.z+avoided
+ 	if position.y<0.7: desired.y=maxf(desired.y,1.5)
+@@ -168,8 +171,12 @@
+ 	velocity=velocity.move_toward(desired.limit_length(8.0),delta*24)
+ 	move_and_slide()
+ 	# Contact deals full HP for now; per-body-part graded damage is a later extension.
+-	if player.active and global_position.distance_to(player.global_position+Vector3.UP*1.25)<0.6:
+-		player.take_damage(player.max_hp)
++	if player.active and global_position.distance_to(player.global_position+Vector3.UP*1.25)<CONTACT_DISTANCE:
++		# Recheck after movement: even a thin wall must block proximity damage.
++		var contact_ray := PhysicsRayQueryParameters3D.create(global_position,player.global_position+Vector3.UP*1.25,1)
++		contact_ray.exclude = [get_rid(),player.get_rid()]
++		if get_world_3d().direct_space_state.intersect_ray(contact_ray).is_empty():
++			player.take_damage(player.max_hp)
+ 	avoided=avoided.move_toward(Vector3.ZERO,delta*4)
+ 	for i in get_slide_collision_count(): avoided+=get_slide_collision(i).get_normal()*3
+ 	avoided=avoided.limit_length(4)
+--- a/game/main.gd
++++ b/game/main.gd
+@@ -951,11 +951,15 @@
+ 		await get_tree().process_frame
+ 	if not check(not director.info.is_empty(),"Godot received real connectome manifest"): return
+ 	start_game()
++	# Collect neural/view samples before enabling pursuit; death now occurs quickly.
++	fly.set_physics_process(false)
+ 	debug_panel.visible = true
+ 	await get_tree().create_timer(1).timeout
+ 	var fly_start := fly.position
+ 	await get_tree().create_timer(4).timeout
+ 	if not check(brain_view.points.size()==4096 and director.neural.get("view_activity",[]).size()==4096,"Live panel receives 4096 measured biological neuron samples"): return
++	fly.set_physics_process(true)
++	for _frame in 12: await get_tree().physics_frame
+ 	if not check(fly.position.distance_to(fly_start)>0.05,"Physical fly moves with fresh measured neural output"): return
+ 	toggle_brain_details()
+ 	if not check(brain_view.expanded and not player.active and not director.running,"Detailed brain inspection pauses gameplay and decisions"): return
+@@ -1086,15 +1090,11 @@
+ 	start = Time.get_ticks_msec()
+ 	while director.neural.is_empty() and Time.get_ticks_msec()-start<10000: await get_tree().process_frame
+ 	if not check(not director.neural.is_empty(),"New round receives actual neural output"): return
+-	# Arrange an approaching contact, then let the real physics step cross the threshold.
+-	# This checks contact settlement, not autonomous pursuit from the default spawn.
+-	fly.position = player.position+Vector3(0,1.25,-0.65)
+-	fly.velocity = Vector3(0,0,4)
+-	fly.gaze = Vector3.BACK
++	# Use untouched start_game spawn, gaze and zero velocity with live full-graph output.
+ 	fly.set_physics_process(true)
+ 	start = Time.get_ticks_msec()
+-	while not completed and Time.get_ticks_msec()-start<4000: await get_tree().physics_frame
+-	if not check(completed and round_outcome == "lost" and player.hp == 0 and menu.visible,"Physical drone contact returns to defeat menu"): return
++	while not completed and Time.get_ticks_msec()-start<10000: await get_tree().physics_frame
++	if not check(completed and round_outcome == "lost" and player.hp == 0 and menu.visible,"Default-spawn autonomous drone contact returns to defeat menu"): return
+ 	start = Time.get_ticks_msec()
+ 	while director.ending and Time.get_ticks_msec()-start<4000: await get_tree().process_frame
+ 	recent = director.memory.get("recent",[])
+--- a/tests/fly.gd
++++ b/tests/fly.gd
+@@ -14,6 +14,12 @@
+ 	var game = load("res://main.tscn").instantiate()
+ 	game.settings_path = ""
+ 	root.add_child(game)
++	# This suite measures continuous routes, not round settlement (combat_round/pursuit).
++	# Restore only the fixture player after contact so a successful catch cannot end a route.
++	game.player.defeated.disconnect(game.lose_game)
++	game.player.defeated.connect(func():
++		game.player.hp = game.player.max_hp
++		game.player.active = true)
+ 	game.set_process(false)
+ 	game.director.set_process(false)
+ 	game.set_volume(0)
+--- /dev/null
++++ b/tests/pursuit.gd
+@@ -0,0 +1,67 @@
++extends SceneTree
++
++# Offline body-controller regression. Recorded drives are not a live neural run.
++var failures: Array[String] = []
++
++func verify(ok: bool, label: String) -> void:
++	print(("PASS: " if ok else "FAIL: ")+label)
++	if not ok: failures.append(label)
++
++func _initialize() -> void:
++	run_checks.call_deferred()
++
++func run_checks() -> void:
++	var game = load("res://main.tscn").instantiate()
++	game.settings_path = ""
++	root.add_child(game)
++	game.set_process(false)
++	game.director.set_process(false)
++	game.set_volume(0)
++	var drives := [[0.16,0.06,0.08,0.04],
++		[-0.05011754855513573,-0.03581318259239197,-0.015312639996409416,0.01400546170771122],
++		[-0.19101500511169434,-0.141165092587471,-0.0650838315486908,0.05314510688185692]]
++	for drive in drives:
++		for seed_value in [3,17,42]:
++			game.playing = false
++			game.director.connected = false
++			game.start_game()
++			game.director.has_round = false
++			game.director.seed_value = seed_value
++			game.fly.reset_body()
++			game.director.connected = true
++			game.director.neural = {"output":drive}
++			var peak := 0.0
++			var frames := 0
++			while not game.completed and frames<600:
++				game.director.last_neural_time = game.director.now()
++				await physics_frame
++				peak = maxf(peak,game.fly.velocity.length())
++				frames += 1
++			verify(game.round_outcome == "lost" and game.player.hp == 0,"Default spawn autonomous contact: "+str([drive[0],seed_value]))
++			verify(peak<=8.01,"Speed bound during pursuit")
++			print(JSON.stringify({"seed":seed_value,"drive":drive,"frames":frames,"peak_speed":peak}))
++	game.playing = false
++	game.director.connected = false
++	# Nearby but occluded: proximity alone must not damage through a wall.
++	game.start_game()
++	game.director.has_round = false
++	game.director.connected = true
++	game.director.neural = {"output":drives[0]}
++	game.player.set_physics_process(false)
++	game.player.position = Vector3(0,0,0)
++	game.fly.position = Vector3(0,1.25,0.4)
++	game.fly.gaze = Vector3.FORWARD
++	var wall := StaticBody3D.new()
++	var collision := CollisionShape3D.new()
++	var box := BoxShape3D.new()
++	box.size = Vector3(4,4,0.1)
++	collision.shape = box
++	wall.add_child(collision)
++	wall.position = Vector3(0,1.25,0.2)
++	game.add_child(wall)
++	for frame in 12:
++		game.director.last_neural_time = game.director.now()
++		await physics_frame
++	verify(game.player.hp == 100 and not game.completed and game.fly.sight.is_empty(),"Wall blocks close-range contact and telemetry")
++	game.director.connected = false
++	await game.quit_game(0 if failures.is_empty() else 1)
+--- a/STATUS.md
++++ b/STATUS.md
+@@ -69,7 +69,19 @@
+ - 遇到过一次误导性报错：`asyncio.get_running_loop().add_signal_handler` 在 Windows 抛 `NotImplementedError`，但 `server.py:33` 明明已经用 `os.name!='nt'` guard 了。排查后发现是 `brain/__pycache__/server.cpython-312.pyc` 缓存导致（可能是上一次异常终止的进程留下的过期字节码）。删掉 `__pycache__` 重新编译后问题消失，磁盘上的源码从未有 bug。**如果以后再见到"guard 代码明明对，但 traceback 命中被 guard 掉的分支"这种矛盾，先删 `__pycache__` 排查，不要怀疑源码逻辑。**
+ - Godot headless import（`tools/Godot_v4.5.2-stable_win64_console.exe --headless --path game --editor --import --quit`）退出码 0，日志无 error/fail/exception/crash，证明 `game/` 下的 GDScript 没有解析期错误。**这只验证了脚本能被解析加载，不等于游戏逻辑正确/能玩**，完整试玩仍需手动起 server + 起 Godot game 场景。
+ 
+-## 2026-09-23 本轮结果（最新入口）
++## 2026-09-23 自主贴近续作（最新入口）
++
++- 本轮推进 P2 自主贴近；Drone 外观/命名和人工试玩仍待处理，P3 未开始。下方旧交接所说“默认出生点未验证”已由本节更新。
++- `game/fly.gd` 移除可见目标前 2.3 m 停留/后退项，改为非负距离缩放追击；保留神经新鲜度/非零门控、随机扰动、最后可见位置记忆、碰撞、8 m/s 限速和 24 m/s² 加速度限制。这仍是工程控制，不是神经闪避。
++- 接触阈值提取为 `CONTACT_DISTANCE=0.6`；移动后重新检查到玩家躯干的遮挡，避免隔薄墙触发死亡。
++- 新增 `tests/pursuit.gd`：3 组驱动 × 3 个 seed，默认出生点、不注入速度，静止玩家在 31–42 物理帧内被自主接触；各组速度 ≤8 m/s。另有薄墙阻止接触/telemetry 用例，共 19 PASS。输入为脚本驱动及历史实测回放，非实时神经实验。
++- 同一测试基线：9 个自主接触及薄墙用例失败，退出 1；修改后 19 PASS、退出 0。`tests/fly.gd` 在测试内恢复玩家 HP/active，让持续路线测试不被接触结算中断；生产战斗不变。55 PASS，包含过门、遮挡隐藏轨迹一致、失联停止。
++- `main.gd::automated_run()` 采集全图/面板数据时暂缓飞行，随后验证实际运动；最终死亡轮删除旧的 0.65 m 摆位及接近速度，使用默认出生点自主追击。真实全图 smoke 成功（`reports/game-smoke.json` passed=true，launcher exit 0；日志 `logs/validation/20260923-122920/`），won/lost ACK 和持久化均通过。
++- 回归：combat_round 19 PASS；gameplay 52 PASS（实时运行，音频和过期用例依赖墙钟，不能加 fixed-fps）；fly 55 PASS（fixed-fps 60）。新测试及部分旧测试退出仍有 ObjectDB/resource 释放警告，未宣称消除。默认出生点追击很快，难度待窗口试玩评估。
++- 交付：`reports/p2-pursuit/` 内 original/modified 快照、SHA256 manifest、changes.patch、verification.json、rollback.py。回滚仅恢复本轮代码/STATUS，保留前次已有修改；在隔离副本中实际演练并核对哈希。
++- 下一步：P2 Drone 外观/命名、人工试玩；随后 P3 threat→真实逃逸读出。旧 Python 全套的 3 处失败未处理；本轮未跑 Python 全套。尚未提交 git。
++
++## 2026-09-23 本轮结果（前次战斗结算交接）
+ 
+ - `game/main.gd`：删除钥匙/开门状态、E 交互和旧胜利条件；接通 `fly.defeated → win_game()`、`player.defeated → lose_game()`，共享 `end_round()`。新增 `round_outcome`，结算重复调用不覆盖首个结果或重复发送 finish。清运动、音效、特效后回菜单；死亡 HP 保持 0，新回合恢复双方 HP。
+ - `brain/server.py`：finish 消息白名单补入 `lost`。之前仅接受 `won/quit`，单改 main.gd 会导致失败结果保存被拒。

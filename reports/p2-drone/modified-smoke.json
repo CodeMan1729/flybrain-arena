@@ -1,0 +1,13 @@
+{
+  "command": [
+    "E:\\FlyBrain\\flyfear\\.venv\\Scripts\\python.exe",
+    "tools/launch.py",
+    "--headless",
+    "--smoke"
+  ],
+  "cwd": "E:\\FlyBrain\\flyfear",
+  "inputs": "real MaleCNS full graph; default-spawn autonomous pursuit and hitscan smoke",
+  "stdout": "FLYFEAR haz\u0131r \u00b7 localhost \u00b7 tam MaleCNS grafi\u011fi\nOyun g\u00fcnl\u00fc\u011f\u00fc: E:\\FlyBrain\\flyfear\\logs\\validation\\20260923-130608\\20260923-130608-game.log\n",
+  "stderr": "",
+  "exit_code": 0
+}

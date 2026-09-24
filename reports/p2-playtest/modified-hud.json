@@ -1,0 +1,15 @@
+{
+  "command": [
+    "E:\\FlyBrain\\flyfear\\tools\\Godot_v4.5.2-stable_win64_console.exe",
+    "--headless",
+    "--path",
+    "E:\\FlyBrain\\flyfear\\game",
+    "--script",
+    "../tests/hud.gd"
+  ],
+  "cwd": "E:\\FlyBrain\\flyfear",
+  "inputs": "offline scene fixtures / recorded neural outputs",
+  "stdout": "Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org\n\nPASS: Learning display distinguishes unavailable, real zero, retained offline and refreshed data\nPASS: Menu title follows game phase, connection status refreshes separately, and reconnect never resumes play\nHUD bounds: [P: (1360.0, 38.0), S: (510.0, 523.0)] / viewport: [P: (0.0, 0.0), S: (1920.0, 1080.0)]\nHUD minimum: (1.0, 507.0) / label: (470.0, 507.0)\nPASS: Every diagnostic value is visible, inside the screen, above the brain view\n",
+  "stderr": "",
+  "exit_code": 0
+}

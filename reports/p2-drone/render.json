@@ -1,0 +1,16 @@
+{
+  "command": [
+    "E:\\FlyBrain\\flyfear\\tools\\Godot_v4.5.2-stable_win64_console.exe",
+    "--path",
+    "E:\\FlyBrain\\flyfear\\game",
+    "--script",
+    "../reports/p2-drone/preview.gd",
+    "--rendering-method",
+    "gl_compatibility",
+    "--audio-driver",
+    "Dummy"
+  ],
+  "stdout": "Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org\nOpenGL API 3.3.0 NVIDIA 616.92 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU\n\nPREVIEW: E:/FlyBrain/flyfear/game/../reports/p2-drone/drone-preview.png result=0\nMENU result=0\n",
+  "stderr": "",
+  "exit_code": 0
+}

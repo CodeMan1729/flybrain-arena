@@ -1,0 +1,28 @@
+[
+  {
+    "command": [
+      "E:\\FlyBrain\\flyfear\\.venv\\Scripts\\python.exe",
+      "E:\\FlyBrain\\flyfear\\reports\\p4-feedback\\rollback.py",
+      "--root",
+      "E:\\FlyBrain\\flyfear\\reports\\p4-feedback\\combined-rollback-rehearsal",
+      "--apply"
+    ],
+    "cwd": "E:\\FlyBrain\\flyfear",
+    "stdout": "Verified modified files and original hashes\nRollback verified: original bytes restored; added files removed\n",
+    "stderr": "",
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "E:\\FlyBrain\\flyfear\\.venv\\Scripts\\python.exe",
+      "E:\\FlyBrain\\flyfear\\reports\\p3-neural\\rollback.py",
+      "--root",
+      "E:\\FlyBrain\\flyfear\\reports\\p4-feedback\\combined-rollback-rehearsal",
+      "--apply"
+    ],
+    "cwd": "E:\\FlyBrain\\flyfear",
+    "stdout": "Verified modified files and original hashes\nRollback verified: original bytes restored; added files removed\n",
+    "stderr": "",
+    "exit_code": 0
+  }
+]

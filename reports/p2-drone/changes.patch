@@ -1,0 +1,519 @@
+--- a/game/fly.gd
++++ b/game/fly.gd
+@@ -1,183 +1,2 @@
+-extends CharacterBody3D
+-
+-signal defeated
+-
+-# Engineered body controller: visual tracking + measured neural modulation, not insect biomechanics.
+-var player: CharacterBody3D
+-var director: Node
+-var active := false:
+-	set(value):
+-		active = value
+-		if is_instance_valid(buzz):
+-			if value and not buzz.playing: buzz.play()
+-			elif not value: buzz.stop()
+-var buzz: AudioStreamPlayer3D
+-var max_hp := 100
+-var hp := 100
+-var visible_player := false
+-var sight := {}
+-var wings: Array[MeshInstance3D] = []
+-var gaze := Vector3.FORWARD
+-var body: Node3D
+-var clock := 0.0
+-var avoided := Vector3.ZERO
+-var last_seen_target := Vector3.ZERO
+-var last_seen_until := -1.0
+-var dart := Vector3.ZERO
+-var dart_until := 0.0
+-var flight_rng := RandomNumberGenerator.new()
+-const CONTACT_DISTANCE := 0.6
+-
+-func mesh(part: Mesh, pos: Vector3, color: Color, parent: Node3D) -> MeshInstance3D:
+-	var node := MeshInstance3D.new()
+-	node.mesh = part
+-	node.position = pos
+-	var mat := StandardMaterial3D.new()
+-	mat.albedo_color = color
+-	mat.metallic = 0.3
+-	mat.roughness = 0.4
+-	node.material_override = mat
+-	parent.add_child(node)
+-	return node
+-
+-func _ready() -> void:
+-	collision_layer = 2
+-	collision_mask = 1
+-	var shape := CollisionShape3D.new()
+-	var sphere := SphereShape3D.new()
+-	sphere.radius = 0.1
+-	shape.shape = sphere
+-	add_child(shape)
+-	body = Node3D.new()
+-	body.scale = Vector3.ONE*0.5
+-	add_child(body)
+-	var abdomen := SphereMesh.new()
+-	abdomen.radius = 0.12
+-	abdomen.height = 0.34
+-	mesh(abdomen,Vector3.ZERO,Color(0.07,0.15,0.13),body).rotation.x=PI/2
+-	var head := SphereMesh.new()
+-	head.radius = 0.105
+-	head.height = 0.21
+-	mesh(head,Vector3(0,0,-0.19),Color(0.11,0.16,0.14),body)
+-	for side in [-1,1]:
+-		var eye := SphereMesh.new()
+-		eye.radius = 0.06
+-		eye.height = 0.12
+-		mesh(eye,Vector3(side*0.075,0.025,-0.23),Color(0.66,0.19,0.08),body)
+-		var wing := SphereMesh.new()
+-		wing.radius = 0.16
+-		wing.height = 0.018
+-		var node := mesh(wing,Vector3(side*0.20,0.05,0),Color(0.42,0.66,0.62),body)
+-		node.scale.z=1.6
+-		wings.append(node)
+-		for i in 3:
+-			var leg := CylinderMesh.new()
+-			leg.top_radius=0.009
+-			leg.bottom_radius=0.007
+-			leg.height=0.18
+-			mesh(leg,Vector3(side*0.11,-0.1,-0.1+i*0.1),Color(0.17,0.24,0.2),body).rotation.z=side*0.7
+-	var light := OmniLight3D.new()
+-	light.light_color = Color(0.36,0.77,0.62)
+-	light.light_energy = 0.24
+-	light.omni_range = 0.45
+-	add_child(light)
+-	buzz = AudioStreamPlayer3D.new()
+-	var sound = load("res://audio/buzz.wav") as AudioStreamWAV
+-	sound.loop_mode = AudioStreamWAV.LOOP_FORWARD
+-	sound.loop_end = int(sound.get_length() * sound.mix_rate)
+-	buzz.stream = sound
+-	buzz.unit_size = 2.5
+-	buzz.max_distance = 12
+-	buzz.max_db = -3
+-	buzz.volume_db = -3
+-	add_child(buzz)
+-
+-func _exit_tree() -> void:
+-	if is_instance_valid(buzz):
+-		buzz.stop()
+-		buzz.stream = null
+-
+-func reset_body() -> void:
+-	position = Vector3(0.7,1.75,0.4)
+-	gaze = (player.position+Vector3.UP*1.2-position).normalized()
+-	velocity = Vector3.ZERO
+-	avoided = Vector3.ZERO
+-	sight = {}
+-	visible_player = false
+-	clock = 0
+-	last_seen_target = Vector3.ZERO
+-	last_seen_until = -1
+-	dart = Vector3.ZERO
+-	dart_until = 0
+-	flight_rng.seed = int(director.seed_value)+1701
+-	hp = max_hp
+-
+-func take_damage(amount: int) -> void:
+-	if not active or hp <= 0: return
+-	hp = maxi(0, hp-amount)
+-	if hp == 0:
+-		active = false
+-		defeated.emit()
+-
+-func _physics_process(delta: float) -> void:
+-	if not active: return
+-	clock += delta
+-	buzz.pitch_scale = move_toward(buzz.pitch_scale,0.94 + minf(velocity.length(),8.0)*0.035,delta*2.5)
+-	# Wing flapping is a cosmetic animation, never a neural activity measurement.
+-	for i in wings.size(): wings[i].rotation.z=sin(clock*85)*(0.65 if i==0 else -0.65)
+-	var target: Vector3 = player.global_position+Vector3.UP*1.25
+-	var relative := target-global_position
+-	var ray := PhysicsRayQueryParameters3D.create(global_position,target,1)
+-	ray.exclude=[get_rid(),player.get_rid()]
+-	var hit := get_world_3d().direct_space_state.intersect_ray(ray)
+-	visible_player=relative.length()<18 and gaze.dot(relative.normalized())>-0.8 and hit.is_empty()
+-	var output: Array = director.neural.get("output",[0,0,0,0])
+-	var fresh: bool = director.connected and director.last_neural_time>=0 and director.now()-director.last_neural_time<director.interval+1.5
+-	if not fresh or output.all(func(value): return absf(float(value))<0.000001):
+-		velocity = Vector3.ZERO
+-		avoided = Vector3.ZERO
+-		sight = {}
+-		return
+-	var lateral := clampf((float(output[0])-float(output[1]))*15,-1,1)
+-	var climb := clampf((float(output[2])+float(output[3]))*5,-0.75,0.75)
+-	var speed := clampf(absf(float(output[0]))*40,4.8,8.0)
+-	if clock>=dart_until:
+-		dart_until=clock+flight_rng.randf_range(0.18,0.42)
+-		dart=Vector3(flight_rng.randf_range(-2.8,2.8),flight_rng.randf_range(-1.6,1.6),flight_rng.randf_range(-0.8,0.8))
+-	if visible_player:
+-		last_seen_target=target
+-		last_seen_until=clock+3.0
+-		var telemetry: Dictionary = player.telemetry()
+-		telemetry.x=relative.x
+-		telemetry.z=relative.z-5 # Existing z normalization becomes relative distance / 11.
+-		sight=telemetry
+-	else:
+-		sight={}
+-	var tracking := visible_player or clock<last_seen_until
+-	if tracking:
+-		relative=last_seen_target-global_position
+-		gaze=gaze.lerp(relative.normalized(),1-exp(-10*delta)).normalized()
+-	else:
+-		# ponytail: local search and last-seen pursuit; add navigation only if doorway tests show trapping.
+-		gaze=gaze.rotated(Vector3.UP,delta*(1.8+absf(lateral))*(-1.0 if lateral<0 else 1.0))
+-	var desired := gaze*speed
+-	# Pursue contact rather than the horror controller's 2.3 m standoff.
+-	# Slow only at a remembered point; never reverse away from a visible target.
+-	if tracking: desired*=clampf(relative.length(),0.0,1.0)
+-	else: desired*=0.65
+-	desired += gaze.cross(Vector3.UP)*(lateral*0.65+dart.x)+Vector3.UP*(climb+dart.y)+gaze*dart.z+avoided
+-	if position.y<0.7: desired.y=maxf(desired.y,1.5)
+-	if position.y>2.7: desired.y=minf(desired.y,-1.5)
+-	velocity=velocity.move_toward(desired.limit_length(8.0),delta*24)
+-	move_and_slide()
+-	# Contact deals full HP for now; per-body-part graded damage is a later extension.
+-	if player.active and global_position.distance_to(player.global_position+Vector3.UP*1.25)<CONTACT_DISTANCE:
+-		# Recheck after movement: even a thin wall must block proximity damage.
+-		var contact_ray := PhysicsRayQueryParameters3D.create(global_position,player.global_position+Vector3.UP*1.25,1)
+-		contact_ray.exclude = [get_rid(),player.get_rid()]
+-		if get_world_3d().direct_space_state.intersect_ray(contact_ray).is_empty():
+-			player.take_damage(player.max_hp)
+-	avoided=avoided.move_toward(Vector3.ZERO,delta*4)
+-	for i in get_slide_collision_count(): avoided+=get_slide_collision(i).get_normal()*3
+-	avoided=avoided.limit_length(4)
+-	if gaze.length()>0.1: body.look_at(global_position+gaze,Vector3.UP)
++# Compatibility path for external scenes; controller lives in drone.gd.
++extends "res://drone.gd"
+--- /dev/null
++++ b/game/drone.gd
+@@ -0,0 +1,188 @@
++extends CharacterBody3D
++
++signal defeated
++
++# Engineered body controller: visual tracking + measured neural modulation, not insect biomechanics.
++var player: CharacterBody3D
++var director: Node
++var active := false:
++	set(value):
++		active = value
++		if is_instance_valid(buzz):
++			if value and not buzz.playing: buzz.play()
++			elif not value: buzz.stop()
++var buzz: AudioStreamPlayer3D
++var max_hp := 100
++var hp := 100
++var visible_player := false
++var sight := {}
++var rotors: Array[MeshInstance3D] = []
++var gaze := Vector3.FORWARD
++var body: Node3D
++var clock := 0.0
++var avoided := Vector3.ZERO
++var last_seen_target := Vector3.ZERO
++var last_seen_until := -1.0
++var dart := Vector3.ZERO
++var dart_until := 0.0
++var flight_rng := RandomNumberGenerator.new()
++const CONTACT_DISTANCE := 0.6
++
++func mesh(part: Mesh, pos: Vector3, color: Color, parent: Node3D) -> MeshInstance3D:
++	var node := MeshInstance3D.new()
++	node.mesh = part
++	node.position = pos
++	var mat := StandardMaterial3D.new()
++	mat.albedo_color = color
++	mat.metallic = 0.3
++	mat.roughness = 0.4
++	node.material_override = mat
++	parent.add_child(node)
++	return node
++
++func _ready() -> void:
++	collision_layer = 2
++	collision_mask = 1
++	var shape := CollisionShape3D.new()
++	var sphere := SphereShape3D.new()
++	sphere.radius = 0.1
++	shape.shape = sphere
++	add_child(shape)
++	body = Node3D.new()
++	body.scale = Vector3.ONE*0.5
++	add_child(body)
++	body.name = "DroneBody"
++	# Code-native quadrotor; dimensions retain the existing gameplay envelope.
++	var hull := BoxMesh.new()
++	hull.size = Vector3(0.22,0.12,0.28)
++	mesh(hull,Vector3.ZERO,Color(0.12,0.17,0.21),body).name = "Chassis"
++	var sensor := BoxMesh.new()
++	sensor.size = Vector3(0.12,0.045,0.025)
++	var lens := mesh(sensor,Vector3(0,0,-0.15),Color(0.12,0.85,0.95),body)
++	lens.name = "ForwardSensor"
++	lens.material_override.emission_enabled = true
++	lens.material_override.emission = Color(0.06,0.45,0.55)
++	for side in [-1,1]:
++		for fore in [-1,1]:
++			var arm := BoxMesh.new()
++			arm.size = Vector3(0.24,0.035,0.035)
++			mesh(arm,Vector3(side*0.13,0,fore*0.13),Color(0.24,0.30,0.34),body)
++			var motor := CylinderMesh.new()
++			motor.top_radius = 0.035
++			motor.bottom_radius = 0.035
++			motor.height = 0.07
++			mesh(motor,Vector3(side*0.23,0.025,fore*0.13),Color(0.09,0.12,0.15),body)
++			var guard := TorusMesh.new()
++			guard.inner_radius = 0.09
++			guard.outer_radius = 0.105
++			mesh(guard,Vector3(side*0.23,0.055,fore*0.13),Color(0.32,0.40,0.43),body)
++			var blade := BoxMesh.new()
++			blade.size = Vector3(0.17,0.012,0.026)
++			var rotor := mesh(blade,Vector3(side*0.23,0.06,fore*0.13),Color(0.65,0.74,0.76),body)
++			rotor.name = "Rotor"+str(rotors.size()+1)
++			rotors.append(rotor)
++	var light := OmniLight3D.new()
++	light.light_color = Color(0.36,0.77,0.62)
++	light.light_energy = 0.24
++	light.omni_range = 0.45
++	add_child(light)
++	buzz = AudioStreamPlayer3D.new()
++	var sound = load("res://audio/buzz.wav") as AudioStreamWAV
++	sound.loop_mode = AudioStreamWAV.LOOP_FORWARD
++	sound.loop_end = int(sound.get_length() * sound.mix_rate)
++	buzz.stream = sound
++	buzz.unit_size = 2.5
++	buzz.max_distance = 12
++	buzz.max_db = -3
++	buzz.volume_db = -3
++	add_child(buzz)
++
++func _exit_tree() -> void:
++	if is_instance_valid(buzz):
++		buzz.stop()
++		buzz.stream = null
++
++func reset_body() -> void:
++	position = Vector3(0.7,1.75,0.4)
++	gaze = (player.position+Vector3.UP*1.2-position).normalized()
++	velocity = Vector3.ZERO
++	avoided = Vector3.ZERO
++	sight = {}
++	visible_player = false
++	clock = 0
++	last_seen_target = Vector3.ZERO
++	last_seen_until = -1
++	dart = Vector3.ZERO
++	dart_until = 0
++	flight_rng.seed = int(director.seed_value)+1701
++	hp = max_hp
++
++func take_damage(amount: int) -> void:
++	if not active or hp <= 0: return
++	hp = maxi(0, hp-amount)
++	if hp == 0:
++		active = false
++		defeated.emit()
++
++func _physics_process(delta: float) -> void:
++	if not active: return
++	clock += delta
++	buzz.pitch_scale = move_toward(buzz.pitch_scale,0.94 + minf(velocity.length(),8.0)*0.035,delta*2.5)
++	# Rotor spin is cosmetic, never a neural activity measurement or force model.
++	for i in rotors.size(): rotors[i].rotation.y=clock*85*(1.0 if i%2==0 else -1.0)
++	var target: Vector3 = player.global_position+Vector3.UP*1.25
++	var relative := target-global_position
++	var ray := PhysicsRayQueryParameters3D.create(global_position,target,1)
++	ray.exclude=[get_rid(),player.get_rid()]
++	var hit := get_world_3d().direct_space_state.intersect_ray(ray)
++	visible_player=relative.length()<18 and gaze.dot(relative.normalized())>-0.8 and hit.is_empty()
++	var output: Array = director.neural.get("output",[0,0,0,0])
++	var fresh: bool = director.connected and director.last_neural_time>=0 and director.now()-director.last_neural_time<director.interval+1.5
++	if not fresh or output.all(func(value): return absf(float(value))<0.000001):
++		velocity = Vector3.ZERO
++		avoided = Vector3.ZERO
++		sight = {}
++		return
++	var lateral := clampf((float(output[0])-float(output[1]))*15,-1,1)
++	var climb := clampf((float(output[2])+float(output[3]))*5,-0.75,0.75)
++	var speed := clampf(absf(float(output[0]))*40,4.8,8.0)
++	if clock>=dart_until:
++		dart_until=clock+flight_rng.randf_range(0.18,0.42)
++		dart=Vector3(flight_rng.randf_range(-2.8,2.8),flight_rng.randf_range(-1.6,1.6),flight_rng.randf_range(-0.8,0.8))
++	if visible_player:
++		last_seen_target=target
++		last_seen_until=clock+3.0
++		var telemetry: Dictionary = player.telemetry()
++		telemetry.x=relative.x
++		telemetry.z=relative.z-5 # Existing z normalization becomes relative distance / 11.
++		sight=telemetry
++	else:
++		sight={}
++	var tracking := visible_player or clock<last_seen_until
++	if tracking:
++		relative=last_seen_target-global_position
++		gaze=gaze.lerp(relative.normalized(),1-exp(-10*delta)).normalized()
++	else:
++		# ponytail: local search and last-seen pursuit; add navigation only if doorway tests show trapping.
++		gaze=gaze.rotated(Vector3.UP,delta*(1.8+absf(lateral))*(-1.0 if lateral<0 else 1.0))
++	var desired := gaze*speed
++	# Pursue contact rather than the horror controller's 2.3 m standoff.
++	# Slow only at a remembered point; never reverse away from a visible target.
++	if tracking: desired*=clampf(relative.length(),0.0,1.0)
++	else: desired*=0.65
++	desired += gaze.cross(Vector3.UP)*(lateral*0.65+dart.x)+Vector3.UP*(climb+dart.y)+gaze*dart.z+avoided
++	if position.y<0.7: desired.y=maxf(desired.y,1.5)
++	if position.y>2.7: desired.y=minf(desired.y,-1.5)
++	velocity=velocity.move_toward(desired.limit_length(8.0),delta*24)
++	move_and_slide()
++	# Contact deals full HP for now; per-body-part graded damage is a later extension.
++	if player.active and global_position.distance_to(player.global_position+Vector3.UP*1.25)<CONTACT_DISTANCE:
++		# Recheck after movement: even a thin wall must block proximity damage.
++		var contact_ray := PhysicsRayQueryParameters3D.create(global_position,player.global_position+Vector3.UP*1.25,1)
++		contact_ray.exclude = [get_rid(),player.get_rid()]
++		if get_world_3d().direct_space_state.intersect_ray(contact_ray).is_empty():
++			player.take_damage(player.max_hp)
++	avoided=avoided.move_toward(Vector3.ZERO,delta*4)
++	for i in get_slide_collision_count(): avoided+=get_slide_collision(i).get_normal()*3
++	avoided=avoided.limit_length(4)
++	if gaze.length()>0.1: body.look_at(global_position+gaze,Vector3.UP)
+--- a/game/main.gd
++++ b/game/main.gd
+@@ -3,7 +3,7 @@
+ const PlayerScript = preload("res://player.gd")
+ const DirectorScript = preload("res://director.gd")
+ const BrainViewScript = preload("res://brain_view.gd")
+-const FlyScript = preload("res://fly.gd")
++const DroneScript = preload("res://drone.gd")
+ const TouchControlsScript = preload("res://touch_controls.gd")
+ const ACTION_NAMES := {"lights":"Işık kesintisi", "steps":"Arkadan gelen ses", "silhouette":"Görüş kenarı silueti", "wait":"Bekle"}
+ const SCARE_SOUNDS := ["steps", "breath", "creak", "knock"]
+@@ -81,6 +81,8 @@
+ 
+ func _ready() -> void:
+ 	get_tree().auto_accept_quit = false
++	# Keep the legacy project ID/user data path; only the displayed name changes.
++	get_window().title = "FlyBrain Arena"
+ 	get_window().close_requested.connect(quit_game)
+ 	var args := OS.get_cmdline_user_args()
+ 	smoke = "--smoke" in args
+@@ -105,7 +107,8 @@
+ 	add_child(director)
+ 	director.action_received.connect(apply_action)
+ 	fly = CharacterBody3D.new()
+-	fly.set_script(FlyScript)
++	fly.set_script(DroneScript)
++	fly.name = "Drone"
+ 	fly.player = player
+ 	fly.director = director
+ 	add_child(fly)
+@@ -516,10 +519,10 @@
+ 	var eyebrow := ui_label("B A Ğ L A N T I   /   D E N E Y   0 1",18,Color(0.45,0.71,0.65))
+ 	eyebrow.position = Vector2(110,106)
+ 	menu.add_child(eyebrow)
+-	var title := ui_label("FLYFEAR",90,Color(0.90,0.91,0.85))
++	var title := ui_label("FLYBRAIN ARENA",70,Color(0.90,0.91,0.85))
+ 	title.position = Vector2(105,131)
+ 	menu.add_child(title)
+-	var subtitle := ui_label("Oda seni izlemiyor. Ama hareketlerini okuyor.",24)
++	var subtitle := ui_label("Drone’u vur. Temastan kaçın.",24)
+ 	subtitle.position = Vector2(110,255)
+ 	menu.add_child(subtitle)
+ 	var column := VBoxContainer.new()
+--- a/game/main.tscn
++++ b/game/main.tscn
+@@ -2,5 +2,5 @@
+ 
+ [ext_resource type="Script" path="res://main.gd" id="1"]
+ 
+-[node name="FLYFEAR" type="Node3D"]
++[node name="FlyBrainArena" type="Node3D"]
+ script = ExtResource("1")
+--- a/tests/fly.gd
++++ b/tests/fly.gd
+@@ -79,9 +79,9 @@
+ 	print(JSON.stringify({"peak_speed":peak_speed,"following_distance":distance,"visible_frames":visible_frames,"frames":240,"short_turns":turns}))
+ 	game.fly.active = false
+ 	var stopped: Vector3 = game.fly.position
+-	var wing_angle: float = game.fly.wings[0].rotation.z
++	var rotor_angle: float = game.fly.rotors[0].rotation.y
+ 	for _frame in 6: await physics_frame
+-	verify(game.fly.position==stopped and game.fly.wings[0].rotation.z==wing_angle and not game.fly.buzz.playing,"Pause freezes flight, wings and buzz")
++	verify(game.fly.position==stopped and game.fly.rotors[0].rotation.y==rotor_angle and not game.fly.buzz.playing,"Pause freezes flight, rotors and buzz")
+ 	game.fly.active = true
+ 	game.director.neural = {"output":[0,0,0,0]}
+ 	for _frame in 6:
+--- /dev/null
++++ b/tests/drone_visual.gd
+@@ -0,0 +1,41 @@
++extends SceneTree
++
++var failures: Array[String] = []
++
++func verify(ok: bool, label: String) -> void:
++	print(("PASS: " if ok else "FAIL: ")+label)
++	if not ok: failures.append(label)
++
++func _initialize() -> void:
++	run_checks.call_deferred()
++
++func run_checks() -> void:
++	var game = load("res://main.tscn").instantiate()
++	game.settings_path = ""
++	root.add_child(game)
++	game.director.set_process(false)
++	game.fly.set_physics_process(false)
++	verify(game.fly.name == "Drone", "Scene body is named Drone")
++	verify(game.get_window().title == "FlyBrain Arena", "Window title uses arena branding")
++	verify(game.fly.body.has_node("Chassis") and game.fly.body.has_node("ForwardSensor"), "Mechanical hull and forward sensor replace insect")
++	# get() makes the pre-change baseline fail assertions rather than crash.
++	var rotors = game.fly.get("rotors")
++	verify(rotors is Array and rotors.size() == 4, "Four independent rotors")
++	verify(game.fly.body.scale.is_equal_approx(Vector3.ONE*0.5) and is_equal_approx(game.fly.get_child(0).shape.radius,0.1), "Visual scale and collision envelope preserved")
++	verify(game.fly.collision_layer == 2 and game.fly.collision_mask == 1, "Weapon/world collision layers unchanged")
++	if rotors is Array and rotors.size() == 4:
++		game.start_game()
++		game.director.has_round = false
++		game.director.connected = true
++		game.director.neural = {"output":[0.16,0.06,0.08,0.04]}
++		game.director.last_neural_time = game.director.now()
++		game.player.active = false
++		await physics_frame
++		game.fly._physics_process(0.01)
++		verify(rotors[0].rotation.y > 0 and rotors[1].rotation.y < 0, "Counter-rotating cosmetic animation")
++		game.fly.active = false
++		var angle: float = rotors[0].rotation.y
++		game.fly._physics_process(0.1)
++		verify(is_equal_approx(rotors[0].rotation.y,angle) and not game.fly.buzz.playing, "Inactive body freezes rotors and audio")
++	game.director.connected = false
++	await game.quit_game(0 if failures.is_empty() else 1)
+--- a/STATUS.md
++++ b/STATUS.md
+@@ -12,7 +12,7 @@
+ 
+ ## 当前阶段
+ 
+-P0/P1 已完成。**P2 的 main.gd 战斗主线已完成并通过真实后端 smoke**：射线击杀 → won；物理接触 → lost；菜单、重开、结果持久化已接通。P2 尚未整体收尾：Drone 外观/命名、默认出生点自主贴近行为和人工试玩仍待处理；P3 未开始。先看下面“2026-09-23 本轮结果”，历史交接仅供背景参考。
++P0/P1 已完成。**P2 战斗主线、自主贴近、Drone 外观/显示命名已完成并通过真实后端 smoke**：射线击杀 → won；默认出生点自主物理接触 → lost；菜单、重开、结果持久化已接通。P2 尚待人工战斗试玩与难度评估；P3 未开始。先看下面“Drone 外观续作（最新入口）”，历史交接仅供背景参考。
+ 
+ ## 环境（Windows 原生，非 WSL）
+ 
+@@ -69,7 +69,17 @@
+ - 遇到过一次误导性报错：`asyncio.get_running_loop().add_signal_handler` 在 Windows 抛 `NotImplementedError`，但 `server.py:33` 明明已经用 `os.name!='nt'` guard 了。排查后发现是 `brain/__pycache__/server.cpython-312.pyc` 缓存导致（可能是上一次异常终止的进程留下的过期字节码）。删掉 `__pycache__` 重新编译后问题消失，磁盘上的源码从未有 bug。**如果以后再见到"guard 代码明明对，但 traceback 命中被 guard 掉的分支"这种矛盾，先删 `__pycache__` 排查，不要怀疑源码逻辑。**
+ - Godot headless import（`tools/Godot_v4.5.2-stable_win64_console.exe --headless --path game --editor --import --quit`）退出码 0，日志无 error/fail/exception/crash，证明 `game/` 下的 GDScript 没有解析期错误。**这只验证了脚本能被解析加载，不等于游戏逻辑正确/能玩**，完整试玩仍需手动起 server + 起 Godot game 场景。
+ 
+-## 2026-09-23 自主贴近续作（最新入口）
++## 2026-09-23 Drone 外观续作（最新入口）
++
++- P2 外观/显示命名已完成：新增 `game/drone.gd`，用程序化四旋翼、护圈、机身和发光前向传感器替换昆虫模型；旋翼反向旋转仅为装饰。碰撞半径 0.1、视觉缩放 0.5、HP、追击、神经门控和接触规则保持不变。原 buzz 音源仍保留，音效重做留给 P4。
++- `main.gd` 改用 `DroneScript`，运行节点名为 Drone，菜单/窗口显示 FlyBrain Arena。保留 `game.fly` 内部接口及 `fly.gd` 兼容入口；`project.godot` 中旧项目 ID、FLYFEAR 环境变量和存储路径不变，避免丢失原设置或破坏启动协议。
++- 新增 `tests/drone_visual.gd`：基线 4 FAIL、退出 1；修改后 8 PASS、退出 0，覆盖模型、命名、旋翼动画、停机和碰撞配置。combat_round 19、pursuit 19、fly 55、gameplay 52、hud 3、mobile 54 项均通过，退出 0；gameplay/UI 按实时运行。部分物理测试仍有退出时资源释放警告，未在本轮处理。
++- 原生 OpenGL 实际渲染并检查 `reports/p2-drone/drone-preview.png` 和 `menu-preview.png`；渲染退出 0、无 stderr。这是外观检查，不代替人工战斗试玩。
++- 真实全图 smoke 再次通过：`reports/p2-drone/game-smoke.json` passed=true，launcher 退出 0；日志 `logs/validation/20260923-130608/`。击杀、默认出生点自主接触、won/lost ACK 与历史持久化均通过。
++- 交付目录 `reports/p2-drone/`：original/modified 快照、SHA256 manifest、changes.patch、verification.json 和 rollback.py；回滚在隔离副本演练，仅撤销本轮改动。
++- 下一步：人工战斗试玩、评估默认出生点约半秒接触的难度；之后推进 P3 threat→真实逃逸读出。P2 暂不整体勾选；P3 未开始，旧 Python 全套的 3 处失败尚未处理。本轮未提交 git。
++
++## 2026-09-23 自主贴近续作（历史入口）
+ 
+ - 本轮推进 P2 自主贴近；Drone 外观/命名和人工试玩仍待处理，P3 未开始。下方旧交接所说“默认出生点未验证”已由本节更新。
+ - `game/fly.gd` 移除可见目标前 2.3 m 停留/后退项，改为非负距离缩放追击；保留神经新鲜度/非零门控、随机扰动、最后可见位置记忆、碰撞、8 m/s 限速和 24 m/s² 加速度限制。这仍是工程控制，不是神经闪避。

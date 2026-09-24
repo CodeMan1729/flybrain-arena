@@ -1,0 +1,26 @@
+{
+  "game/drone.gd": {
+    "original": "9828d38a4bf6645f689f8194866ab1bcad44ab4274878a7a04e96581745ec3f3",
+    "modified": "edfa593de52f9b567ae26839da89100b9cffb02f71ab1adee1727f8135a040d0"
+  },
+  "game/player.gd": {
+    "original": "a0cd013fed0472eea8a068eaf0834c9767f15d7a31e54e354ab9b76b63d2bb56",
+    "modified": "e9e47d7e2539f4088ffbad8b837073cead7dee640eb4d5d186bd8dc37f255064"
+  },
+  "game/weapon_view.gd": {
+    "original": null,
+    "modified": "74f0bb1eeddf5caab106d8a9158703e98e197f2c9dce5b89b1f03a0230674051"
+  },
+  "tests/weapon_view.gd": {
+    "original": null,
+    "modified": "2d6fc0b09025e7c9b1fafab87b4fac675c500081a974f82f2b80054b012d5ce3"
+  },
+  "tests/pursuit.gd": {
+    "original": "dc61912bdf7efa03062c56eb29e4c1de269f09b69ef9e04629bf54a3a3f1fe8f",
+    "modified": "14588c0b52fb45f10d148522b3e018ae6a992e0428006437d05e9173d8c4d3ee"
+  },
+  "STATUS.md": {
+    "original": "55b6dce3109750756f176857706afb1efcd466662a89da0e7e1adac848a60a2b",
+    "modified": "b0503a6b780d78706094f3bbbc7d75e11f24d33a0165a6b5d8482a0f1ae4a1bd"
+  }
+}

@@ -1,0 +1,255 @@
+{
+  "baseline-import": {
+    "command": [
+      "E:\\FlyBrain\\flyfear\\tools\\Godot_v4.5.2-stable_win64_console.exe",
+      "--headless",
+      "--path",
+      "E:\\FlyBrain\\flyfear\\reports\\p2-playtest\\baseline\\game",
+      "--editor",
+      "--import",
+      "--quit"
+    ],
+    "stdout": "Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org\n\n[   0% ] \u001b[90m\u001b[1mfirst_scan_filesystem\u001b[22m | Started \u9879\u76ee\u521d\u59cb\u5316 (5 steps)\u001b[39m\u001b[0m\n[   0% ] \u001b[90m\u001b[1mfirst_scan_filesystem\u001b[22m | \u6b63\u5728\u626b\u63cf\u6587\u4ef6\u7ed3\u6784\u2026\u2026\u001b[39m\u001b[0m\n[  16% ] \u001b[90m\u001b[1mfirst_scan_filesystem\u001b[22m | \u6b63\u5728\u52a0\u8f7d\u5168\u5c40\u7c7b\u540d\u2026\u2026\u001b[39m\u001b[0m\n[  33% ] \u001b[90m\u001b[1mfirst_scan_filesystem\u001b[22m | \u6b63\u5728\u6821\u9a8c GDExtension\u2026\u2026\u001b[39m\u001b[0m\n[  50% ] \u001b[90m\u001b[1mfirst_scan_filesystem\u001b[22m | \u6b63\u5728\u521b\u5efa\u81ea\u52a8\u52a0\u8f7d\u811a\u672c\u2026\u2026\u001b[39m\u001b[0m\n[  66% ] \u001b[90m\u001b[1mfirst_scan_filesystem\u001b[22m | \u6b63\u5728\u521d\u59cb\u5316\u63d2\u4ef6\u2026\u2026\u001b[39m\u001b[0m\n[  83% ] \u001b[90m\u001b[1mfirst_scan_filesystem\u001b[22m | \u6b63\u5728\u542f\u52a8\u6587\u4ef6\u626b\u63cf\u2026\u2026\u001b[39m\u001b[0m\n\u001b[92m[ DONE ]\u001b[39m \u001b[1mfirst_scan_filesystem\u001b[22m\n\u001b[0m\n[   0% ] \u001b[90m\u001b[1mupdate_scripts_classes\u001b[22m | Started \u6b63\u5728\u6ce8\u518c\u5168\u5c40\u7c7b\u2026\u2026 (8 steps)\u001b[39m\u001b[0m\n[   0% ] \u001b[90m\u001b[1mupdate_scripts_classes\u001b[22m | \u001b[39m\u001b[0m\n[  11% ] \u001b[90m\u001b[1mupdate_scripts_classes\u001b[22m | \u001b[39m\u001b[0m\n[  22% ] \u001b[90m\u001b[1mupdate_scripts_classes\u001b[22m | \u001b[39m\u001b[0m\n[  33% ] \u001b[90m\u001b[1mupdate_scripts_classes\u001b[22m | \u001b[39m\u001b[0m\n[  44% ] \u001b[90m\u001b[1mupdate_scripts_classes\u001b[22m | \u001b[39m\u001b[0m\n[  55% ] \u001b[90m\u001b[1mupdate_scripts_classes\u001b[22m | \u001b[39m\u001b[0m\n[  66% ] \u001b[90m\u001b[1mupdate_scripts_classes\u001b[22m | \u001b[39m\u001b[0m\n[  77% ] \u001b[90m\u001b[1mupdate_scripts_classes\u001b[22m | \u001b[39m\u001b[0m\n\u001b[92m[ DONE ]\u001b[39m \u001b[1mupdate_scripts_classes\u001b[22m\n\u001b[0m\n[   0% ] \u001b[90m\u001b[1m_update_scan_actions\u001b[22m | Started \u6b63\u5728\u626b\u63cf\u52a8\u4f5c\u2026\u2026 (6 steps)\u001b[39m\u001b[0m\n[   0% ] \u001b[90m\u001b[1m_update_scan_actions\u001b[22m | breath.wav\u001b[39m\u001b[0m\n[  14% ] \u001b[90m\u001b[1m_update_scan_actions\u001b[22m | buzz.wav\u001b[39m\u001b[0m\n[  28% ] \u001b[90m\u001b[1m_update_scan_actions\u001b[22m | creak.wav\u001b[39m\u001b[0m\n[  42% ] \u001b[90m\u001b[1m_update_scan_actions\u001b[22m | hum.wav\u001b[39m\u001b[0m\n[  57% ] \u001b[90m\u001b[1m_update_scan_actions\u001b[22m | knock.wav\u001b[39m\u001b[0m\n[  71% ] \u001b[90m\u001b[1m_update_scan_actions\u001b[22m | steps.wav\u001b[39m\u001b[0m\n\u001b[92m[ DONE ]\u001b[39m \u001b[1m_update_scan_actions\u001b[22m\n\u001b[0m\n[   0% ] \u001b[90m\u001b[1mreimport\u001b[22m | Started \u6b63\u5728\u5bfc\u5165\u6216\u91cd\u65b0\u5bfc\u5165\u8d44\u4ea7 (6 steps)\u001b[39m\u001b[0m\n[   0% ] \u001b[90m\u001b[1mreimport\u001b[22m | \u6b63\u5728\u51c6\u5907\u91cd\u65b0\u5bfc\u5165\u6587\u4ef6\u2026\u2026\u001b[39m\u001b[0m\n[  14% ] \u001b[90m\u001b[1mreimport\u001b[22m | \u6b63\u5728\u51c6\u5907\u91cd\u65b0\u5bfc\u5165\u6587\u4ef6\u2026\u2026\u001b[39m\u001b[0m\n[  28% ] \u001b[90m\u001b[1mreimport\u001b[22m | \u6b63\u5728\u51c6\u5907\u91cd\u65b0\u5bfc\u5165\u6587\u4ef6\u2026\u2026\u001b[39m\u001b[0m\n[  42% ] \u001b[90m\u001b[1mreimport\u001b[22m | \u6b63\u5728\u51c6\u5907\u91cd\u65b0\u5bfc\u5165\u6587\u4ef6\u2026\u2026\u001b[39m\u001b[0m\n[  57% ] \u001b[90m\u001b[1mreimport\u001b[22m | \u6b63\u5728\u51c6\u5907\u91cd\u65b0\u5bfc\u5165\u6587\u4ef6\u2026\u2026\u001b[39m\u001b[0m\n[  71% ] \u001b[90m\u001b[1mreimport\u001b[22m | \u6b63\u5728\u51c6\u5907\u91cd\u65b0\u5bfc\u5165\u6587\u4ef6\u2026\u2026\u001b[39m\u001b[0m\n[   0% ] \u001b[90m\u001b[1mreimport\u001b[22m | \u6b63\u5728\u6267\u884c\u91cd\u65b0\u5bfc\u5165\u7684\u524d\u7f6e\u64cd\u4f5c\u2026\u2026\u001b[39m\u001b[0m\n[   0% ] \u001b[90m\u001b[1mreimport\u001b[22m | breath.wav\u001b[39m\u001b[0m\n[  14% ] \u001b[90m\u001b[1mreimport\u001b[22m | buzz.wav\u001b[39m\u001b[0m\n[  28% ] \u001b[90m\u001b[1mreimport\u001b[22m | creak.wav\u001b[39m\u001b[0m\n[  42% ] \u001b[90m\u001b[1mreimport\u001b[22m | hum.wav\u001b[39m\u001b[0m\n[  57% ] \u001b[90m\u001b[1mreimport\u001b[22m | knock.wav\u001b[39m\u001b[0m\n[  71% ] \u001b[90m\u001b[1mreimport\u001b[22m | steps.wav\u001b[39m\u001b[0m\n[  85% ] \u001b[90m\u001b[1mreimport\u001b[22m | \u6b63\u5728\u7ed3\u675f\u8d44\u4ea7\u5bfc\u5165\u2026\u2026\u001b[39m\u001b[0m\n\u001b[92m[ DONE ]\u001b[39m \u001b[1mreimport\u001b[22m\n\u001b[0m\n[   0% ] \u001b[90m\u001b[1mreimport\u001b[22m | Started \u6b63\u5728\u5bfc\u5165\u6216\u91cd\u65b0\u5bfc\u5165\u8d44\u4ea7 (6 steps)\u001b[39m\u001b[0m\n[   0% ] \u001b[90m\u001b[1mreimport\u001b[22m | \u6b63\u5728\u6267\u884c\u91cd\u65b0\u5bfc\u5165\u7684\u540e\u7f6e\u64cd\u4f5c\u2026\u2026\u001b[39m\u001b[0m\n\u001b[92m[ DONE ]\u001b[39m \u001b[1mreimport\u001b[22m\n\u001b[0m\n[   0% ] \u001b[90m\u001b[1mloading_editor_layout\u001b[22m | Started \u6b63\u5728\u52a0\u8f7d\u7f16\u8f91\u5668 (5 steps)\u001b[39m\u001b[0m\n[   0% ] \u001b[90m\u001b[1mloading_editor_layout\u001b[22m | \u6b63\u5728\u52a0\u8f7d\u7f16\u8f91\u5668\u5e03\u5c40\u2026\u2026\u001b[39m\u001b[0m\n\u001b[92m[ DONE ]\u001b[39m \u001b[1mloading_editor_layout\u001b[22m\n\u001b[0m\n",
+    "stderr": "",
+    "exit_code": 0
+  },
+  "baseline-pursuit": {
+    "command": [
+      "E:\\FlyBrain\\flyfear\\tools\\Godot_v4.5.2-stable_win64_console.exe",
+      "--headless",
+      "--path",
+      "E:\\FlyBrain\\flyfear\\reports\\p2-playtest\\baseline\\game",
+      "--script",
+      "../tests/pursuit.gd",
+      "--fixed-fps",
+      "60"
+    ],
+    "cwd": "E:\\FlyBrain\\flyfear",
+    "inputs": "offline scene fixtures / recorded neural outputs",
+    "stdout": "Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org\n\nPASS: Default spawn autonomous contact: [0.16, 3]\nFAIL: Speed bound during pursuit\n{\"drive\":[0.16,0.06,0.08,0.04],\"frames\":38,\"peak_speed\":6.8798394203186,\"seed\":3}\nPASS: Default spawn autonomous contact: [0.16, 17]\nFAIL: Speed bound during pursuit\n{\"drive\":[0.16,0.06,0.08,0.04],\"frames\":35,\"peak_speed\":7.05355262756348,\"seed\":17}\nPASS: Default spawn autonomous contact: [0.16, 42]\nFAIL: Speed bound during pursuit\n{\"drive\":[0.16,0.06,0.08,0.04],\"frames\":32,\"peak_speed\":7.15220069885254,\"seed\":42}\nPASS: Default spawn autonomous contact: [-0.05011754855514, 3]\nPASS: Speed bound during pursuit\n{\"drive\":[-0.0501175485551357,-0.035813182592392,-0.0153126399964094,0.0140054617077112],\"frames\":42,\"peak_speed\":5.19527769088745,\"seed\":3}\nPASS: Default spawn autonomous contact: [-0.05011754855514, 17]\nPASS: Speed bound during pursuit\n{\"drive\":[-0.0501175485551357,-0.035813182592392,-0.0153126399964094,0.0140054617077112],\"frames\":40,\"peak_speed\":6.13664770126343,\"seed\":17}\nPASS: Default spawn autonomous contact: [-0.05011754855514, 42]\nPASS: Speed bound during pursuit\n{\"drive\":[-0.0501175485551357,-0.035813182592392,-0.0153126399964094,0.0140054617077112],\"frames\":38,\"peak_speed\":6.1521167755127,\"seed\":42}\nPASS: Default spawn autonomous contact: [-0.19101500511169, 3]\nFAIL: Speed bound during pursuit\n{\"drive\":[-0.191015005111694,-0.141165092587471,-0.0650838315486908,0.0531451068818569],\"frames\":31,\"peak_speed\":7.89085149765015,\"seed\":3}\nPASS: Default spawn autonomous contact: [-0.19101500511169, 17]\nFAIL: Speed bound during pursuit\n{\"drive\":[-0.191015005111694,-0.141165092587471,-0.0650838315486908,0.0531451068818569],\"frames\":31,\"peak_speed\":8.0,\"seed\":17}\nPASS: Default spawn autonomous contact: [-0.19101500511169, 42]\nFAIL: Speed bound during pursuit\n{\"drive\":[-0.191015005111694,-0.141165092587471,-0.0650838315486908,0.0531451068818569],\"frames\":31,\"peak_speed\":8.0,\"seed\":42}\nPASS: Wall blocks close-range contact and telemetry\n",
+    "stderr": "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n   at: cleanup (core/object/object.cpp:2514)\nERROR: 2 resources still in use at exit (run with --verbose for details).\n   at: clear (core/io/resource.cpp:804)\n",
+    "exit_code": 1
+  },
+  "baseline-weapon_view": {
+    "command": [
+      "E:\\FlyBrain\\flyfear\\tools\\Godot_v4.5.2-stable_win64_console.exe",
+      "--headless",
+      "--path",
+      "E:\\FlyBrain\\flyfear\\reports\\p2-playtest\\baseline\\game",
+      "--script",
+      "../tests/weapon_view.gd",
+      "--fixed-fps",
+      "60"
+    ],
+    "cwd": "E:\\FlyBrain\\flyfear",
+    "inputs": "offline scene fixtures / recorded neural outputs",
+    "stdout": "Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org\n\nFAIL: First-person weapon exists\n",
+    "stderr": "",
+    "exit_code": 1
+  },
+  "modified-combat_round": {
+    "command": [
+      "E:\\FlyBrain\\flyfear\\tools\\Godot_v4.5.2-stable_win64_console.exe",
+      "--headless",
+      "--path",
+      "E:\\FlyBrain\\flyfear\\game",
+      "--script",
+      "../tests/combat_round.gd",
+      "--fixed-fps",
+      "60"
+    ],
+    "cwd": "E:\\FlyBrain\\flyfear",
+    "inputs": "offline scene fixtures / recorded neural outputs",
+    "stdout": "Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org\n\nPASS: Hitscan HP step 1\nPASS: Hitscan HP step 2\nPASS: Hitscan HP step 3\nPASS: Hitscan HP step 4\nPASS: Hitscan HP step 5\nPASS: Hitscan HP step 6\nPASS: Hitscan HP step 7\nPASS: Hitscan HP step 8\nPASS: Hitscan HP step 9\nPASS: Hitscan HP step 10\nPASS: Defeated signal settles a win\nPASS: Win stops both bodies and decisions\nPASS: Win clears audio\nPASS: Late loss does not overwrite a settled win\nPASS: Restart resets HP and result\nPASS: Contact signal settles defeat without restoring dead HP\nPASS: Defeat freezes round and returns to menu\nPASS: Late win preserves defeat and zero HP\nPASS: Restart after defeat is playable\n",
+    "stderr": "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n   at: cleanup (core/object/object.cpp:2514)\nERROR: 2 resources still in use at exit (run with --verbose for details).\n   at: clear (core/io/resource.cpp:804)\n",
+    "exit_code": 0
+  },
+  "modified-fly": {
+    "command": [
+      "E:\\FlyBrain\\flyfear\\tools\\Godot_v4.5.2-stable_win64_console.exe",
+      "--headless",
+      "--path",
+      "E:\\FlyBrain\\flyfear\\game",
+      "--script",
+      "../tests/fly.gd",
+      "--fixed-fps",
+      "60"
+    ],
+    "cwd": "E:\\FlyBrain\\flyfear",
+    "inputs": "offline scene fixtures / recorded neural outputs",
+    "stdout": "Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org\n\nPASS: Fly mesh dimensions are halved\nPASS: Fly collision radius is halved\nPASS: Wide vision acquires a player beside and slightly behind the fly\nPASS: Walls still hide the player's current telemetry\nPASS: Brief occlusion preserves pursuit of the last visible position\nPASS: Fly can overtake the 3.2-unit/s player within an 8-unit/s speed limit\nPASS: Fly catches and follows a walking player through the corridor\nPASS: Fast flight stays inside the room and sealed exit\nPASS: Turning preserves the half-size body\nPASS: Hovering flight makes repeated short direction changes\n{\"following_distance\":0.498604118824005,\"frames\":240,\"peak_speed\":5.86877250671387,\"short_turns\":16,\"visible_frames\":240}\nPASS: Pause freezes flight, rotors and buzz\nPASS: Silent neural drive cannot power flight\nPASS: Expired brain output stops flight without drifting\nPASS: Continuous room route respects collisions: [42, 1]\nPASS: Fly follows around side and rear doorway corners: [42, 1]\n{\"arrival_distance\":0.766480684280396,\"crossed_wall\":false,\"direction\":1,\"doorway_seed\":42,\"end_distance\":0.766480684280396,\"longest_unseen_frames\":0,\"neural_l1\":0.16,\"settle_frames\":0}\nPASS: Continuous room route respects collisions: [3, 1]\nPASS: Fly follows around side and rear doorway corners: [3, 1]\n{\"arrival_distance\":0.750544607639313,\"crossed_wall\":false,\"direction\":1,\"doorway_seed\":3,\"end_distance\":0.750544607639313,\"longest_unseen_frames\":7,\"neural_l1\":0.16,\"settle_frames\":0}\nPASS: Continuous room route respects collisions: [17, 1]\nPASS: Fly follows around side and rear doorway corners: [17, 1]\n{\"arrival_distance\":0.536567866802216,\"crossed_wall\":false,\"direction\":1,\"doorway_seed\":17,\"end_distance\":0.536567866802216,\"longest_unseen_frames\":5,\"neural_l1\":0.16,\"settle_frames\":0}\nPASS: Continuous room route respects collisions: [42, -1]\nPASS: Fly follows around side and rear doorway corners: [42, -1]\n{\"arrival_distance\":0.610339403152466,\"crossed_wall\":false,\"direction\":-1,\"doorway_seed\":42,\"end_distance\":0.610339403152466,\"longest_unseen_frames\":0,\"neural_l1\":0.16,\"settle_frames\":0}\nPASS: Continuous room route respects collisions: [3, -1]\nPASS: Fly follows around side and rear doorway corners: [3, -1]\n{\"arrival_distance\":0.752017259597778,\"crossed_wall\":false,\"direction\":-1,\"doorway_seed\":3,\"end_distance\":0.752017259597778,\"longest_unseen_frames\":0,\"neural_l1\":0.16,\"settle_frames\":0}\nPASS: Continuous room route respects collisions: [17, -1]\nPASS: Fly follows around side and rear doorway corners: [17, -1]\n{\"arrival_distance\":0.542405545711517,\"crossed_wall\":false,\"direction\":-1,\"doorway_seed\":17,\"end_distance\":0.542405545711517,\"longest_unseen_frames\":0,\"neural_l1\":0.16,\"settle_frames\":0}\nPASS: Continuous room route respects collisions: [42, 1]\nPASS: Fly follows around side and rear doorway corners: [42, 1]\n{\"arrival_distance\":0.735107839107513,\"crossed_wall\":false,\"direction\":1,\"doorway_seed\":42,\"end_distance\":0.735107839107513,\"longest_unseen_frames\":0,\"neural_l1\":-0.0501175485551357,\"settle_frames\":0}\nPASS: Continuous room route respects collisions: [3, 1]\nPASS: Fly follows around side and rear doorway corners: [3, 1]\n{\"arrival_distance\":0.933202683925629,\"crossed_wall\":false,\"direction\":1,\"doorway_seed\":3,\"end_distance\":0.933202683925629,\"longest_unseen_frames\":15,\"neural_l1\":-0.0501175485551357,\"settle_frames\":0}\nPASS: Continuous room route respects collisions: [17, 1]\nPASS: Fly follows around side and rear doorway corners: [17, 1]\n{\"arrival_distance\":0.760709047317505,\"crossed_wall\":false,\"direction\":1,\"doorway_seed\":17,\"end_distance\":0.760709047317505,\"longest_unseen_frames\":14,\"neural_l1\":-0.0501175485551357,\"settle_frames\":0}\nPASS: Continuous room route respects collisions: [42, -1]\nPASS: Fly follows around side and rear doorway corners: [42, -1]\n{\"arrival_distance\":0.761684775352478,\"crossed_wall\":false,\"direction\":-1,\"doorway_seed\":42,\"end_distance\":0.761684775352478,\"longest_unseen_frames\":17,\"neural_l1\":-0.0501175485551357,\"settle_frames\":0}\nPASS: Continuous room route respects collisions: [3, -1]\nPASS: Fly follows around side and rear doorway corners: [3, -1]\n{\"arrival_distance\":0.932325601577759,\"crossed_wall\":false,\"direction\":-1,\"doorway_seed\":3,\"end_distance\":0.932325601577759,\"longest_unseen_frames\":0,\"neural_l1\":-0.0501175485551357,\"settle_frames\":0}\nPASS: Continuous room route respects collisions: [17, -1]\nPASS: Fly follows around side and rear doorway corners: [17, -1]\n{\"arrival_distance\":0.76039183139801,\"crossed_wall\":false,\"direction\":-1,\"doorway_seed\":17,\"end_distance\":0.76039183139801,\"longest_unseen_frames\":0,\"neural_l1\":-0.0501175485551357,\"settle_frames\":0}\nPASS: Continuous room route respects collisions: [42, 1]\nPASS: Fly follows around side and rear doorway corners: [42, 1]\n{\"arrival_distance\":0.492994338274002,\"crossed_wall\":false,\"direction\":1,\"doorway_seed\":42,\"end_distance\":0.492994338274002,\"longest_unseen_frames\":0,\"neural_l1\":-0.191015005111694,\"settle_frames\":0}\nPASS: Continuous room route respects collisions: [3, 1]\nPASS: Fly follows around side and rear doorway corners: [3, 1]\n{\"arrival_distance\":0.956203937530518,\"crossed_wall\":false,\"direction\":1,\"doorway_seed\":3,\"end_distance\":0.956203937530518,\"longest_unseen_frames\":0,\"neural_l1\":-0.191015005111694,\"settle_frames\":0}\nPASS: Continuous room route respects collisions: [17, 1]\nPASS: Fly follows around side and rear doorway corners: [17, 1]\n{\"arrival_distance\":0.46688050031662,\"crossed_wall\":false,\"direction\":1,\"doorway_seed\":17,\"end_distance\":0.46688050031662,\"longest_unseen_frames\":0,\"neural_l1\":-0.191015005111694,\"settle_frames\":0}\nPASS: Continuous room route respects collisions: [42, -1]\nPASS: Fly follows around side and rear doorway corners: [42, -1]\n{\"arrival_distance\":0.517082333564758,\"crossed_wall\":false,\"direction\":-1,\"doorway_seed\":42,\"end_distance\":0.517082333564758,\"longest_unseen_frames\":0,\"neural_l1\":-0.191015005111694,\"settle_frames\":0}\nPASS: Continuous room route respects collisions: [3, -1]\nPASS: Fly follows around side and rear doorway corners: [3, -1]\n{\"arrival_distance\":0.951014280319214,\"crossed_wall\":false,\"direction\":-1,\"doorway_seed\":3,\"end_distance\":0.951014280319214,\"longest_unseen_frames\":0,\"neural_l1\":-0.191015005111694,\"settle_frames\":0}\nPASS: Continuous room route respects collisions: [17, -1]\nPASS: Fly follows around side and rear doorway corners: [17, -1]\n{\"arrival_distance\":0.772702872753143,\"crossed_wall\":false,\"direction\":-1,\"doorway_seed\":17,\"end_distance\":0.772702872753143,\"longest_unseen_frames\":0,\"neural_l1\":-0.191015005111694,\"settle_frames\":0}\nPASS: Measured neural drive stays finite and inside the flight speed limit\nPASS: Hidden player location cannot change last-seen pursuit or later search\n{\"hidden_trace_deviation\":0.0,\"measured_drive\":[-0.0501175485551357,-0.035813182592392,-0.0153126399964094,0.0140054617077112],\"peak_speed\":4.88732957839966}\nPASS: Measured neural drive stays finite and inside the flight speed limit\nPASS: Hidden player location cannot change last-seen pursuit or later search\n{\"hidden_trace_deviation\":0.0,\"measured_drive\":[-0.131815478205681,-0.0958378314971924,-0.0428216718137264,0.0367952845990658],\"peak_speed\":5.30150651931763}\nPASS: Measured neural drive stays finite and inside the flight speed limit\nPASS: Hidden player location cannot change last-seen pursuit or later search\n{\"hidden_trace_deviation\":0.0,\"measured_drive\":[-0.191015005111694,-0.141165092587471,-0.0650838315486908,0.0531451068818569],\"peak_speed\":6.40000057220459}\n",
+    "stderr": "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n   at: cleanup (core/object/object.cpp:2514)\nERROR: 2 resources still in use at exit (run with --verbose for details).\n   at: clear (core/io/resource.cpp:804)\n",
+    "exit_code": 0
+  },
+  "modified-gameplay": {
+    "command": [
+      "E:\\FlyBrain\\flyfear\\tools\\Godot_v4.5.2-stable_win64_console.exe",
+      "--headless",
+      "--path",
+      "E:\\FlyBrain\\flyfear\\game",
+      "--script",
+      "../tests/gameplay.gd"
+    ],
+    "cwd": "E:\\FlyBrain\\flyfear",
+    "inputs": "offline scene fixtures / recorded neural outputs",
+    "stdout": "Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org\n\nPASS: HUD text is reused between 10 Hz updates\nPASS: HUD refreshes changed gameplay state at the next update\nPASS: Hidden debug text does not rebuild every update\nPASS: Fly fits through side-room doorway: -1\nPASS: Fly fits through rear service doorway: -1\nPASS: Fly fits through side-room doorway: 1\nPASS: Fly fits through rear service doorway: 1\nPASS: Rear wall contains fly\nPASS: Rear wall contains player\nPASS: Rear passage cannot bypass sealed exit wall\nPASS: Direct hit on drone deals weapon_damage\nPASS: Fire cooldown blocks an immediate second shot\nPASS: Solid obstacle blocks the hitscan ray from reaching the drone\nPASS: Draining drone HP to zero deactivates it\nPASS: Drone HP reaching zero emits defeated\nPASS: Drone contact drains player HP to zero\nPASS: Player HP reaching zero emits defeated\nPASS: Fly buzz is silent before play\nPASS: Actual mixed fly buzz grows louder near the listener\nPASS: Actual mixed fly buzz follows left and right position\nPASS: Fly buzz is inaudible beyond its range\nPASS: Pause stops fly buzz immediately\nPASS: Resume restarts looping fly buzz\nPASS: Pause releases a held movement key even when its key-up event never arrives\nPASS: Fresh movement input still works after resuming\nPASS: Zero volume mutes every game sound\nPASS: Volume restores bounded game audio\nPASS: Round completion stops fly buzz\nPASS: Four scare clips produce actual mixed audio at the player\nPASS: Sound variation never repeats the same clip back to back\nPASS: Scare audio stays behind the player, gain-limited and shorter than the reaction window\nPASS: Rejected sound consumes neither event budget nor random sequence\nPASS: Same seed reproduces sound, position and pitch\nPASS: Pause immediately cancels scare audio\nPASS: Resume does not replay a cancelled scare\nPASS: Zero effect intensity disables all scare variants\nPASS: Wait never starts a scare sound\nPASS: Master mute covers the scare player's output bus\nPASS: Completing the round stops scare audio\nPASS: Fast turn survives until 10 Hz telemetry sample\nPASS: Old turn expires instead of producing repeated reactions\nPASS: Fly searches even when neural lateral drive cancels old search turn\nPASS: Lost brain connection stops physical fly without stale drift\nPASS: Rating key reaches the learning feedback route\nPASS: Expired event cannot receive a rating\nPASS: Window focus loss pauses player, fly and event decisions\nPASS: Focus loss also stops fly buzz\nPASS: Focus loss also cancels scare audio\nPASS: Menu key without key-up cannot leak into new round\nPASS: Fresh input works after menu entry: new round\nPASS: Menu key without key-up cannot leak into resume\nPASS: Fresh input works after menu entry: resume\n",
+    "stderr": "",
+    "exit_code": 0
+  },
+  "modified-hud": {
+    "command": [
+      "E:\\FlyBrain\\flyfear\\tools\\Godot_v4.5.2-stable_win64_console.exe",
+      "--headless",
+      "--path",
+      "E:\\FlyBrain\\flyfear\\game",
+      "--script",
+      "../tests/hud.gd"
+    ],
+    "cwd": "E:\\FlyBrain\\flyfear",
+    "inputs": "offline scene fixtures / recorded neural outputs",
+    "stdout": "Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org\n\nPASS: Learning display distinguishes unavailable, real zero, retained offline and refreshed data\nPASS: Menu title follows game phase, connection status refreshes separately, and reconnect never resumes play\nHUD bounds: [P: (1360.0, 38.0), S: (510.0, 523.0)] / viewport: [P: (0.0, 0.0), S: (1920.0, 1080.0)]\nHUD minimum: (1.0, 507.0) / label: (470.0, 507.0)\nPASS: Every diagnostic value is visible, inside the screen, above the brain view\n",
+    "stderr": "",
+    "exit_code": 0
+  },
+  "modified-isolated-smoke": {
+    "command": [
+      "E:\\FlyBrain\\flyfear\\tools\\Godot_v4.5.2-stable_win64_console.exe",
+      "--headless",
+      "--path",
+      "game",
+      "--",
+      "--smoke"
+    ],
+    "server_command": [
+      "E:\\FlyBrain\\flyfear\\.venv\\Scripts\\python.exe",
+      "-m",
+      "brain.server",
+      "--port",
+      "52723",
+      "--logs",
+      "E:\\FlyBrain\\flyfear\\reports\\p2-playtest\\smoke-session",
+      "--allow-control"
+    ],
+    "cwd": "E:\\FlyBrain\\flyfear",
+    "inputs": "real MaleCNS; isolated ephemeral port/token; own learning/history directory",
+    "stdout": "Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org\n\nCHECK: Godot received real connectome manifest\nCHECK: Live panel receives 4096 measured biological neuron samples\nCHECK: Physical fly moves with fresh measured neural output\nCHECK: Detailed brain inspection pauses gameplay and decisions\nCHECK: Real soma cloud rotates and a measured neuron can be selected\nCHECK: Closing brain inspection restores previous gameplay state\nCHECK: Fly sees unobstructed player inside visual field\nCHECK: Wall blocks fly vision and player telemetry to brain\nCHECK: Physical fly collides with room wall\nCHECK: Physical keyboard movement: W\nCHECK: Physical keyboard movement: A\nCHECK: Physical keyboard movement: S\nCHECK: Physical keyboard movement: D\nCHECK: Room wall prevents walking through collision\nCHECK: Walk to room center\nCHECK: Navigate corridor with collisions\nCHECK: Enter machine room through side doorway\nCHECK: Reach rear service corridor\nCHECK: Cross rear corridor with collisions\nCHECK: Enter archive through rear doorway\nCHECK: Effect dispatch: lights\nCHECK: Effect dispatch: steps\nCHECK: Footstep source is behind player\nCHECK: Effect dispatch: silhouette\nCHECK: Silhouette is visible\nCHECK: Local cooldown rejects event spam\nCHECK: ESC pause cancels effects and decisions\nCHECK: Pause freezes physical fly\nCHECK: WebSocket disconnect safely waits; game remains active\nCHECK: Automatic localhost reconnect\nCHECK: Reconnect during pause preserves round and stays paused\nCHECK: Return to arena corridor\nCHECK: Walk into firing position\nCHECK: Real hitscan reduces drone HP\nCHECK: Hitscan defeat signal returns to victory menu\nCHECK: Victory persists and acknowledges won outcome\nCHECK: New round resets both HP pools and outcome\nCHECK: New round receives actual neural output\nCHECK: Default-spawn autonomous drone contact returns to defeat menu\nCHECK: Defeat persists and acknowledges lost outcome\n",
+    "stderr": "",
+    "exit_code": 0
+  },
+  "modified-mobile": {
+    "command": [
+      "E:\\FlyBrain\\flyfear\\tools\\Godot_v4.5.2-stable_win64_console.exe",
+      "--headless",
+      "--path",
+      "E:\\FlyBrain\\flyfear\\game",
+      "--script",
+      "../tests/mobile.gd"
+    ],
+    "cwd": "E:\\FlyBrain\\flyfear",
+    "inputs": "offline scene fixtures / recorded neural outputs",
+    "stdout": "Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org\n\nPASS: Mobile viewport matches (320, 568)\nPASS: Menu buttons fit horizontally with 44px targets: (320, 568)\nPASS: Settings remain scrollable: (320, 568)\nPASS: Long server error wraps, avoids buttons and scrolls into view (settings=false): (320, 568)\nPASS: Long server error wraps, avoids buttons and scrolls into view (settings=true): (320, 568)\nPASS: Long settings error wraps, avoids buttons and scrolls into view (settings=false): (320, 568)\nPASS: Long settings error wraps, avoids buttons and scrolls into view (settings=true): (320, 568)\nPASS: Mobile lights rating text and targets fit without covering the HUD: (320, 568)\nPASS: Mobile steps rating text and targets fit without covering the HUD: (320, 568)\nPASS: Mobile silhouette rating text and targets fit without covering the HUD: (320, 568)\nPASS: Mobile brain view fits: (320, 568)\nPASS: Mobile viewport matches (390, 844)\nPASS: Menu buttons fit horizontally with 44px targets: (390, 844)\nPASS: Settings remain scrollable: (390, 844)\nPASS: Long server error wraps, avoids buttons and scrolls into view (settings=false): (390, 844)\nPASS: Long server error wraps, avoids buttons and scrolls into view (settings=true): (390, 844)\nPASS: Long settings error wraps, avoids buttons and scrolls into view (settings=false): (390, 844)\nPASS: Long settings error wraps, avoids buttons and scrolls into view (settings=true): (390, 844)\nPASS: Mobile lights rating text and targets fit without covering the HUD: (390, 844)\nPASS: Mobile steps rating text and targets fit without covering the HUD: (390, 844)\nPASS: Mobile silhouette rating text and targets fit without covering the HUD: (390, 844)\nPASS: Mobile brain view fits: (390, 844)\nPASS: Mobile viewport matches (844, 390)\nPASS: Menu buttons fit horizontally with 44px targets: (844, 390)\nPASS: Settings remain scrollable: (844, 390)\nPASS: Long server error wraps, avoids buttons and scrolls into view (settings=false): (844, 390)\nPASS: Long server error wraps, avoids buttons and scrolls into view (settings=true): (844, 390)\nPASS: Long settings error wraps, avoids buttons and scrolls into view (settings=false): (844, 390)\nPASS: Long settings error wraps, avoids buttons and scrolls into view (settings=true): (844, 390)\nPASS: Mobile lights rating text and targets fit without covering the HUD: (844, 390)\nPASS: Mobile steps rating text and targets fit without covering the HUD: (844, 390)\nPASS: Mobile silhouette rating text and targets fit without covering the HUD: (844, 390)\nPASS: Mobile brain view fits: (844, 390)\nPASS: Mobile viewport matches (568, 320)\nPASS: Menu buttons fit horizontally with 44px targets: (568, 320)\nPASS: Settings remain scrollable: (568, 320)\nPASS: Long server error wraps, avoids buttons and scrolls into view (settings=false): (568, 320)\nPASS: Long server error wraps, avoids buttons and scrolls into view (settings=true): (568, 320)\nPASS: Long settings error wraps, avoids buttons and scrolls into view (settings=false): (568, 320)\nPASS: Long settings error wraps, avoids buttons and scrolls into view (settings=true): (568, 320)\nPASS: Mobile lights rating text and targets fit without covering the HUD: (568, 320)\nPASS: Mobile steps rating text and targets fit without covering the HUD: (568, 320)\nPASS: Mobile silhouette rating text and targets fit without covering the HUD: (568, 320)\nPASS: Mobile brain view fits: (568, 320)\nPASS: Two fingers move and aim together\nPASS: Touch movement respects the existing speed limit\nPASS: Third finger toggles torch without stealing either gesture\nPASS: Releasing movement stops immediately and retains look finger\nPASS: Released finger cannot turn the camera\nPASS: Canceled touch pauses and clears all gesture ownership\nPASS: On-screen pause cancels held movement\nPASS: Explicit resume never replays stale touch input\nPASS: Rotation pauses play and cancels held touch\nPASS: Touch rating uses the existing feedback validation path\n",
+    "stderr": "",
+    "exit_code": 0
+  },
+  "modified-pursuit": {
+    "command": [
+      "E:\\FlyBrain\\flyfear\\tools\\Godot_v4.5.2-stable_win64_console.exe",
+      "--headless",
+      "--path",
+      "E:\\FlyBrain\\flyfear\\game",
+      "--script",
+      "../tests/pursuit.gd",
+      "--fixed-fps",
+      "60"
+    ],
+    "cwd": "E:\\FlyBrain\\flyfear",
+    "inputs": "offline scene fixtures / recorded neural outputs",
+    "stdout": "Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org\n\nPASS: Default spawn autonomous contact: [0.16, 3]\nPASS: Speed bound during pursuit\n{\"drive\":[0.16,0.06,0.08,0.04],\"frames\":44,\"peak_speed\":5.51830053329468,\"seed\":3}\nPASS: Default spawn autonomous contact: [0.16, 17]\nPASS: Speed bound during pursuit\n{\"drive\":[0.16,0.06,0.08,0.04],\"frames\":42,\"peak_speed\":6.17562913894653,\"seed\":17}\nPASS: Default spawn autonomous contact: [0.16, 42]\nPASS: Speed bound during pursuit\n{\"drive\":[0.16,0.06,0.08,0.04],\"frames\":38,\"peak_speed\":5.82258939743042,\"seed\":42}\nPASS: Default spawn autonomous contact: [-0.05011754855514, 3]\nPASS: Speed bound during pursuit\n{\"drive\":[-0.0501175485551357,-0.035813182592392,-0.0153126399964094,0.0140054617077112],\"frames\":49,\"peak_speed\":4.55355644226074,\"seed\":3}\nPASS: Default spawn autonomous contact: [-0.05011754855514, 17]\nPASS: Speed bound during pursuit\n{\"drive\":[-0.0501175485551357,-0.035813182592392,-0.0153126399964094,0.0140054617077112],\"frames\":49,\"peak_speed\":4.91443538665771,\"seed\":17}\nPASS: Default spawn autonomous contact: [-0.05011754855514, 42]\nPASS: Speed bound during pursuit\n{\"drive\":[-0.0501175485551357,-0.035813182592392,-0.0153126399964094,0.0140054617077112],\"frames\":51,\"peak_speed\":4.911048412323,\"seed\":42}\nPASS: Default spawn autonomous contact: [-0.19101500511169, 3]\nPASS: Speed bound during pursuit\n{\"drive\":[-0.191015005111694,-0.141165092587471,-0.0650838315486908,0.0531451068818569],\"frames\":36,\"peak_speed\":6.31859111785889,\"seed\":3}\nPASS: Default spawn autonomous contact: [-0.19101500511169, 17]\nPASS: Speed bound during pursuit\n{\"drive\":[-0.191015005111694,-0.141165092587471,-0.0650838315486908,0.0531451068818569],\"frames\":36,\"peak_speed\":6.40000057220459,\"seed\":17}\nPASS: Default spawn autonomous contact: [-0.19101500511169, 42]\nPASS: Speed bound during pursuit\n{\"drive\":[-0.191015005111694,-0.141165092587471,-0.0650838315486908,0.0531451068818569],\"frames\":36,\"peak_speed\":6.40000057220459,\"seed\":42}\nPASS: Wall blocks close-range contact and telemetry\n",
+    "stderr": "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n   at: cleanup (core/object/object.cpp:2514)\nERROR: 2 resources still in use at exit (run with --verbose for details).\n   at: clear (core/io/resource.cpp:804)\n",
+    "exit_code": 0
+  },
+  "modified-smoke": {
+    "command": [
+      "E:\\FlyBrain\\flyfear\\.venv\\Scripts\\python.exe",
+      "tools/launch.py",
+      "--headless",
+      "--smoke"
+    ],
+    "cwd": "E:\\FlyBrain\\flyfear",
+    "inputs": "real full MaleCNS graph; default spawn, shooting win and contact loss",
+    "stdout": "",
+    "stderr": "FLYFEAR zaten \u00e7al\u0131\u015f\u0131yor. A\u00e7\u0131k oyuna d\u00f6n\u00fcn.\n",
+    "exit_code": 1
+  },
+  "modified-weapon_view": {
+    "command": [
+      "E:\\FlyBrain\\flyfear\\tools\\Godot_v4.5.2-stable_win64_console.exe",
+      "--headless",
+      "--path",
+      "game",
+      "--script",
+      "../tests/weapon_view.gd",
+      "--fixed-fps",
+      "60"
+    ],
+    "cwd": "E:\\FlyBrain\\flyfear",
+    "inputs": "offline game scene, cooldown, active-state transitions, final gun dimensions",
+    "stdout": "Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org\n\nPASS: First-person weapon exists\nPASS: Weapon hidden in initial menu\nPASS: Visible gun on round start\nPASS: Separate render world and non-intercepting input\nPASS: Cosmetic gun adds no collision objects\nPASS: Hitscan damage plus muzzle flash and recoil\nPASS: Cooldown blocks both damage and new animation\nPASS: Recoil and flash decay to rest\nPASS: Pause hides weapon and clears flash\nPASS: Resume shows clean weapon\nPASS: Round end hides gun\nPASS: Restart resets view model\n",
+    "stderr": "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n   at: cleanup (core/object/object.cpp:2514)\nERROR: 2 resources still in use at exit (run with --verbose for details).\n   at: clear (core/io/resource.cpp:804)\n",
+    "exit_code": 0
+  },
+  "render": {
+    "command": [
+      "E:\\FlyBrain\\flyfear\\tools\\Godot_v4.5.2-stable_win64_console.exe",
+      "--path",
+      "game",
+      "--script",
+      "../reports/p2-playtest/preview.gd",
+      "--rendering-method",
+      "gl_compatibility",
+      "--audio-driver",
+      "Dummy"
+    ],
+    "stdout": "Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org\nOpenGL API 3.3.0 NVIDIA 616.92 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU\n\nweapon-idle.png result=0\nweapon-fire.png result=0\nweapon-paused.png result=0\n",
+    "stderr": "",
+    "exit_code": 0
+  },
+  "scope": {
+    "changed": "flight_speed_scale=0.8; first-person gun, muzzle flash and recoil; HP/cooldown/raycast unchanged",
+    "manual_playtest": "initial feedback implemented; user restart and retest pending",
+    "resource_warnings": "existing ObjectDB/resource cleanup warnings persist in physics suites"
+  },
+  "rollback-dry-run": {
+    "command": [
+      "E:\\FlyBrain\\flyfear\\.venv\\Scripts\\python.exe",
+      "E:\\FlyBrain\\flyfear\\reports\\p2-playtest\\rollback.py"
+    ],
+    "stdout": "Verified modified files and original hashes\n",
+    "stderr": "",
+    "exit_code": 0
+  },
+  "rollback-rehearsal": {
+    "command": [
+      "E:\\FlyBrain\\flyfear\\.venv\\Scripts\\python.exe",
+      "E:\\FlyBrain\\flyfear\\reports\\p2-playtest\\rollback.py",
+      "--root",
+      "E:\\FlyBrain\\flyfear\\reports\\p2-playtest\\rollback-rehearsal",
+      "--apply"
+    ],
+    "stdout": "Verified modified files and original hashes\nRollback verified: original bytes restored; added files removed\n",
+    "stderr": "",
+    "exit_code": 0
+  },
+  "patch-rehearsal": {
+    "command": [
+      "git",
+      "apply",
+      "--unsafe-paths",
+      "--directory=reports/p2-playtest/patch-rehearsal",
+      "E:\\FlyBrain\\flyfear\\reports\\p2-playtest\\changes.patch"
+    ],
+    "stdout": "",
+    "stderr": "",
+    "exit_code": 0
+  }
+}

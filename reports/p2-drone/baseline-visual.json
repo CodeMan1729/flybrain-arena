@@ -1,0 +1,18 @@
+{
+  "label": "baseline-visual",
+  "command": [
+    "E:\\FlyBrain\\flyfear\\tools\\Godot_v4.5.2-stable_win64_console.exe",
+    "--headless",
+    "--path",
+    "E:\\FlyBrain\\flyfear\\reports\\p2-drone\\baseline\\game",
+    "--script",
+    "../tests/drone_visual.gd",
+    "--fixed-fps",
+    "60"
+  ],
+  "cwd": "E:\\FlyBrain\\flyfear",
+  "inputs": "offline scripted drives; no live neural backend",
+  "stdout": "Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org\n\nFAIL: Scene body is named Drone\nFAIL: Window title uses arena branding\nFAIL: Mechanical hull and forward sensor replace insect\nFAIL: Four independent rotors\nPASS: Visual scale and collision envelope preserved\nPASS: Weapon/world collision layers unchanged\n",
+  "stderr": "",
+  "exit_code": 1
+}

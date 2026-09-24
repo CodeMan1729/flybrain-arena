@@ -1,0 +1,17 @@
+{
+  "command": [
+    "E:\\FlyBrain\\flyfear\\tools\\Godot_v4.5.2-stable_win64_console.exe",
+    "--headless",
+    "--path",
+    "game",
+    "--script",
+    "../tests/weapon_view.gd",
+    "--fixed-fps",
+    "60"
+  ],
+  "cwd": "E:\\FlyBrain\\flyfear",
+  "inputs": "15 damage; seven-shot kill; cooldown and wall blocking regression",
+  "stdout": "Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org\n\nPASS: First-person weapon exists\nPASS: Weapon hidden in initial menu\nPASS: Visible gun on round start\nPASS: Separate render world and non-intercepting input\nPASS: Cosmetic gun adds no collision objects\nPASS: Hitscan damage plus muzzle flash and recoil\nPASS: Cooldown blocks both damage and new animation\nPASS: Recoil and flash decay to rest\nPASS: Pause hides weapon and clears flash\nPASS: Resume shows clean weapon\nPASS: Round end hides gun\nPASS: Restart resets view model\n",
+  "stderr": "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n   at: cleanup (core/object/object.cpp:2514)\nERROR: 2 resources still in use at exit (run with --verbose for details).\n   at: clear (core/io/resource.cpp:804)\n",
+  "exit_code": 0
+}

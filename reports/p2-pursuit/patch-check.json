@@ -1,0 +1,15 @@
+{
+  "cwd": "E:\\FlyBrain\\flyfear",
+  "command": [
+    "git",
+    "apply",
+    "--ignore-space-change",
+    "--reverse",
+    "--check",
+    "reports/p2-pursuit/changes.patch"
+  ],
+  "inputs": "repository scene + test-defined inputs",
+  "stdout": "",
+  "stderr": "",
+  "exit_code": 0
+}

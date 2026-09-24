@@ -26,8 +26,8 @@
     "silhouette": 1772,
     "wait": 1773
   },
-  "prepare_seconds": 40.63306833291426,
-  "rss_mb": 1940.90625,
+  "prepare_seconds": 133.70036009995965,
+  "rss_mb": 1415.43359375,
   "source_sha256": {
     "annotations.feather": {
       "url": "https://storage.googleapis.com/flyem-male-cns/v1.0/connectome-data/flat-connectome/body-annotations-male-cns-v1.0-minconf-0.5.feather",

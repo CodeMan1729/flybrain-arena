@@ -1,0 +1,13 @@
+{
+  "changes.patch": "53d6cfa7367781f782ecc2568e6af0d80a6562ce392c73c1710bca46279830e7",
+  "verification.json": "b1af50d339430e550ced4ac590d3e7007216f6f1486ce79b3b37a27c6bd8ab29",
+  "rollback.py": "eb465a3e151c3b498e6691223a29a69c31bba979526439cf56d77a51fd4c0896",
+  "package-verification.json": "015dbed7779a9aaf225bc55a9ddc6f8a85f1034030c9bc690fba991dd989ae07",
+  "combined-rollback.json": "28a44e58e4b60a13bf4f59250fbc493a82f2d7a6f23a2a86f780dfd8f1b011bc",
+  "render.json": "b2ed42f633e35609338beddbfd260ce6f975d40077621b5b194b3dc23392c766",
+  "game-smoke.json": "47fe713e783c7c720f2f113b8204a25313f31a3f3cdb5c7733211c808923a4d9",
+  "arena-ready.png": "a345b1f900501c8c43dfcb963a28d0e204fd138adf32ae8b1f0a7f211ca5e7cf",
+  "arena-hit.png": "d55c984b93a071ae8631eecb96d5832950a987f4b097d433b6815e3bc106ce0d",
+  "arena-paused.png": "581e564d166540d5476f32754347733e212ea69f51d8cd7ef2d1f4c01cc0a01a",
+  "arena-won.png": "bae5832945cce97fdff9d85f3528479b3d46454d73ef40c953430d523b2134cc"
+}

@@ -1,0 +1,1076 @@
+--- a/brain/connectome.py
++++ b/brain/connectome.py
+@@ -12,6 +12,7 @@
+ import pyarrow.compute as pc
+ import pyarrow.feather as feather
+ from scipy import sparse
++from .escape import EscapePathway
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+ FEATURES = ['x', 'z', 'look_x', 'look_z', 'look_y', 'speed', 'pause', 'retreat']
+@@ -107,6 +108,8 @@
+             pc.is_in(annotations['superclass'], value_set=pa.array(['ol_intrinsic','cb_intrinsic','ol_sensory','visual_projection'])),
+             pc.greater(pc.list_value_length(annotations['somaLocation']),0)))
+         ids = np.load(directory / 'ids.npy')
++        self.escape = EscapePathway(directory, ids)
++        self.info['escape'] = self.escape.info
+         _, candidates, rows = np.intersect1d(ids,annotations['bodyId'].to_numpy(),return_indices=True)
+         if not len(candidates): raise ValueError('No annotated brain soma positions')
+         sample = np.linspace(0,len(candidates)-1,min(4096,len(candidates)),dtype=int)
+@@ -134,7 +137,7 @@
+     def reset(self):
+         self.state.fill(0)
+ 
+-    def step(self, values):
++    def step(self, values, threat=None):
+         values = np.asarray(values, dtype=np.float32)
+         if values.shape != (8,) or not np.all(np.isfinite(values)) or np.any(np.abs(values) > 1):
+             raise ValueError('Expected 8 finite normalized inputs in [-1,1]')
+@@ -142,11 +145,12 @@
+         drive = np.zeros_like(self.state)
+         for idx, value in zip(self.inputs, values):
+             drive[idx] = 0.2 + 0.8 * (float(value) + 1) / 2
++        self.escape.inject(drive, threat)
+         # ponytail: 24 discrete rate iterations, no biological clock; use calibrated LIF for physiology research.
+         for _ in range(24):
+             self.state += 0.35 * (np.tanh(1.5 * (self.weights @ self.state) + drive) - self.state)
+         out = np.array([self.state[g].mean() for g in self.outputs], dtype=np.float32)
+-        return {'output': out.tolist(), 'mean_abs': float(np.abs(self.state).mean()),
++        return {'output': out.tolist(), 'escape': self.escape.read(self.state), 'mean_abs': float(np.abs(self.state).mean()),
+                 'readout': np.r_[np.clip(out/.2,-1,1), [self.state[g].mean() for g in self.context_groups]].tolist(),
+                 # Keep five displayed decimals without float32 conversion noise inflating each JSON sample.
+                 'view_activity': [round(v,5) for v in np.round(self.state[self.view_indices],5).tolist()],
+--- a/brain/server.py
++++ b/brain/server.py
+@@ -20,6 +20,7 @@
+ from websockets.exceptions import ConnectionClosed
+ from .connectome import Connectome, ROOT, ACTIONS
+ from .director import Budget, Readout, normalize, movement, reaction
++from .escape import threat_input
+ 
+ async def run(port, token, log_dir, *, public_origin=None, allow_control=False, max_clients=8):
+     public=public_origin is not None
+@@ -79,6 +80,7 @@
+         connection=uuid.uuid4().hex
+         log=None if public else (log_dir/f'{connection}.jsonl').open('a',buffering=1)
+         seed=42;mode='learn';interval=3.;last_decision=-1e10;last_start=-1e10
++        last_escape=-1e10
+         received=deque()
+         choice_rng=np.random.default_rng(seed)
+         budget=Budget();policy=Readout(seed)
+@@ -161,6 +163,7 @@
+                         round_data=dict(previous) if previous else {'id':rid,'start_utc':datetime.now(timezone.utc).isoformat(),
+                             'mode':mode,'seed':seed,'seconds':0.,'events':0,'rewards':0,'reward_sum':0.,'start_updates':layer.updates}
+                         player_brain.reset()
++                        last_escape=-1e10
+                         if not public:budget=Budget()
+                         cancel_window('start');enabled=msg.get('paused') is not True;last_decision=last_start=now;active_since=now if enabled else None
+                         record('start',interval=interval,updates=layer.updates,continued=previous is not None)
+@@ -219,6 +222,22 @@
+                         feedback_event['manual']=reward
+                         record('feedback',id=seq,action=feedback_event['action'],rating=reward,previous_reward=previous,corrected=previous is not None,updates=layer.updates)
+                         await send({'type':'feedback','id':seq,'accepted':True})
++                    elif kind=='escape':
++                        t=msg.get('telemetry',{})
++                        if not isinstance(t,dict):raise ValueError('Expected telemetry object')
++                        values=normalize(t.get('vision',{}))
++                        threat=t.get('threat')
++                        level,_=threat_input(threat)
++                        seq=msg.get('id')
++                        if type(seq) is not int or not 0<=seq<2**53:raise ValueError('Invalid request id')
++                        if not enabled or level<=0 or now-last_escape<.25:
++                            await send({'type':'escape','id':seq,'reason':'inactive' if not enabled or level<=0 else 'cooldown'})
++                            continue
++                        async with compute:
++                            result=await asyncio.to_thread(player_brain.step,values,threat)
++                        last_escape=time.monotonic()
++                        record('escape',id=seq,threat=threat,neural=result)
++                        await send({'type':'escape','id':seq,'neural':result})
+                     elif kind in ('telemetry','decision'):
+                         t=msg.get('telemetry',{});sample=movement(t);values=normalize(t.get('vision',t))
+                         if not enabled:continue
+--- a/game/director.gd
++++ b/game/director.gd
+@@ -36,6 +36,19 @@
+ var feedback_status := ""
+ var connect_requested := true
+ var response_deadline := 5.0 if OS.has_feature("web") else 1.5
++var escape_signal := {}
++var escape_pending := -1
++var escape_request_time := -100.0
++var escape_received_time := -100.0
++var escape_valid_until := -100.0
++const ESCAPE_MAX_AGE := 0.85
++
++func clear_escape() -> void:
++	escape_signal = {}
++	escape_pending = -1
++	escape_received_time = -100.0
++	escape_valid_until = -100.0
++	escape_request_time = -100.0
+ 
+ func rate_event(rating: int) -> void:
+ 	if running and mode == "learn" and feedback_id >= 0 and now() < feedback_until and feedback_status.is_empty():
+@@ -50,6 +63,7 @@
+ 		socket.send_text(JSON.stringify(data))
+ 
+ func start_session(new_round := true) -> void:
++	clear_escape()
+ 	feedback_id = -1
+ 	if new_round:
+ 		round_id = str(Time.get_unix_time_from_system()).replace(".","_") + "_" + str(Time.get_ticks_usec())
+@@ -66,6 +80,7 @@
+ 	send({"type":"start", "mode":mode, "seed":seed_value, "interval":interval,"round_id":round_id,"paused":not running})
+ 
+ func finish_session(outcome: String) -> void:
++	clear_escape()
+ 	feedback_id = -1
+ 	running = false
+ 	pending_id = -1
+@@ -75,6 +90,7 @@
+ 	has_round = false
+ 
+ func pause_session() -> void:
++	clear_escape()
+ 	feedback_id = -1
+ 	running = false
+ 	pending_id = -1
+@@ -91,6 +107,7 @@
+ 	var state := socket.get_ready_state()
+ 	if state == WebSocketPeer.STATE_CLOSED:
+ 		if connected:
++			clear_escape()
+ 			connect_requested = running
+ 			feedback_id = -1
+ 			connected = false
+@@ -123,6 +140,18 @@
+ 		if data.has("memory"): memory = data.memory
+ 		if data.has("updates"): updates = int(data.updates)
+ 		match data.get("type", ""):
++			"escape":
++				if escape_pending < 0 or data.get("id",-2) != escape_pending: continue
++				escape_pending = -1
++				if not running or now()-escape_request_time>ESCAPE_MAX_AGE: continue
++				if data.has("neural"):
++					neural = data.neural
++					last_neural_time = now()
++					escape_signal = neural.get("escape",{})
++					escape_received_time = now()
++					escape_valid_until = escape_request_time+ESCAPE_MAX_AGE
++				else:
++					escape_signal = {}
+ 			"feedback_open":
+ 				if running:
+ 					feedback_id = int(data.id)
+@@ -173,11 +202,19 @@
+ 		action = "wait"
+ 		reason = "Simulation timeout · waiting"
+ 	if running and session_ready and not latest_telemetry.is_empty():
++		if escape_pending >= 0 and now()-escape_request_time>ESCAPE_MAX_AGE:
++			escape_pending = -1
++			escape_signal = {}
+ 		if now()-last_sample >= 0.1:
+ 			last_sample = now()
+ 			send({"type":"telemetry", "telemetry":latest_telemetry})
+-		if now()-last_request >= interval and pending_id < 0:
++		if now()-last_request >= interval and pending_id < 0 and escape_pending < 0:
+ 			request_id += 1
+ 			pending_id = request_id
+ 			last_request = now()
+ 			send({"type":"decision", "id":request_id, "telemetry":latest_telemetry})
++		elif float(latest_telemetry.get("threat",{}).get("level",0))>0 and pending_id<0 and escape_pending<0 and now()-escape_request_time>=0.65:
++			request_id += 1
++			escape_pending = request_id
++			escape_request_time = now()
++			send({"type":"escape","id":request_id,"telemetry":latest_telemetry})
+--- a/game/drone.gd
++++ b/game/drone.gd
+@@ -25,7 +25,8 @@
+ var last_seen_until := -1.0
+ var dart := Vector3.ZERO
+ var dart_until := 0.0
+-var flight_rng := RandomNumberGenerator.new()
++var flight_rng := RandomNumberGenerator.new()
++var dodge_velocity := Vector3.ZERO
+ const CONTACT_DISTANCE := 0.6
+ # Playtest tuning; scales engineering motion, not neural activity.
+ @export_range(0.25,1.0,0.05) var flight_speed_scale := 0.8
+@@ -104,7 +105,8 @@
+ 		buzz.stop()
+ 		buzz.stream = null
+ 
+-func reset_body() -> void:
++func reset_body() -> void:
++	dodge_velocity = Vector3.ZERO
+ 	position = Vector3(0.7,1.75,0.4)
+ 	gaze = (player.position+Vector3.UP*1.2-position).normalized()
+ 	velocity = Vector3.ZERO
+@@ -126,7 +128,8 @@
+ 		active = false
+ 		defeated.emit()
+ 
+-func _physics_process(delta: float) -> void:
++func _physics_process(delta: float) -> void:
++	dodge_velocity = Vector3.ZERO
+ 	if not active: return
+ 	clock += delta
+ 	buzz.pitch_scale = move_toward(buzz.pitch_scale,0.94 + minf(velocity.length(),8.0)*0.035,delta*2.5)
+@@ -172,7 +175,17 @@
+ 	# Slow only at a remembered point; never reverse away from a visible target.
+ 	if tracking: desired*=clampf(relative.length(),0.0,1.0)
+ 	else: desired*=0.65
+-	desired += gaze.cross(Vector3.UP)*(lateral*0.65+dart.x)+Vector3.UP*(climb+dart.y)+gaze*dart.z+avoided
++	desired += gaze.cross(Vector3.UP)*(lateral*0.65+dart.x)+Vector3.UP*(climb+dart.y)+gaze*dart.z+avoided
++	# Fresh DN activity only; no random fallback, no damage immunity or teleportation.
++	var escape: Dictionary = director.escape_signal
++	var threat := preload("res://threat_sensor.gd").sample(self,player)
++	if director.running and director.now()<director.escape_valid_until and float(threat.level)>0 and escape.get("source","")=="full_graph_dnp":
++		var strength := clampf(float(escape.get("strength",0)),0,1)
++		var side := clampf(float(escape.get("lateral",0)),-1,1)
++		var up := clampf(float(escape.get("vertical",0)),-1,1)
++		if is_finite(strength) and is_finite(side) and is_finite(up):
++			dodge_velocity = (gaze.cross(Vector3.UP)*side+Vector3.UP*up).limit_length(1)*strength*7
++			desired = desired.lerp(dodge_velocity+avoided,strength*0.85)
+ 	if position.y<0.7: desired.y=maxf(desired.y,1.5)
+ 	if position.y>2.7: desired.y=minf(desired.y,-1.5)
+ 	velocity=velocity.move_toward(desired.limit_length(8.0)*flight_speed_scale,delta*24*flight_speed_scale)
+--- a/game/player.gd
++++ b/game/player.gd
+@@ -26,6 +26,7 @@
+ var fire_ready := 0.0
+ 
+ func reset_motion() -> void:
++	last_shot_time = -100.0
+ 	# Key-up can be lost outside the window, including while a menu is open.
+ 	for key_code in [KEY_W,KEY_A,KEY_S,KEY_D]:
+ 		var released := InputEventKey.new()
+@@ -51,11 +52,14 @@
+ 		active = false
+ 		defeated.emit()
+ 
++var last_shot_time := -100.0
++
+ func fire() -> void:
+ 	if not active: return
+ 	var now := Time.get_ticks_msec()/1000.0
+ 	if now < fire_ready: return
+ 	fire_ready = now + fire_cooldown
++	last_shot_time = now
+ 	weapon_view.shoot()
+ 	var origin := camera.global_position
+ 	var target := origin - camera.global_basis.z * weapon_range
+--- a/game/main.gd
++++ b/game/main.gd
+@@ -696,6 +696,7 @@
+ 	sound_rng.seed = director.seed_value
+ 	last_sound = -1
+ 	director.start_session()
++	director.latest_telemetry = {}
+ 	menu.visible = false
+ 	hud.visible = true
+ 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if touch_mode else Input.MOUSE_MODE_CAPTURED
+@@ -714,6 +715,7 @@
+ 	start_button.grab_focus()
+ 
+ func resume_game() -> void:
++	director.latest_telemetry = {}
+ 	if OS.has_feature("web") and not director.connected:
+ 		director.connect_requested = true
+ 		return
+@@ -758,6 +760,7 @@
+ 	footsteps.stop()
+ 	ambience.stream = null
+ 	footsteps.stream = null
++	fly.buzz.stream = null
+ 	var deadline := Time.get_ticks_msec()+1500
+ 	while director.ending and director.connected and Time.get_ticks_msec()<deadline:
+ 		await get_tree().process_frame
+@@ -872,6 +875,7 @@
+ 		elapsed += delta
+ 		director.latest_telemetry = player.telemetry()
+ 		director.latest_telemetry["vision"] = fly.sight
++		director.latest_telemetry["threat"] = preload("res://threat_sensor.gd").sample(fly,player)
+ 		director.latest_telemetry["fly"] = {"position":[fly.position.x,fly.position.y,fly.position.z],"sees_player":fly.visible_player}
+ 		for light in room_lights:
+ 			var base: float = light.get_meta("base_energy")
+@@ -1110,7 +1114,7 @@
+ 	sorted.sort()
+ 	var sum := 0.0
+ 	for v in sorted: sum+=v
+-	var result := {"passed":passed,"failure":failure,"checks":smoke_checks,"renderer":RenderingServer.get_video_adapter_name(),"display":DisplayServer.get_name(),"viewport":str(get_viewport().get_visible_rect().size),"frames":sorted.size(),"elapsed_seconds":elapsed,"mean_fps":1000.0/(sum/maxi(1,sorted.size())),"godot_version":Engine.get_version_info(),"last_neural":director.neural,"mode":director.mode,"headless":DisplayServer.get_name()=="headless"}
++	var result := {"passed":passed,"failure":failure,"checks":smoke_checks,"renderer":RenderingServer.get_video_adapter_name(),"display":DisplayServer.get_name(),"viewport":str(get_viewport().get_visible_rect().size),"frames":sorted.size(),"elapsed_seconds":elapsed,"mean_fps":1000.0*sorted.size()/sum if sum>0 else null,"godot_version":Engine.get_version_info(),"last_neural":director.neural,"mode":director.mode,"headless":DisplayServer.get_name()=="headless"}
+ 	result["round_outcome"] = round_outcome
+ 	if not sorted.is_empty():
+ 		result["frame_ms_p50"] = sorted[int(sorted.size()*0.5)]
+@@ -1119,7 +1123,7 @@
+ 	if not brain_view_frame_times.is_empty():
+ 		var total := 0.0
+ 		for ms in brain_view_frame_times: total+=ms
+-		result["brain_view_mean_fps"]=1000.0/(total/brain_view_frame_times.size())
++		result["brain_view_mean_fps"]=1000.0*brain_view_frame_times.size()/total if total>0 else null
+ 		result["brain_view_frames"]=brain_view_frame_times.size()
+ 	var file := FileAccess.open(evidence_dir+("/game-benchmark.json" if benchmark else "/game-smoke.json"),FileAccess.WRITE)
+ 	file.store_string(JSON.stringify(result,"  "))
+--- a/STATUS.md
++++ b/STATUS.md
+@@ -12,7 +12,19 @@
+ 
+ ## 当前阶段
+ 
+-P0/P1/P2 计划功能已完成。**P2 战斗主线、自主贴近、Drone 外观/显示命名已完成并通过真实后端 smoke**：射线击杀 → won；默认出生点自主物理接触 → lost；菜单、重开、结果持久化已接通。试玩反馈已落实：Drone 降速 20%，枪模和开火动画获用户认可；用户现已确认单发伤害为当前满血的 15%（固定 15 点），作为当前难度参数。此确认不是新增自动测试或再次试玩的记录。P3 未开始，按用户要求本次仅更新状态，不推进 P3。旧 Python 测试兼容问题及退出资源警告仍为技术待办。先看下面“试玩反馈：单发伤害 15（最新入口）”，历史交接仅供背景参考。
++P0/P1/P2 已完成，单发固定 15 点伤害、Drone 0.8 速度倍率保持不变。按用户最新“持续推进”要求，**P3 真实 threat→全图 LC4/LPLC2→DNp01/DNp03→物理 dodge 管线已完成并通过整套回归及真实 smoke**。旧“本次只更新状态、不推进 P3”是前次会话约束，不是当前进度。先看下一节；旧条目仅作历史记录。
++
++## 2026-09-23 P3 持续推进（最新入口，已验证）
++
++- `game/threat_sensor.gd`：以可见射线附近的瞄准和已接受开火产生 level/bearing，遮挡、背后、超射程、远离射线均无威胁。Hitscan 仍即时伤害，闪避针对预瞄和后续攻击，不伪造子弹飞行时间或无敌帧。
++- `brain/escape.py` + `Connectome.step(values, threat=None)`：使用 annotation 的真实 somaSide/ID，LC4 126、LPLC2 185、DNp01/DNp03 各 2 个；输入直接注入 LC4/LPLC2，经过原有完整 166,700 神经元/25.5M 边、24 次迭代后读 DN。输入编码、signed-rate 动力学、DN→运动映射均为工程模型，不声称复现视网膜 looming 或生物飞行动力学。
++- 独立 `escape` 请求绕开旧 scare 2–5 秒冷却；每个客户端仍串行使用自己的全图神经状态。客户端单个在途计算、威胁请求间隔 0.65 s、从发出请求起有效期 0.85 s，后端完成后冷却 0.25 s。暂停/断线/重开/过期/错 ID 清理或拒绝读出；无神经输出不使用随机替代。
++- `drone.gd` 将真实 DN 双侧差读出接入期望速度，保留限速 6.4 m/s、加速度 19.2 m/s²、物理碰撞和接触结算。原有 dart 是追逐背景扰动，不是新增的神经闪避。
++- 已验证：6 项真实全图测试，直连边切除使逃逸强度 1.0→0.088；左右输入产生相反 DN 和运动方向。20 项离线 sensor/physics 检查；真实 Python→WebSocket→生产 Godot 客户端左右闪避均通过（10 条 Godot 断言，RTT 约 350–410 ms）。迟到/错 ID/暂停在途回复测试已通过。
++- 技术待办：统一测试用 Godot 路径，修复 public 测试终止 worker 早于断连持久化的竞争及 Windows UTF-8 日志读取；反馈测试冻结 Drone 运动以专测 reward 而非接触死亡；`test.ps1` 每条命令检查退出码，加入 P2/P3 用例与可选 `-SkipSmoke`。移动端 320 px 宽反馈文字与按钮重叠已修复，54 项通过。快速结束回合时的零帧 FPS 报告现在写 JSON null，不再写非法 inf；新增 2 项报告测试。
++- 最终统一入口 `powershell -NoProfile -ExecutionPolicy Bypass -File test.ps1 -SkipSmoke`：退出 0，21 项 Python（含真实客户端 10 条断言）+ 282 项独立 Godot 检查通过。独立端口/口令/学习目录真实 smoke：40 项 CHECK，通过、退出 0、合法 JSON，`reports/p3-neural/game-smoke.json`。无 FPS 样本时为 null，不将其称作性能达标证据。
++- 证据目录 `reports/p3-neural/`：original/modified、SHA256 manifest、changes.patch、verification.json、rollback.py；补丁应用及回滚已在隔离目录运行并逐文件核对字节。verification 保留历史失败，最终以 test-ps1 和 modified-isolated-smoke 为准。退出 AudioStreamWAV/Playback 警告尚未解决，不宣称干净退出。未关闭用户进程；未提交 git。
++- 下一步：P4 视听反馈。人工操作手感尚待试玩，不以自动化测试代替。
+ 
+ ## 环境（Windows 原生，非 WSL）
+ 
+@@ -40,7 +52,7 @@
+ - [x] P0: `brain.server` 后端 + Godot headless import 均验证通过（细节见下方"环境跑通记录"），完整 in-game 手动试玩仍未做（P0 剩余项）
+ - [x] P1: 写 `docs/ARCHITECTURE_NOTES.md`（已完成，含完整数据流图 + 真实神经 vs 工程规则的区分 + P3 dodge 设计的架构含义）
+ - [x] P2: Drone 改造（drone.gd / 四旋翼模型）+ 玩家武器（raycast hitscan / 枪模）+ HP + win/lose；试玩反馈已落实，用户确认单发 15 点伤害
+-- [ ] P3: Threat → neural escape → dodge 双层管线（Stage A 先搭接口，Stage B 接真实神经信号）
++- [x] P3: Threat → neural escape → dodge 双层管线，真实全图/局部消融/生产客户端/战斗 smoke 已验证
+ - [ ] P4: 视觉/音效打磨
+ 
+ ## P3 关键调研发现（已确认，非猜测）
+--- a/docs/ARCHITECTURE_NOTES.md
++++ b/docs/ARCHITECTURE_NOTES.md
+@@ -1,4 +1,20 @@
+ # FLYFEAR / FlyBrain Arena — Architecture Notes
++
++## P3 当前实现（2026-09-23；下文原内容为 P1 历史基线）
++
++`player` 接受开火 → `last_shot_time`；`ThreatSensor.sample(drone, player)` 检查射程、瞄准射线距离及世界遮挡，产生独立的 `{level:0..1,bearing:-1..1}`。没有模拟子弹运动；即时伤害规则不变。威胁可由预瞄产生，因此反应针对正在形成/持续的攻击而不是撤销命中。
++
++`main` 每帧更新 threat，`director` 有威胁时最多每 0.65 s 提交一个 escape 请求；与普通 decision 共享一个在途计算槽，不在每帧重跑全图。server 每个会话串行计算，escape 不选 scare、不消耗其 budget、不更新 reward；所有客户端共享只读权重但各有独立 state。普通 decision 仍保持原冷却。
++
++`Connectome.step(values, threat=None)` 保持旧调用兼容。`EscapePathway` 从本地 annotation/ids 建立 LC4/LPLC2 左右输入组和 DNp01/DNp03 左右输出组；与原来 R1-R6 drive 相加，通过同一次完整 W@state、24 迭代传播。DN 从未被直接注入。返回完整 neural（原 output/readout/view_activity + escape），所以追逐、脑视图和闪避使用同一状态。未重建/替换数据文件。
++
++逃逸读出：左右半球 DN 正活动和→strength；右−左→lateral；DNp03−DNp01→vertical。这是明示工程读出，不把胞体侧别误称为已验证生物运动坐标。当前 full-graph 实验左右输入可翻转 lateral；垂直偏向向下是本模型/读出的观察，不声称完整三维生物行为。背景追逐的旧随机 dart 不计入神经逃逸证据。
++
++客户端只接受匹配 ID、运行中、请求年龄≤0.85 s 的回复，信号有效期基于原请求时间而非新请求或到达时间。暂停、结束、重连清除；物理层还要求连接新鲜、当前可见威胁和 `source=full_graph_dnp`，否则零 dodge。通过速度/加速度限制及 move_and_slide，没有位移瞬移或免伤。
++
++验证：`tests/test_escape.py`（真实群组和连接、左右输入、局部边消融、无输入、重置、非法值）、`tests/escape.gd`（传感/限速/遮挡/生命周期）、`tests/test_escape_socket.py` + `escape_live.gd`（真实服务和生产客户端）、`tests/test_client.py` + `escape_deadline.gd`（合成延迟只测协议，不当作神经证据）。实现基于本地数据实测，不新增未经外部验证的生物学文献结论。
++
++---
+ 
+ 本文档记录从代码通读中确认的架构事实（读 `README.md`、`brain/connectome.py`、`brain/director.py`、`brain/server.py`、`game/director.gd`、`game/fly.gd`、`game/player.gd` 得出）。所有结论都标注来源文件行号，没有猜测。
+ 
+--- /dev/null
++++ b/brain/escape.py
+@@ -0,0 +1,64 @@
++"""Anatomical escape populations; sensory encoding and motor decoding are engineered.
++
++Input starts at LC4/LPLC2, NOT at a simulated retina/looming detector.
++All propagation is performed by the existing full-graph signed-rate solver.
++"""
++import math
++
++import numpy as np
++import pyarrow as pa
++import pyarrow.compute as pc
++import pyarrow.feather as feather
++
++
++def threat_input(value=None):
++    if value is None:
++        return 0., 0.
++    if not isinstance(value, dict):
++        raise ValueError('Threat must be an object')
++    result = []
++    for key, low, high in [('level', 0, 1), ('bearing', -1, 1)]:
++        v = value.get(key, 0)
++        if type(v) not in (int, float) or not math.isfinite(v) or not low <= v <= high:
++            raise ValueError('Invalid threat ' + key)
++        result.append(float(v))
++    return tuple(result)
++
++
++class EscapePathway:
++    TYPES = ('LC4', 'LPLC2', 'DNp01', 'DNp03')
++
++    def __init__(self, directory, ids):
++        table = feather.read_table(directory / 'annotations.feather', columns=['bodyId', 'type', 'somaSide'])
++        table = table.filter(pc.is_in(table['type'], value_set=pa.array(self.TYPES)))
++        data = table.to_pydict()
++        self.groups = {}
++        for cell in self.TYPES:
++            for side in ('L', 'R'):
++                bodies = np.asarray([b for b, t, s in zip(data['bodyId'], data['type'], data['somaSide'])
++                                     if t == cell and s == side], dtype=np.int64)
++                indices = np.searchsorted(ids, bodies)
++                if not len(bodies) or np.any(indices >= len(ids)) or not np.array_equal(ids[indices], bodies):
++                    raise ValueError('Missing escape population: ' + cell + side)
++                self.groups[cell + side] = indices
++        self.info = {'input_types': ['LC4', 'LPLC2'], 'output_types': ['DNp01', 'DNp03'],
++                     'body_ids': {k: [str(ids[i]) for i in v] for k, v in self.groups.items()},
++                     'engineering_encoding': True, 'engineering_motor_readout': True,
++                     'retinal_looming_simulated': False}
++
++    def inject(self, drive, threat):
++        level, bearing = threat_input(threat)
++        for cell in ('LC4', 'LPLC2'):
++            for side, sign in [('L', -1), ('R', 1)]:
++                drive[self.groups[cell + side]] += level * (1 + sign * bearing) * .5
++
++    def read(self, state):
++        raw = {key: float(state[group].mean()) for key, group in self.groups.items() if key.startswith('DN')}
++        # Soma side is real metadata; interpreting bilateral contrast as a yaw force is engineering.
++        left = max(0., raw['DNp01L']) + max(0., raw['DNp03L'])
++        right = max(0., raw['DNp01R']) + max(0., raw['DNp03R'])
++        return {'dn': raw, 'strength': float(np.clip((left + right) * 4, 0, 1)),
++                'lateral': float(np.clip((right - left) * 8, -1, 1)),
++                'vertical': float(np.clip((raw['DNp03L'] + raw['DNp03R'] -
++                                            raw['DNp01L'] - raw['DNp01R']) * 4, -1, 1)),
++                'source': 'full_graph_dnp', 'engineering_readout': True}
+--- /dev/null
++++ b/tests/test_escape.py
+@@ -0,0 +1,84 @@
++"""Full MaleCNS graph tests; no synthetic weights used for positive results."""
++import json
++import unittest
++import numpy as np
++from scipy import sparse
++from brain.connectome import Connectome, ROOT
++
++
++class EscapeTests(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        cls.brain = Connectome()
++
++    def setUp(self):
++        self.brain.reset()
++        self.assertTrue(hasattr(self.brain, 'escape'), 'Full-graph escape adapter is implemented')
++
++    def probe(self, bearing=0, level=1):
++        self.brain.reset()
++        return self.brain.step(np.zeros(8), {'level': level, 'bearing': bearing})['escape']
++
++    def test_real_population_ids_and_direct_edges(self):
++        b = self.brain
++        groups = b.escape.groups
++        self.assertEqual({t: sum(len(groups[t+s]) for s in 'LR') for t in b.escape.TYPES},
++                         {'LC4':126, 'LPLC2':185, 'DNp01':2, 'DNp03':2})
++        self.assertEqual(b.info['escape']['body_ids']['DNp01L'], ['10010'])
++        counts = sparse.load_npz(ROOT/'data/counts.npz')
++        for pre, post, edges, contacts in [('LC4','DNp01',126,6362), ('LC4','DNp03',126,2507), ('LPLC2','DNp01',185,4862)]:
++            a=np.concatenate([groups[pre+s] for s in 'LR']); z=np.concatenate([groups[post+s] for s in 'LR'])
++            sub=counts[z][:,a]
++            self.assertEqual((sub.nnz, int(sub.sum())), (edges,contacts))
++
++    def test_direction_changes_through_real_neurons(self):
++        left=self.probe(-1); right=self.probe(1)
++        self.assertLess(left['lateral'], -.5)
++        self.assertGreater(right['lateral'], .5)
++        self.assertGreater(left['dn']['DNp01L'],left['dn']['DNp01R'])
++        self.assertGreater(right['dn']['DNp01R'],right['dn']['DNp01L'])
++        self.assertGreater(min(left['strength'],right['strength']),.5)
++
++    def test_zero_input_and_no_direct_motor_drive(self):
++        self.assertEqual(self.probe(level=0)['strength'], 0)
++        drive=np.zeros_like(self.brain.state)
++        self.brain.escape.inject(drive, {'level':1,'bearing':.4})
++        for cell in ('DNp01','DNp03'):
++            for side in 'LR': self.assertTrue(np.all(drive[self.brain.escape.groups[cell+side]]==0))
++
++    def test_actual_direct_pathway_ablation(self):
++        b=self.brain; normal=self.probe(-1)
++        original=b.weights
++        # Ablate only real LC4/LPLC2 -> DNp01/DNp03 edges, retaining the full graph.
++        rows=np.concatenate([v for k,v in b.escape.groups.items() if k.startswith('DN')])
++        columns=np.concatenate([v for k,v in b.escape.groups.items() if not k.startswith('DN')])
++        b.weights=original.copy()
++        for row in rows:
++            lo,hi=b.weights.indptr[row:row+2]
++            b.weights.data[lo:hi][np.isin(b.weights.indices[lo:hi],columns)]=0
++        try:
++            ablated=self.probe(-1)
++            self.assertLess(ablated['strength'],normal['strength']*.2)
++            print('DIRECT_EDGE_ABLATION',json.dumps({'normal':normal,'ablated':ablated}),flush=True)
++        finally: b.weights=original;b.reset()
++
++    def test_invalid_threat_preserves_state(self):
++        b=self.brain
++        for threat in [[], True, {'level':True}, {'level':float('nan')}, {'level':1.01}, {'level':-1},
++                       {'bearing':float('inf')}, {'bearing':2}, {'bearing':'0'}]:
++            with self.subTest(threat=threat):
++                before=b.state.copy()
++                with self.assertRaises(ValueError): b.step(np.zeros(8),threat)
++                np.testing.assert_array_equal(before,b.state)
++
++    def test_reset_reproducibility_and_legacy_interface(self):
++        a=self.probe(.5)
++        self.probe(-1)
++        self.assertEqual(a,self.probe(.5))
++        b=self.brain;b.reset(); legacy=b.step(np.zeros(8));b.reset(); quiet=b.step(np.zeros(8),{'level':0})
++        self.assertEqual(legacy['output'],quiet['output'])
++        self.assertEqual(legacy['readout'],quiet['readout'])
++        self.assertEqual(legacy['escape'],quiet['escape'])
++
++
++if __name__=='__main__': unittest.main()
+--- /dev/null
++++ b/tests/escape.gd
+@@ -0,0 +1,98 @@
++extends SceneTree
++
++# Offline motor/sensor fixture. Real anatomy and lesions: test_escape.py.
++var failures: Array[String] = []
++const Sensor = preload("res://threat_sensor.gd")
++
++func verify(ok: bool, label: String) -> void:
++	print(("PASS: " if ok else "FAIL: ")+label)
++	if not ok: failures.append(label)
++
++func _initialize() -> void:
++	run_checks.call_deferred()
++
++func run_checks() -> void:
++	var game = load("res://main.tscn").instantiate()
++	game.settings_path = ""
++	root.add_child(game)
++	game.set_process(false)
++	game.director.set_process(false)
++	game.fly.set_physics_process(false)
++	game.player.set_physics_process(false)
++	game.start_game()
++	game.director.has_round = false
++	game.player.position = Vector3(0,0,4)
++	game.player.rotation = Vector3.ZERO
++	game.player.camera.rotation = Vector3.ZERO
++	game.fly.position = Vector3(0,1.65,0)
++	game.fly.gaze = Vector3.BACK
++	await physics_frame
++	await physics_frame
++	var aim := Sensor.sample(game.fly,game.player)
++	verify(aim.level>0 and aim.level<1,"Aim anticipates hitscan without invented projectile travel")
++	game.player.fire()
++	verify(game.fly.hp==85,"Hitscan damage remains immediate before any neural reply")
++	verify(Sensor.sample(game.fly,game.player).level>aim.level,"Accepted shot increases local threat")
++	game.player.fire()
++	verify(game.fly.hp==85,"Cooldown still prevents a second shot")
++	game.player.reset_motion()
++	verify(game.player.last_shot_time<0,"Restart clears shot history")
++	game.fly.position.x = -.7
++	var a := Sensor.sample(game.fly,game.player)
++	game.fly.position.x = .7
++	var b := Sensor.sample(game.fly,game.player)
++	verify(a.bearing*b.bearing<0,"Near-ray offsets encode opposite hemispheres")
++	game.fly.position.x = 3
++	verify(Sensor.sample(game.fly,game.player).level==0,"Far miss is not a threat")
++	game.fly.position = Vector3(0,1.65,6)
++	verify(Sensor.sample(game.fly,game.player).level==0,"Target behind muzzle is not a threat")
++	game.fly.position = Vector3(0,1.65,-30)
++	verify(Sensor.sample(game.fly,game.player).level==0,"Out-of-range target is not a threat")
++	game.fly.position = Vector3(0,1.65,0)
++	var wall := StaticBody3D.new()
++	var shape := CollisionShape3D.new()
++	var box := BoxShape3D.new()
++	box.size = Vector3(2,3,.1)
++	shape.shape=box
++	wall.add_child(shape)
++	game.add_child(wall)
++	wall.position=Vector3(0,1.5,2)
++	await physics_frame
++	await physics_frame
++	verify(Sensor.sample(game.fly,game.player).level==0,"Thin wall occludes threat independent of pursuit sight")
++	wall.queue_free()
++	await physics_frame
++	await physics_frame
++	game.director.connected=true
++	game.director.running=true
++	game.director.neural={"output":[.16,.06,.08,.04]}
++	game.director.last_neural_time=game.director.now()
++	var vectors: Array[Vector3]=[]
++	for sign_value in [-1,1]:
++		game.fly.position=Vector3(0,1.65,0)
++		game.fly.gaze=Vector3.BACK
++		game.fly.velocity=Vector3.ZERO
++		game.director.escape_signal={"source":"full_graph_dnp","strength":1,"lateral":sign_value,"vertical":0}
++		game.director.escape_valid_until=game.director.now()+.5
++		game.fly._physics_process(1.0/60)
++		vectors.append(game.fly.dodge_velocity)
++		verify(game.fly.velocity.length()<=6.40001,"Dodge retains speed cap")
++		verify(game.fly.velocity.length()<=19.2/60+.0001,"Dodge retains acceleration cap")
++	verify(vectors[0].dot(vectors[1])<0,"Opposite neural readouts produce opposite dodge forces")
++	game.director.escape_valid_until=game.director.now()-1
++	game.fly._physics_process(.016)
++	verify(game.fly.dodge_velocity==Vector3.ZERO,"Expired escape signal contributes zero force")
++	game.director.escape_valid_until=game.director.now()+1
++	game.director.escape_signal.strength=0
++	game.fly._physics_process(.016)
++	verify(game.fly.dodge_velocity==Vector3.ZERO,"Zero DN strength has no random fallback")
++	game.director.escape_signal.strength=1
++	game.director.connected=false
++	game.fly._physics_process(.016)
++	verify(game.fly.dodge_velocity==Vector3.ZERO and game.fly.velocity==Vector3.ZERO,"Disconnection stops pursuit and dodge")
++	game.director.pause_session()
++	verify(game.director.escape_signal.is_empty() and game.director.escape_pending<0,"Pause invalidates pending escape and old signals")
++	game.director.start_session()
++	verify(game.director.escape_valid_until<0,"New round rejects previous escape validity")
++	game.director.has_round=false
++	await game.quit_game(0 if failures.is_empty() else 1)
+--- /dev/null
++++ b/tests/test_escape_socket.py
+@@ -0,0 +1,88 @@
++﻿"""Real backend and production Godot client. No user's processes or memory touched."""
++import asyncio
++import json
++import os
++from pathlib import Path
++import secrets
++import socket
++import subprocess
++import sys
++import tempfile
++import time
++import unittest
++
++from websockets.asyncio.client import connect
++from brain.connectome import ROOT
++from tools.godot_path import godot_path
++
++
++class EscapeSocketTests(unittest.IsolatedAsyncioTestCase):
++    async def test_live_protocol_and_godot(self):
++        with socket.socket() as sock:
++            sock.bind(('127.0.0.1',0)); port=sock.getsockname()[1]
++        with tempfile.TemporaryDirectory() as tmp:
++            token=secrets.token_hex(24)
++            env={**os.environ,'FLYFEAR_TOKEN':token,'FLYFEAR_PORT':str(port)}
++            with open(Path(tmp)/'server.log','w') as output:
++                proc=subprocess.Popen([sys.executable,'-m','brain.server','--port',str(port),'--logs',tmp],
++                                      cwd=ROOT,env=env,stdout=output,stderr=output)
++                async def receive(ws,kind):
++                    for _ in range(20):
++                        message=json.loads(await asyncio.wait_for(ws.recv(),10))
++                        if message.get('type')==kind:return message
++                    self.fail('Missing '+kind)
++                async def send(ws,kind,**fields):await ws.send(json.dumps({'type':kind,**fields}))
++                try:
++                    uri=f'ws://127.0.0.1:{port}/{token}'
++                    for _ in range(200):
++                        try: ws=await connect(uri,proxy=None);break
++                        except OSError:
++                            if proc.poll() is not None:self.fail((Path(tmp)/'server.log').read_text())
++                            await asyncio.sleep(.1)
++                    else:self.fail('Backend readiness timeout')
++                    async with ws:
++                        await receive(ws,'hello')
++                        t={'vision':{},'threat':{'level':1,'bearing':-1}}
++                        await send(ws,'escape',id=1,telemetry=t)
++                        self.assertNotIn('neural',await receive(ws,'escape'))
++                        await send(ws,'start',mode='learn',seed=42)
++                        await receive(ws,'started')
++                        start=time.perf_counter()
++                        await send(ws,'escape',id=2,telemetry=t)
++                        result=await receive(ws,'escape')
++                        self.assertEqual(result['id'],2)
++                        self.assertLess(result['neural']['escape']['lateral'],-.5)
++                        print('ESCAPE_SOCKET_RTT_MS',round((time.perf_counter()-start)*1000,2),flush=True)
++                        await send(ws,'escape',id=3,telemetry=t)
++                        self.assertEqual((await receive(ws,'escape'))['reason'],'cooldown')
++                        await send(ws,'escape',id=True,telemetry=t)
++                        await receive(ws,'error')
++                        await send(ws,'escape',id=4,telemetry={'threat':{'level':float('nan')}})
++                        await receive(ws,'error')
++                        await send(ws,'pause')
++                        await send(ws,'escape',id=5,telemetry=t)
++                        self.assertEqual((await receive(ws,'escape'))['reason'],'inactive')
++                        await send(ws,'resume')
++                        await asyncio.sleep(.3)
++                        t['threat']['bearing']=1
++                        await send(ws,'escape',id=6,telemetry=t)
++                        self.assertGreater((await receive(ws,'escape'))['neural']['escape']['lateral'],.5)
++                        await send(ws,'finish',outcome='quit')
++                        end=await receive(ws,'finished')
++                        self.assertEqual(end['memory']['updates'],0)
++                        self.assertEqual(end['memory']['recent'][-1]['events'],0)
++                    await asyncio.sleep(.3)
++                    exe=godot_path()
++                    result=await asyncio.to_thread(subprocess.run,[str(exe),'--headless','--path','game','--script','../tests/escape_live.gd'],
++                                                   cwd=ROOT,env=env,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=45)
++                    print(result.stdout,flush=True)
++                    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
++                    self.assertNotIn('SCRIPT ERROR',result.stderr)
++                    self.assertIn('LIVE_ESCAPE_RESULTS',result.stdout)
++                finally:
++                    proc.terminate()
++                    await asyncio.to_thread(proc.wait,10)
++
++
++if __name__=='__main__': unittest.main()
++
+--- /dev/null
++++ b/game/threat_sensor.gd
+@@ -0,0 +1,22 @@
++extends RefCounted
++
++# Engineered pre-looming detector. No claims of retinal or bullet-flight simulation.
++# Hitscan damage happens immediately; this supports anticipation and follow-up evasion.
++static func sample(drone: CharacterBody3D, player: CharacterBody3D) -> Dictionary:
++	var quiet := {"level":0.0,"bearing":0.0}
++	if not drone.active or not player.active: return quiet
++	var origin: Vector3 = player.camera.global_position
++	var relative := drone.global_position-origin
++	var aim: Vector3 = -player.camera.global_basis.z
++	var along := relative.dot(aim)
++	if along <= 0 or along > player.weapon_range: return quiet
++	var ray := PhysicsRayQueryParameters3D.create(origin,drone.global_position,1)
++	ray.exclude = [player.get_rid(),drone.get_rid()]
++	if not drone.get_world_3d().direct_space_state.intersect_ray(ray).is_empty(): return quiet
++	var offset := relative-aim*along
++	var proximity := clampf(1.0-offset.length()/1.5,0,1)
++	if proximity <= 0: return quiet
++	var shot: bool = Time.get_ticks_msec()/1000.0-player.last_shot_time < 0.55
++	var right: Vector3 = drone.gaze.cross(Vector3.UP).normalized()
++	return {"level":proximity*(1.0 if shot else 0.55),
++		"bearing":clampf(offset.dot(right)/0.65,-1,1)}
+--- /dev/null
++++ b/tests/escape_live.gd
+@@ -0,0 +1,55 @@
++extends SceneTree
++
++# Live production WebSocket client + full MaleCNS backend, isolated by Python runner.
++var failures: Array[String] = []
++const Sensor = preload("res://threat_sensor.gd")
++
++func verify(ok: bool, label: String) -> void:
++	print(("PASS: " if ok else "FAIL: ")+label)
++	if not ok: failures.append(label)
++
++func _initialize() -> void:
++	run_checks.call_deferred()
++
++func run_checks() -> void:
++	var game = load("res://main.tscn").instantiate()
++	game.settings_path=""
++	root.add_child(game)
++	game.set_process(false)
++	game.player.set_physics_process(false)
++	game.fly.set_physics_process(false)
++	var deadline := Time.get_ticks_msec()+15000
++	while game.director.info.is_empty() and Time.get_ticks_msec()<deadline: await process_frame
++	verify(game.director.info.get("neurons",0)==166700,"Live hello confirms full graph")
++	if game.director.info.is_empty():
++		await game.quit_game(1)
++		return
++	var results := []
++	for x in [-.7,.7]:
++		game.playing=false
++		game.start_game()
++		game.player.position=Vector3(0,0,4)
++		game.player.rotation=Vector3.ZERO
++		game.player.camera.rotation=Vector3.ZERO
++		game.fly.position=Vector3(x,1.65,0)
++		game.fly.gaze=Vector3.BACK
++		await physics_frame
++		var threat := Sensor.sample(game.fly,game.player)
++		game.director.latest_telemetry={"vision":{},"threat":threat}
++		deadline=Time.get_ticks_msec()+7000
++		while game.director.escape_signal.is_empty() and Time.get_ticks_msec()<deadline: await process_frame
++		var escape: Dictionary=game.director.escape_signal.duplicate(true)
++		verify(escape.get("source","")=="full_graph_dnp","Production client receives anatomical escape output")
++		verify(float(escape.get("lateral",0))*float(threat.bearing)>0,"Live DN direction follows hemisphere, not fixed motor side")
++		game.fly._physics_process(1.0/60)
++		verify(game.fly.dodge_velocity.length()>.1,"Live reply drives an actual physics step")
++		results.append({"threat":threat,"escape":escape,"dodge":str(game.fly.dodge_velocity),"rtt_ms":(game.director.escape_received_time-game.director.escape_request_time)*1000})
++		game.director.pause_session()
++		game.fly._physics_process(1.0/60)
++		verify(game.fly.dodge_velocity==Vector3.ZERO,"Pause immediately removes live dodge force")
++		await create_timer(.3).timeout
++	verify(results.size()==2,"Both geometry directions measured")
++	print("LIVE_ESCAPE_RESULTS "+JSON.stringify(results))
++	game.director.finish_session("quit")
++	await create_timer(.2).timeout
++	await game.quit_game(0 if failures.is_empty() else 1)
+--- /dev/null
++++ b/tests/escape_deadline.gd
+@@ -0,0 +1,38 @@
++extends SceneTree
++
++func _initialize() -> void:
++	run_test.call_deferred()
++
++func run_test() -> void:
++	var director = load("res://director.gd").new()
++	root.add_child(director)
++	var deadline := Time.get_ticks_msec()+5000
++	while director.info.is_empty() and Time.get_ticks_msec()<deadline: await process_frame
++	if director.info.is_empty(): quit(1); return
++	director.interval=5
++	director.latest_telemetry={"threat":{"level":1,"bearing":1}}
++	director.start_session()
++	deadline=Time.get_ticks_msec()+3000
++	while director.escape_pending<0 and Time.get_ticks_msec()<deadline: await process_frame
++	if director.escape_pending<0: quit(2); return
++	director.latest_telemetry={}
++	var frames := 0
++	deadline=Time.get_ticks_msec()+1250
++	while Time.get_ticks_msec()<deadline:
++		await process_frame
++		frames+=1
++		if not director.escape_signal.is_empty(): quit(3); return
++	if frames<30: quit(4); return
++	print("PASS: mismatched and late escape replies ignored; frames "+str(frames))
++	director.latest_telemetry={"threat":{"level":1,"bearing":-1}}
++	deadline=Time.get_ticks_msec()+2000
++	while director.escape_pending<0 and Time.get_ticks_msec()<deadline: await process_frame
++	if director.escape_pending<0: quit(5); return
++	director.pause_session()
++	await create_timer(.4).timeout
++	if not director.escape_signal.is_empty() or director.escape_pending>=0: quit(6); return
++	print("PASS: reply in flight at pause never becomes a dodge")
++	director.socket.close()
++	director.queue_free()
++	await process_frame
++	quit(0)
+--- /dev/null
++++ b/tools/godot_path.py
+@@ -0,0 +1,25 @@
++"""Resolve a native test engine without macOS-only hardcoded launch paths."""
++import os
++from pathlib import Path
++import shutil
++import sys
++
++ROOT = Path(__file__).resolve().parents[1]
++
++
++def godot_path():
++    override = os.environ.get('GODOT_BIN')
++    if override:
++        path = Path(override)
++        if path.is_file(): return path.resolve()
++        executable = shutil.which(override)
++        if executable: return Path(executable)
++        raise FileNotFoundError('GODOT_BIN does not resolve to an executable')
++    names = (['Godot_v4.5.2-stable_win64_console.exe','Godot_v4.5.2-stable_win64.exe'] if sys.platform=='win32'
++             else ['Godot.app/Contents/MacOS/Godot'])
++    for name in names:
++        path=ROOT/'tools'/name
++        if path.is_file(): return path
++    installed=shutil.which('godot') or shutil.which('godot4')
++    if installed:return Path(installed)
++    raise FileNotFoundError('Install Godot or set GODOT_BIN')
+--- a/tests/test_client.py
++++ b/tests/test_client.py
+@@ -7,8 +7,37 @@
+ from websockets.asyncio.server import serve
+ from websockets.exceptions import ConnectionClosed
+ from brain.connectome import ROOT
++from tools.godot_path import godot_path
+ 
+ class ClientDeadlineTests(unittest.IsolatedAsyncioTestCase):
++    async def test_escape_deadline_and_pause(self):
++        async def slow(ws):
++            count=0
++            try:
++                await ws.send(json.dumps({'type':'hello','info':{'fixture':'synthetic deadline only'}}))
++                async for raw in ws:
++                    data=json.loads(raw)
++                    if data['type']=='start':await ws.send('{"type":"started"}')
++                    if data['type']=='escape':
++                        count+=1
++                        neural={'escape':{'source':'full_graph_dnp','strength':1,'lateral':1,'vertical':0}}
++                        await ws.send(json.dumps({'type':'escape','id':data['id']+100,'neural':neural}))
++                        await asyncio.sleep(1.05 if count==1 else .2)
++                        await ws.send(json.dumps({'type':'escape','id':data['id'],'neural':neural}))
++            except ConnectionClosed:pass
++        async with serve(slow,'127.0.0.1',0) as server:
++            port=server.sockets[0].getsockname()[1]
++            proc=await asyncio.create_subprocess_exec(str(godot_path()),'--headless','--path',str(ROOT/'game'),
++                '--script',str(ROOT/'tests/escape_deadline.gd'),
++                env={**os.environ,'FLYFEAR_PORT':str(port),'FLYFEAR_TOKEN':'test-latency-fixture'},
++                stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.STDOUT)
++            try:
++                output,_=await asyncio.wait_for(proc.communicate(),12)
++                self.assertEqual(proc.returncode,0,output.decode())
++                self.assertIn('PASS: reply in flight',output.decode())
++            finally:
++                if proc.returncode is None:proc.kill();await proc.wait()
++
+     async def test_delayed_reply_never_reaches_game(self):
+         async def slow(ws):
+             try:
+@@ -22,7 +51,7 @@
+             except ConnectionClosed: pass
+         async with serve(slow,'127.0.0.1',0) as server:
+             port=server.sockets[0].getsockname()[1]
+-            proc=await asyncio.create_subprocess_exec(str(ROOT/'tools/Godot.app/Contents/MacOS/Godot'),
++            proc=await asyncio.create_subprocess_exec(str(godot_path()),
+                 '--headless','--path',str(ROOT/'game'),'--script',str(ROOT/'tests/client.gd'),
+                 env={**os.environ,'FLYFEAR_PORT':str(port),'FLYFEAR_TOKEN':'test-latency-fixture'},
+                 stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.STDOUT)
+--- a/tests/test_socket.py
++++ b/tests/test_socket.py
+@@ -13,6 +13,7 @@
+ from websockets.asyncio.client import connect
+ from websockets.exceptions import ConnectionClosed, InvalidStatus
+ from brain.connectome import ROOT
++from tools.godot_path import godot_path
+ 
+ class SocketTests(unittest.IsolatedAsyncioTestCase):
+     async def test_real_worker(self):
+@@ -104,11 +105,11 @@
+                     with self.assertRaises(asyncio.TimeoutError):await asyncio.wait_for(ws.recv(),.25)
+                 await asyncio.sleep(.15)
+                 with (Path(tmp)/'godot-feedback.log').open('w') as game_output:
+-                    game=await asyncio.create_subprocess_exec(str(ROOT/'tools/Godot.app/Contents/MacOS/Godot'),
++                    game=await asyncio.create_subprocess_exec(str(godot_path()),
+                         '--headless','--path',str(ROOT/'game'),'--script','../tests/feedback.gd',
+                         env={**os.environ,'FLYFEAR_TOKEN':token,'FLYFEAR_PORT':str(port)},stdout=game_output,stderr=game_output)
+                     try:
+-                        self.assertEqual(await asyncio.wait_for(game.wait(),35),0,(Path(tmp)/'godot-feedback.log').read_text())
++                        self.assertEqual(await asyncio.wait_for(game.wait(),35),0,(Path(tmp)/'godot-feedback.log').read_text(encoding='utf-8'))
+                     finally:
+                         if game.returncode is None:game.terminate();await game.wait()
+                 saved=json.loads((Path(tmp)/'learning-v3.json').read_text())
+@@ -124,7 +125,7 @@
+                     await receive(ws2,'finished')
+                     proc.terminate();await asyncio.to_thread(proc.wait,5)
+                     with self.assertRaises(ConnectionClosed):await ws2.recv()
+-                lines=[json.loads(s) for f in Path(tmp).glob('*.jsonl') for s in f.read_text().splitlines()]
++                lines=[json.loads(s) for f in Path(tmp).glob('*.jsonl') for s in f.read_text(encoding='utf-8').splitlines()]
+                 self.assertTrue(any(x['type']=='decision' and 'neural' in x and 'inputs' in x for x in lines))
+                 self.assertTrue(any(x['type']=='applied' and x['id']==2 and x.get('sound_variant')==('knock' if result['action']=='steps' else None) for x in lines))
+                 self.assertTrue(any(x['type']=='applied' and x['id']==99 and x['action']=='steps' and x['sound_variant']=='knock' for x in lines))
+--- a/tests/test_public.py
++++ b/tests/test_public.py
+@@ -234,6 +234,14 @@
+                         # A confirmed event with an incomplete reaction window must not train either.
+                         await send(other, 'telemetry', telemetry=inputs[1])
+                         other.transport.abort()
++                    # Transport abort is asynchronous on Windows; wait for the durable
++                    # outcome before terminating the worker, not for an arbitrary sleep.
++                    async with asyncio.timeout(5):
++                        while True:
++                            events = [json.loads(line) for line in (directory / 'gameplay.jsonl').read_text().splitlines()]
++                            finished = {e['session'] for e in events if e['type'] == 'finished'}
++                            if set(abandoned).issubset(finished): break
++                            await asyncio.sleep(.01)
+                     self.assertEqual((directory / 'learning-v3.json').read_bytes(), saved_bytes)
+                     print(f'Disconnect during neural step: survivor RTT {elapsed * 1000:.2f} ms < 5000 ms; replacement accepted', flush=True)
+                 process.terminate()
+--- a/test.ps1
++++ b/test.ps1
+@@ -1,14 +1,20 @@
+-$ErrorActionPreference = "Stop"
+-Set-Location $PSScriptRoot
+-
+-$godotExe = (Get-ChildItem tools -Filter "Godot_v4.5.2-stable_win64.exe" | Select-Object -First 1).FullName
+-
+-& .venv\Scripts\python.exe -m unittest discover -s tests -v
+-& $godotExe --headless --path game --script ../tests/settings.gd
+-& $godotExe --headless --path game --script ../tests/gameplay.gd
+-& $godotExe --headless --path game --script ../tests/fly.gd
+-& $godotExe --headless --path game --script ../tests/brain_view.gd
+-& $godotExe --headless --path game --script ../tests/hud.gd
+-& $godotExe --headless --path game --script ../tests/mobile.gd
+-& .\run.ps1 --headless --smoke
+-Write-Host "Python ve headless oynanış testleri geçti. Görünür 1080p ölçüm: .\run.ps1 --benchmark"
++﻿param([switch]$SkipSmoke)
++$ErrorActionPreference = "Stop"
++Set-Location $PSScriptRoot
++$env:PYTHONIOENCODING = "utf-8"
++$python = Join-Path $PSScriptRoot ".venv\Scripts\python.exe"
++$godotExe = & $python -c "from tools.godot_path import godot_path; print(godot_path())"
++if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
++& $python -m unittest discover -s tests -v
++if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
++foreach ($name in @("settings", "gameplay", "fly", "pursuit", "escape", "combat_round", "weapon_view", "drone_visual", "report", "brain_view", "hud", "mobile")) {
++    $arguments = @("--headless", "--path", "game", "--script", "../tests/$name.gd")
++    if ($name -in @("fly", "pursuit")) { $arguments += @("--fixed-fps", "60") }
++    & $godotExe @arguments
++    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
++}
++if (-not $SkipSmoke) {
++    & $python tools/launch.py --headless --smoke
++    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
++}
++Write-Host "PASS: Python and headless regression suite. Smoke skipped: $SkipSmoke"
+--- a/tests/feedback.gd
++++ b/tests/feedback.gd
+@@ -7,6 +7,9 @@
+ 	var game = load("res://main.tscn").instantiate()
+ 	game.settings_path = ""
+ 	root.add_child(game)
++	# This fixture tests reward transport, not survival; keep the P2 contact win/loss
++	# controller from ending the round before the old event cooldown expires.
++	game.fly.set_physics_process(false)
+ 	game.decision_interval=2
+ 	var deadline := Time.get_ticks_msec()+12000
+ 	while game.director.info.is_empty() and Time.get_ticks_msec()<deadline: await process_frame
+--- a/tests/mobile.gd
++++ b/tests/mobile.gd
+@@ -99,6 +99,8 @@
+ 			for i in occupied.size():
+ 				readable=readable and game.get_viewport().get_visible_rect().encloses(occupied[i])
+ 				for j in range(i): readable=readable and not occupied[i].intersects(occupied[j])
++			if not readable:
++				print("Layout diagnostic: ",occupied," text=",game.feedback_text.text," visible lines=",game.feedback_text.get_visible_line_count(),"/",game.feedback_text.get_line_count())
+ 			verify(readable,"Mobile "+action+" rating text and targets fit without covering the HUD: "+str(screen))
+ 		game.director.connected=false
+ 		game.director.feedback_id=-1
+--- a/game/touch_controls.gd
++++ b/game/touch_controls.gd
+@@ -69,7 +69,10 @@
+ func _process(_delta: float) -> void:
+ 	visible = game.player.active
+ 	var can_rate: bool = game.director.feedback_id>=0 and game.director.now()<game.director.feedback_until and game.director.feedback_status.is_empty()
+-	for b in ratings: b.visible = can_rate
++	for b in ratings:
++		b.visible = can_rate
++		# Wrapped feedback on narrow portrait displays needs its full text height.
++		b.position.y = maxf(164,game.feedback_text.position.y+game.feedback_text.get_minimum_size().y+12+b.shape.size.y/2)
+ 
+ func _input(event: InputEvent) -> void:
+ 	if not game.player.active or not is_visible_in_tree(): return
+--- /dev/null
++++ b/tests/report.gd
+@@ -0,0 +1,34 @@
++extends SceneTree
++
++func _initialize() -> void:
++	run_test.call_deferred()
++
++func run_test() -> void:
++	var game=load("res://main.tscn").instantiate()
++	game.settings_path=""
++	root.add_child(game)
++	game.set_process(false)
++	game.director.set_process(false)
++	game.evidence_dir="user://report-test-"+str(OS.get_process_id())
++	DirAccess.make_dir_recursive_absolute(game.evidence_dir)
++	var path: String=game.evidence_dir+"/game-smoke.json"
++	game.frame_times.clear()
++	game.write_report(true,"")
++	var parser:=JSON.new()
++	var code:=parser.parse(FileAccess.get_file_as_string(path))
++	if code!=OK or parser.data.mean_fps!=null or parser.data.frames!=0:
++		push_error("Empty frame samples must serialize as JSON null, never inf")
++		await game.quit_game(1)
++		return
++	print("PASS: Empty timing sample is valid JSON with null FPS")
++	game.frame_times.assign([10.0,20.0])
++	game.write_report(true,"")
++	code=parser.parse(FileAccess.get_file_as_string(path))
++	if code!=OK or not is_equal_approx(float(parser.data.mean_fps),1000.0/15.0) or parser.data.frames!=2:
++		push_error("Measured frame samples must retain actual FPS")
++		await game.quit_game(1)
++		return
++	print("PASS: Nonempty sample preserves measured FPS")
++	DirAccess.remove_absolute(path)
++	DirAccess.remove_absolute(game.evidence_dir)
++	await game.quit_game()

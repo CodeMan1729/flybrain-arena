@@ -1,0 +1,110 @@
+[
+  {
+    "level": 0,
+    "bearing": 0,
+    "escape": {
+      "dn": {
+        "DNp01L": -0.0033364046830683947,
+        "DNp01R": -0.005328155122697353,
+        "DNp03L": -0.0016706277383491397,
+        "DNp03R": -0.0017593245720490813
+      },
+      "strength": 0.0,
+      "lateral": 0.0,
+      "vertical": 0.020938429981470108,
+      "source": "full_graph_dnp",
+      "engineering_readout": true
+    },
+    "latency_ms": 366.59839999998667
+  },
+  {
+    "level": 1,
+    "bearing": -1,
+    "escape": {
+      "dn": {
+        "DNp01L": 0.3734898269176483,
+        "DNp01R": -0.0009778718231245875,
+        "DNp03L": 0.20297642052173615,
+        "DNp03R": -0.006201134528964758
+      },
+      "strength": 1.0,
+      "lateral": -1.0,
+      "vertical": -0.7029466764070094,
+      "source": "full_graph_dnp",
+      "engineering_readout": true
+    },
+    "latency_ms": 356.8694999999593
+  },
+  {
+    "level": 1,
+    "bearing": 0,
+    "escape": {
+      "dn": {
+        "DNp01L": 0.25247722864151,
+        "DNp01R": 0.23518767952919006,
+        "DNp03L": 0.12594902515411377,
+        "DNp03R": 0.06124381721019745
+      },
+      "strength": 1.0,
+      "lateral": -0.6559580564498901,
+      "vertical": -1.0,
+      "source": "full_graph_dnp",
+      "engineering_readout": true
+    },
+    "latency_ms": 340.98519999997734
+  },
+  {
+    "level": 1,
+    "bearing": 1,
+    "escape": {
+      "dn": {
+        "DNp01L": 0.0025537845212966204,
+        "DNp01R": 0.3585243821144104,
+        "DNp03L": -0.007009726017713547,
+        "DNp03R": 0.10341892391443253
+      },
+      "strength": 1.0,
+      "lateral": 1.0,
+      "vertical": -1.0,
+      "source": "full_graph_dnp",
+      "engineering_readout": true
+    },
+    "latency_ms": 348.91950000002225
+  },
+  {
+    "level": 0.3,
+    "bearing": -0.5,
+    "escape": {
+      "dn": {
+        "DNp01L": 0.12444961071014404,
+        "DNp01R": 0.036407720297575,
+        "DNp03L": 0.06197037920355797,
+        "DNp03R": 0.007556653581559658
+      },
+      "strength": 0.9215374551713467,
+      "lateral": -1.0,
+      "vertical": -0.36532119289040565,
+      "source": "full_graph_dnp",
+      "engineering_readout": true
+    },
+    "latency_ms": 348.29970000004096
+  },
+  {
+    "level": 0.3,
+    "bearing": 0.5,
+    "escape": {
+      "dn": {
+        "DNp01L": 0.04217277839779854,
+        "DNp01R": 0.11306475102901459,
+        "DNp03L": 0.01840323396027088,
+        "DNp03R": 0.02969842217862606
+      },
+      "strength": 0.8133567422628403,
+      "lateral": 0.6574972867965698,
+      "vertical": -0.42854349315166473,
+      "source": "full_graph_dnp",
+      "engineering_readout": true
+    },
+    "latency_ms": 349.2942000000312
+  }
+]

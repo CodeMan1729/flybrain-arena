@@ -1,0 +1,69 @@
+--- a/game/player.gd
++++ b/game/player.gd
+@@ -21,7 +21,7 @@
+ var max_hp := 100
+ var hp := 100
+ var weapon_range := 25.0
+-var weapon_damage := 10
++var weapon_damage := 15
+ var fire_cooldown := 0.35
+ var fire_ready := 0.0
+ 
+--- a/tests/combat_round.gd
++++ b/tests/combat_round.gd
+@@ -23,10 +23,10 @@
+ 	game.fly.position = Vector3(0,1.65,0)
+ 	await physics_frame
+ 	await physics_frame
+-	for shot in 10:
++	for shot in 7:
+ 		game.player.fire_ready = 0 # Cooldown is separately covered in gameplay.gd.
+ 		game.player.fire()
+-		verify(game.fly.hp == 100-(shot+1)*10,"Hitscan HP step "+str(shot+1))
++		verify(game.fly.hp == maxi(0,100-(shot+1)*15),"Hitscan HP step "+str(shot+1))
+ 	verify(game.completed and game.round_outcome == "won" and game.menu.visible,"Defeated signal settles a win")
+ 	verify(not game.player.active and not game.fly.active and not game.director.running,"Win stops both bodies and decisions")
+ 	verify(not game.fly.buzz.playing and not game.footsteps.playing,"Win clears audio")
+--- a/tests/weapon_view.gd
++++ b/tests/weapon_view.gd
+@@ -27,11 +27,11 @@
+ 		await physics_frame
+ 		await physics_frame
+ 		game.player.fire()
+-		verify(game.fly.hp == 90 and view.recoil == 1 and view.flash.visible,"Hitscan damage plus muzzle flash and recoil")
++		verify(game.fly.hp == 85 and view.recoil == 1 and view.flash.visible,"Hitscan damage plus muzzle flash and recoil")
+ 		view._process(0.02)
+ 		var recoil: float = view.recoil
+ 		game.player.fire()
+-		verify(game.fly.hp == 90 and view.recoil == recoil,"Cooldown blocks both damage and new animation")
++		verify(game.fly.hp == 85 and view.recoil == recoil,"Cooldown blocks both damage and new animation")
+ 		view._process(0.2)
+ 		verify(view.recoil == 0 and not view.flash.visible and view.rig.position == view.REST,"Recoil and flash decay to rest")
+ 		game.player.fire_ready = 0
+--- a/STATUS.md
++++ b/STATUS.md
+@@ -12,7 +12,7 @@
+ 
+ ## 当前阶段
+ 
+-P0/P1 已完成。**P2 战斗主线、自主贴近、Drone 外观/显示命名已完成并通过真实后端 smoke**：射线击杀 → won；默认出生点自主物理接触 → lost；菜单、重开、结果持久化已接通。首次人工试玩反馈已落实：Drone 降速 20%，新增第一人称枪模与开火动画，等待重启复测和难度确认；P3 未开始。先看下面“试玩反馈：降速和枪模（最新入口）”，历史交接仅供背景参考。
++P0/P1 已完成。**P2 战斗主线、自主贴近、Drone 外观/显示命名已完成并通过真实后端 smoke**：射线击杀 → won；默认出生点自主物理接触 → lost；菜单、重开、结果持久化已接通。试玩反馈已落实：Drone 降速 20%，枪模和开火动画获用户认可，单发伤害进一步调至 15，等待难度复测；P3 未开始。先看下面“试玩反馈：单发伤害 15（最新入口）”，历史交接仅供背景参考。
+ 
+ ## 环境（Windows 原生，非 WSL）
+ 
+@@ -69,7 +69,14 @@
+ - 遇到过一次误导性报错：`asyncio.get_running_loop().add_signal_handler` 在 Windows 抛 `NotImplementedError`，但 `server.py:33` 明明已经用 `os.name!='nt'` guard 了。排查后发现是 `brain/__pycache__/server.cpython-312.pyc` 缓存导致（可能是上一次异常终止的进程留下的过期字节码）。删掉 `__pycache__` 重新编译后问题消失，磁盘上的源码从未有 bug。**如果以后再见到"guard 代码明明对，但 traceback 命中被 guard 掉的分支"这种矛盾，先删 `__pycache__` 排查，不要怀疑源码逻辑。**
+ - Godot headless import（`tools/Godot_v4.5.2-stable_win64_console.exe --headless --path game --editor --import --quit`）退出码 0，日志无 error/fail/exception/crash，证明 `game/` 下的 GDScript 没有解析期错误。**这只验证了脚本能被解析加载，不等于游戏逻辑正确/能玩**，完整试玩仍需手动起 server + 起 Godot game 场景。
+ 
+-## 2026-09-23 试玩反馈：降速和枪模（最新入口）
++## 2026-09-23 试玩反馈：单发伤害 15（最新入口）
++
++- 用户确认枪模符合预期，但仍觉得偏难，明确要求单发伤害改为 15。`game/player.gd::weapon_damage` 已由 10 改为 15；100 HP Drone 需要命中 7 枪，HP 序列为 85/70/55/40/25/10/0。
++- 不改 0.35 秒射击冷却、25 m 射程、Drone 0.8 速度倍率、接触即死和神经控制。`tests/combat_round.gd` 改为验证七枪结算，`tests/weapon_view.gd` 首枪 HP 期望改为 85；既有冷却与挡墙用例保留。
++- 基线 combat_round 19、weapon_view 12 PASS；修改后 combat_round 16、weapon_view 12、gameplay 52 PASS，共 80 项、退出均为 0。战斗断言数少 3 是十枪改为七枪，并非删减其他场景。本轮未重跑真实后端 smoke；部分测试仍有既有退出资源警告。
++- 本轮原始快照、改后快照、补丁、验证和已演练回滚保存在 `reports/p2-damage15/`。用户须退出并重启游戏加载新参数；未关闭用户游戏，未提交 git。P3 未开始。
++
++## 2026-09-23 试玩反馈：降速和枪模（历史入口）
+ 
+ - 用户首次试玩反馈：Drone 稍快，只有准星、没有枪。`drone.gd` 新增可调 `flight_speed_scale=0.8`，最终期望速度和加速度同比降低 20%；上限由 8 降为 6.4 m/s，加速度 24→19.2 m/s²。神经输出、视线/遮挡、随机扰动和接触判定不变；仍是工程飞行调参，并非 P3 闪避。
+ - 新增 `game/weapon_view.gd`：程序化第一人称枪模、短暂枪口闪光和回弹动画。使用独立透明 SubViewport，无碰撞体，不遮挡游戏射线、不接管鼠标；枪模位于世界上方、HUD 下方。暂停/结算隐藏并清理残留动画，恢复/重开显示；准星仍是命中判定基准。伤害 10、冷却 0.35 秒、射程 25 m 保持不变，未新增枪声。

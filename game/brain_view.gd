@@ -1,7 +1,7 @@
 extends Control
 
 const CLASSES := ["ol_intrinsic", "cb_intrinsic", "visual_projection", "ol_sensory"]
-const CLASS_NAMES := ["Optik lob içi", "Merkezi beyin içi", "Görsel projeksiyon", "Görsel duyu"]
+const CLASS_NAMES := ["Optic lobe intrinsic", "Central brain intrinsic", "Visual projection", "Visual sensory"]
 const CLASS_COLORS := [Color(0.32,0.78,0.98), Color(0.8,0.57,0.98), Color(0.98,0.73,0.35), Color(0.42,0.96,0.61)]
 const GREEN := Color(0.3,0.91,0.72)
 const AMBER := Color(1,0.58,0.31)
@@ -60,16 +60,16 @@ func _ready() -> void:
 	toolbar.add_theme_constant_override("separation",14)
 	add_child(toolbar)
 	group_choice = OptionButton.new()
-	group_choice.add_item("Tüm hücre grupları")
+	group_choice.add_item("All cell groups")
 	for title in CLASS_NAMES: group_choice.add_item(title)
 	group_choice.item_selected.connect(func(_i): selected=-1; redraw_network())
 	toolbar.add_child(group_choice)
 	color_choice = OptionButton.new()
-	color_choice.add_item("Renk: ölçülen etkinlik")
-	color_choice.add_item("Renk: hücre grubu")
+	color_choice.add_item("Color: measured activity")
+	color_choice.add_item("Color: cell group")
 	color_choice.item_selected.connect(func(_i): redraw_network())
 	toolbar.add_child(color_choice)
-	for item in [["En etkin" if mobile else "En etkin nöron",select_peak],["Sıfırla" if mobile else "Görünümü sıfırla",reset_view],["Geri" if mobile else "Geri [V]",func(): close_requested.emit()]]:
+	for item in [["Most active" if mobile else "Most active neuron",select_peak],["Reset" if mobile else "Reset view",reset_view],["Back" if mobile else "Back [V]",func(): close_requested.emit()]]:
 		var button := Button.new()
 		button.text = item[0]
 		button.pressed.connect(item[1])
@@ -159,7 +159,7 @@ func load_view(view: Dictionary) -> bool:
 			if not valid: break
 	ids=[]; edges=[]; xyz.clear(); points.clear(); selected=-1
 	if not valid:
-		view_error="Anatomi verisi geçersiz; çizim durduruldu."
+		view_error="Invalid anatomy data; drawing stopped."
 		redraw_network()
 		return false
 	view_error=""; ids=incoming; edges=links; metadata=view
@@ -259,13 +259,13 @@ func _process(delta: float) -> void:
 
 func status_text() -> String:
 	if not view_error.is_empty(): return view_error
-	if last_stamp<0: return "Ölçüm bekleniyor"
+	if last_stamp<0: return "Waiting for measurement"
 	var age: float=maxf(0,director.now()-last_stamp)
-	var status := "CANLI"
-	if not director.connected: status="BAĞLANTI YOK / ESKİ"
-	elif not director.running: status="DURAKLATILDI / SON ÖLÇÜM"
-	elif age>director.interval+1.5: status="GECİKMİŞ ÖLÇÜM"
-	return "%s · %.1f sn önce" % [status,age]
+	var status := "LIVE"
+	if not director.connected: status="NO CONNECTION / STALE"
+	elif not director.running: status="PAUSED / LAST MEASUREMENT"
+	elif age>director.interval+1.5: status="DELAYED MEASUREMENT"
+	return "%s · %.1f sec ago" % [status,age]
 
 func text_at(pos: Vector2, value: String, font_size := 16, color := Color(0.76,0.88,0.84), width := -1.0) -> void:
 	draw_string(ThemeDB.fallback_font,pos,value,HORIZONTAL_ALIGNMENT_LEFT,width,font_size,color)
@@ -287,7 +287,7 @@ func activity_chart(rect: Rect2) -> void:
 	for item in history:
 		line.append(Vector2(rect.position.x+(item.time-start)/duration*rect.size.x,rect.end.y-float(item.sample.get("mean_abs",0))/peak*(rect.size.y-18)))
 	if line.size()>1: draw_polyline(line,GREEN,1.7,true)
-	text_at(rect.position+Vector2(6,14),"Tüm ağ ort. |a| · tepe %.4f · son %.0f sn" % [peak,last_stamp-start],12,MUTED)
+	text_at(rect.position+Vector2(6,14),"Full network avg |a| · peak %.4f · last %.0f sec" % [peak,last_stamp-start],12,MUTED)
 
 func draw_network() -> void:
 	if director==null or ids.is_empty(): return
@@ -347,23 +347,23 @@ func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO,size),Color(0.012,0.032,0.041,1.0 if expanded else 0.95))
 	draw_rect(Rect2(Vector2.ZERO,size),Color(0.19,0.39,0.36),false,1)
 	if mobile:
-		text_at(Vector2(12,20),"SİNEK BEYNİ · SON ÖLÇÜM",17)
+		text_at(Vector2(12,20),"FLY BRAIN · LAST MEASUREMENT",17)
 		text_at(Vector2(12,36),status_text(),11,GREEN,size.x-24)
 		var bottom := graph_rect().end.y+16
-		text_at(Vector2(12,bottom),"%d soma · %d nöron" % [ids.size(),int(director.info.get("neurons",0))],12,MUTED,size.x-24)
+		text_at(Vector2(12,bottom),"%d somas · %d neurons" % [ids.size(),int(director.info.get("neurons",0))],12,MUTED,size.x-24)
 		var output: Array = snapshot.get("output",[])
 		for i in 4:
 			text_at(Vector2(12+(i%2)*(size.x/2),bottom+20+(i/2)*20),OUTPUT_NAMES[i]+("  %+.5f" % float(output[i]) if output.size()==4 else "  —"),14)
-		text_at(Vector2(12,bottom+66),"ID: "+str(ids[selected]) if selected>=0 else "Sürükle: döndür · Dokun: nöron seç",13,MUTED,size.x-24)
-		text_at(Vector2(12,bottom+88),"Model etkinliği; biyolojik kayıt değildir.",12,MUTED,size.x-24)
+		text_at(Vector2(12,bottom+66),"ID: "+str(ids[selected]) if selected>=0 else "Drag: rotate · Tap: select neuron",13,MUTED,size.x-24)
+		text_at(Vector2(12,bottom+88),"Model activity; not a biological recording.",12,MUTED,size.x-24)
 		return
-	text_at(Vector2(20,28),"SİNEK BEYNİ / " + ("AYRINTILI İNCELEME" if expanded else "ÖLÇÜMLER [B]"),21 if expanded else 17)
-	if not expanded: text_at(Vector2(size.x-90,28),"V ayrıntı",15,GREEN)
+	text_at(Vector2(20,28),"FLY BRAIN / " + ("DETAILED INSPECTION" if expanded else "MEASUREMENTS [B]"),21 if expanded else 17)
+	if not expanded: text_at(Vector2(size.x-90,28),"V detail",15,GREEN)
 	if director==null: return
 	if ids.is_empty():
 		text_at(Vector2(20,120),status_text(),16,AMBER)
 		return
-	if not expanded: text_at(Vector2(20,49),"%d soma · %d / %d örnek bağ çizgisi" % [ids.size(),int(ceil(edges.size()/6.0)),edges.size()],13,MUTED)
+	if not expanded: text_at(Vector2(20,49),"%d somas · %d / %d sample connection lines" % [ids.size(),int(ceil(edges.size()/6.0)),edges.size()],13,MUTED)
 	var values: Array=snapshot.get("view_activity",[])
 	var valid := values.size()==ids.size() and last_stamp>=0
 	var fresh: bool=valid and director.connected and director.running and director.now()-last_stamp<=director.interval+1.5
@@ -375,44 +375,44 @@ func _draw() -> void:
 			var x := 20+i*125
 			text_at(Vector2(x,299),"%s  %s" % [OUTPUT_NAMES[i],"%+.4f" % float(output[i]) if valid else "—"],13)
 			signed_bar(Rect2(x,311,108,7),float(output[i])*5,GREEN if float(output[i])>=0 else AMBER)
-		text_at(Vector2(20,336),"Çubuklar: ±0,2 · sayılar: ham grup ortalaması",12,MUTED)
+		text_at(Vector2(20,336),"Bars: ±0.2 · numbers: raw group average",12,MUTED)
 		activity_chart(Rect2(20,346,size.x-40,40))
-		text_at(Vector2(20,410),"Soma örneği; renk model etkinliği, biyolojik kayıt değil.",12,MUTED)
+		text_at(Vector2(20,410),"Soma sample; color is model activity, not a biological recording.",12,MUTED)
 		return
 	var right := size.x-410
 	text_at(Vector2(right,124),status_text(),15,GREEN if fresh else AMBER,390)
-	text_at(Vector2(right,155),"%d / %d soma konumu gösteriliyor" % [ids.size(),int(metadata.get("candidate_count",0))],15)
-	text_at(Vector2(right,181),"Tam simülasyon: %d nöron" % int(director.info.get("neurons",0)),16)
-	text_at(Vector2(right,205),"%d yönlü bağ · %d örnek bağ çizgisi" % [int(director.info.get("edges",0)),edges.size()],14,MUTED)
-	text_at(Vector2(right,238),"Etkin: %d   Ort. |a| %.5f" % [int(snapshot.get("active_neurons",0)),float(snapshot.get("mean_abs",0))] if valid else "Etkin: —   Ort. |a| —",16)
-	text_at(Vector2(right,260),"Etkin eşiği |a| > 0,001 · boyutsuz model",13,MUTED)
+	text_at(Vector2(right,155),"Showing %d / %d soma positions" % [ids.size(),int(metadata.get("candidate_count",0))],15)
+	text_at(Vector2(right,181),"Full simulation: %d neurons" % int(director.info.get("neurons",0)),16)
+	text_at(Vector2(right,205),"%d directed connections · %d sample connection lines" % [int(director.info.get("edges",0)),edges.size()],14,MUTED)
+	text_at(Vector2(right,238),"Active: %d   Avg. |a| %.5f" % [int(snapshot.get("active_neurons",0)),float(snapshot.get("mean_abs",0))] if valid else "Active: —   Avg. |a| —",16)
+	text_at(Vector2(right,260),"Active threshold |a| > 0.001 · dimensionless model",13,MUTED)
 	draw_line(Vector2(right,278),Vector2(size.x-22,278),MUTED,1)
-	text_at(Vector2(right,307),"SEÇİLİ NÖRON",18)
+	text_at(Vector2(right,307),"SELECTED NEURON",18)
 	if selected>=0:
-		text_at(Vector2(right,336),"Biyolojik ID: "+str(ids[selected]),16)
-		text_at(Vector2(right,362),"Tip: "+str(metadata.types[selected]),16,GREEN,380)
+		text_at(Vector2(right,336),"Biological ID: "+str(ids[selected]),16)
+		text_at(Vector2(right,362),"Type: "+str(metadata.types[selected]),16,GREEN,380)
 		var group: int=CLASSES.find(metadata.classes[selected])
 		text_at(Vector2(right,386),CLASS_NAMES[group] if group>=0 else str(metadata.classes[selected]),15,MUTED,380)
-		text_at(Vector2(right,411),"Soma tarafı: "+str(metadata.sides[selected])+"  (kaynak etiketi)",14,MUTED)
-		text_at(Vector2(right,440),"Son a: "+("%+.5f" % float(values[selected]) if valid else "—"),20,AMBER if valid and float(values[selected])<0 else GREEN)
-		text_at(Vector2(right,468),"Tam grafta giriş %d · çıkış %d" % [int(metadata.degree_in[selected]),int(metadata.degree_out[selected])],15)
+		text_at(Vector2(right,411),"Soma side: "+str(metadata.sides[selected])+"  (source label)",14,MUTED)
+		text_at(Vector2(right,440),"Last a: "+("%+.5f" % float(values[selected]) if valid else "—"),20,AMBER if valid and float(values[selected])<0 else GREEN)
+		text_at(Vector2(right,468),"Full graph in-degree %d · out-degree %d" % [int(metadata.degree_in[selected]),int(metadata.degree_out[selected])],15)
 		var source: Array=metadata.source_xyz[selected]
-		text_at(Vector2(right,493),"Kaynak xyz: %.0f / %.0f / %.0f" % [source[0],source[1],source[2]],13,MUTED)
-		text_at(Vector2(right,518),"Mavi ok: giriş · turuncu ok: çıkış",13,MUTED)
+		text_at(Vector2(right,493),"Source xyz: %.0f / %.0f / %.0f" % [source[0],source[1],source[2]],13,MUTED)
+		text_at(Vector2(right,518),"Blue arrow: in · orange arrow: out",13,MUTED)
 	else:
-		text_at(Vector2(right,342),"Bir nörona tıkla veya N ile en etkinini seç.",15,MUTED,385)
-	text_at(Vector2(right,553),"ÖLÇÜLEN ÇIKTI GRUPLARI",17)
+		text_at(Vector2(right,342),"Click a neuron or press N to select the most active one.",15,MUTED,385)
+	text_at(Vector2(right,553),"MEASURED OUTPUT GROUPS",17)
 	for i in 4:
 		text_at(Vector2(right,581+i*27),"%s  %s" % [OUTPUT_NAMES[i],"%+.5f" % float(output[i]) if valid else "—"],15)
 		signed_bar(Rect2(right+163,570+i*27,198,8),float(output[i])*5,GREEN if float(output[i])>=0 else AMBER)
-	text_at(Vector2(right,695),"±0,2 ölçek · olay eşlemesi mühendislik tasarımı",12,MUTED)
-	text_at(Vector2(right,722),"Beyin %.1f ms · RSS %.1f MiB" % [float(snapshot.get("latency_ms",0)),float(snapshot.get("rss_mb",0))] if valid else "Beyin gecikmesi / RSS: —",15)
+	text_at(Vector2(right,695),"±0.2 scale · event mapping is an engineering design",12,MUTED)
+	text_at(Vector2(right,722),"Brain %.1f ms · RSS %.1f MiB" % [float(snapshot.get("latency_ms",0)),float(snapshot.get("rss_mb",0))] if valid else "Brain latency / RSS: —",15)
 	var chart_y := size.y-172
 	activity_chart(Rect2(24,chart_y,size.x-460,68))
-	text_at(Vector2(24,size.y-83),"Sürükle / oklar: döndür   Tekerlek / +/-: yakınlaştır   Tıkla: seç   Home: sıfırla   V: geri   ESC: menü",15,MUTED)
-	text_at(Vector2(24,size.y-54),"%d gerçek soma ve örnek bağlantılar; nöron dalları çizilmez. Tam beyin + VNC simülasyonu korunur." % ids.size(),14,MUTED)
-	text_at(Vector2(24,size.y-29),"Renkler kaynak hücre gruplarını gösterir; biyolojik kayıt değildir." if color_choice.selected==1 else "Yeşil / turuncu: pozitif / negatif model etkinliği. Sinir etkinliği yalnızca yeni ölçümle değişir.",14,MUTED)
+	text_at(Vector2(24,size.y-83),"Drag / arrows: rotate   Wheel / +/-: zoom   Click: select   Home: reset   V: back   ESC: menu",15,MUTED)
+	text_at(Vector2(24,size.y-54),"%d real somas and sample connections; neuron branches are not drawn. Full brain + VNC simulation is preserved." % ids.size(),14,MUTED)
+	text_at(Vector2(24,size.y-29),"Colors show source cell groups; not a biological recording." if color_choice.selected==1 else "Green / orange: positive / negative model activity. Neural activity only changes with a new measurement.",14,MUTED)
 	if color_choice.selected==1:
 		for i in 4:
 			text_at(Vector2(34+i*230,rect.end.y+24),CLASS_NAMES[i],14,CLASS_COLORS[i])
-	else: text_at(Vector2(34,rect.end.y+24),"Ölçümdeki eylem: "+str({"wait":"Bekle","lights":"Işık kesintisi","steps":"Arkadan ses","silhouette":"Siluet"}.get(measured_action,"Bekle")),15,GREEN)
+	else: text_at(Vector2(34,rect.end.y+24),"Measured action: "+str({"wait":"Wait","lights":"Light outage","steps":"Footsteps behind","silhouette":"Silhouette"}.get(measured_action,"Wait")),15,GREEN)

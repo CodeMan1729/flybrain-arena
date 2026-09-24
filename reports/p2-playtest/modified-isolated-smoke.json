@@ -1,0 +1,25 @@
+{
+  "command": [
+    "E:\\FlyBrain\\flyfear\\tools\\Godot_v4.5.2-stable_win64_console.exe",
+    "--headless",
+    "--path",
+    "game",
+    "--",
+    "--smoke"
+  ],
+  "server_command": [
+    "E:\\FlyBrain\\flyfear\\.venv\\Scripts\\python.exe",
+    "-m",
+    "brain.server",
+    "--port",
+    "52723",
+    "--logs",
+    "E:\\FlyBrain\\flyfear\\reports\\p2-playtest\\smoke-session",
+    "--allow-control"
+  ],
+  "cwd": "E:\\FlyBrain\\flyfear",
+  "inputs": "real MaleCNS; isolated ephemeral port/token; own learning/history directory",
+  "stdout": "Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org\n\nCHECK: Godot received real connectome manifest\nCHECK: Live panel receives 4096 measured biological neuron samples\nCHECK: Physical fly moves with fresh measured neural output\nCHECK: Detailed brain inspection pauses gameplay and decisions\nCHECK: Real soma cloud rotates and a measured neuron can be selected\nCHECK: Closing brain inspection restores previous gameplay state\nCHECK: Fly sees unobstructed player inside visual field\nCHECK: Wall blocks fly vision and player telemetry to brain\nCHECK: Physical fly collides with room wall\nCHECK: Physical keyboard movement: W\nCHECK: Physical keyboard movement: A\nCHECK: Physical keyboard movement: S\nCHECK: Physical keyboard movement: D\nCHECK: Room wall prevents walking through collision\nCHECK: Walk to room center\nCHECK: Navigate corridor with collisions\nCHECK: Enter machine room through side doorway\nCHECK: Reach rear service corridor\nCHECK: Cross rear corridor with collisions\nCHECK: Enter archive through rear doorway\nCHECK: Effect dispatch: lights\nCHECK: Effect dispatch: steps\nCHECK: Footstep source is behind player\nCHECK: Effect dispatch: silhouette\nCHECK: Silhouette is visible\nCHECK: Local cooldown rejects event spam\nCHECK: ESC pause cancels effects and decisions\nCHECK: Pause freezes physical fly\nCHECK: WebSocket disconnect safely waits; game remains active\nCHECK: Automatic localhost reconnect\nCHECK: Reconnect during pause preserves round and stays paused\nCHECK: Return to arena corridor\nCHECK: Walk into firing position\nCHECK: Real hitscan reduces drone HP\nCHECK: Hitscan defeat signal returns to victory menu\nCHECK: Victory persists and acknowledges won outcome\nCHECK: New round resets both HP pools and outcome\nCHECK: New round receives actual neural output\nCHECK: Default-spawn autonomous drone contact returns to defeat menu\nCHECK: Defeat persists and acknowledges lost outcome\n",
+  "stderr": "",
+  "exit_code": 0
+}

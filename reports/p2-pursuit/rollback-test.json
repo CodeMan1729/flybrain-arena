@@ -1,0 +1,13 @@
+{
+  "command": [
+    "E:\\FlyBrain\\flyfear\\.venv\\Scripts\\python.exe",
+    "E:\\FlyBrain\\flyfear\\reports\\p2-pursuit\\rollback.py",
+    "--apply",
+    "--root",
+    "C:\\Users\\Lenovo\\AppData\\Local\\Temp\\flyfear-rollback-i3o3b8jy"
+  ],
+  "inputs": "isolated copy of modified snapshots",
+  "stdout": "Verified modified files and original hashes\nRollback verified: original bytes restored; added files removed\n",
+  "stderr": "",
+  "exit_code": 0
+}

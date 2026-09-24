@@ -1,5 +1,4 @@
 """Single owner: launch local brain + native Godot; reap only owned children."""
-import fcntl
 import json
 import os
 from pathlib import Path
@@ -10,12 +9,25 @@ import sys
 import time
 import psutil
 
+if sys.platform == 'win32':
+    import msvcrt
+else:
+    import fcntl
+
+if sys.platform=='win32':
+    sys.stdout.reconfigure(encoding='utf-8')
+    sys.stderr.reconfigure(encoding='utf-8')
+
 ROOT=Path(__file__).resolve().parents[1]
 os.chdir(ROOT)
 (ROOT/'logs').mkdir(exist_ok=True)
 lock=(ROOT/'logs/launcher.lock').open('w')
-try:fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
-except BlockingIOError:raise SystemExit('FLYFEAR zaten çalışıyor. Açık oyuna dönün.')
+try:
+    if sys.platform == 'win32':
+        msvcrt.locking(lock.fileno(),msvcrt.LK_NBLCK,1)
+    else:
+        fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+except (BlockingIOError,OSError):raise SystemExit('FLYFEAR zaten çalışıyor. Açık oyuna dönün.')
 args=sys.argv[1:]
 testing='--smoke' in args or '--benchmark' in args
 if not testing and any(a.startswith('--mode=') and a!='--mode=learn' for a in args):
@@ -29,17 +41,19 @@ with socket.socket() as sock:
     sock.bind(('127.0.0.1',0));port=sock.getsockname()[1]
 env={**os.environ,'FLYFEAR_TOKEN':secrets.token_hex(24),'FLYFEAR_PORT':str(port),'OPENBLAS_NUM_THREADS':'1','OMP_NUM_THREADS':'1'}
 server_log=log_dir/f'{stamp}-brain.log'; game_log=log_dir/f'{stamp}-game.log'
+python_bin=ROOT/('.venv/Scripts/python.exe' if sys.platform=='win32' else '.venv/bin/python')
+godot_bin=next((ROOT/'tools').glob('Godot_v4.5.2*win64.exe')) if sys.platform=='win32' else ROOT/'tools/Godot.app/Contents/MacOS/Godot'
 server=None;game=None;measurements=[];exit_code=1
 try:
     with server_log.open('w') as output:
-        server=subprocess.Popen([str(ROOT/'.venv/bin/python'),'-m','brain.server','--port',str(port),'--logs',str(log_dir)]+(['--allow-control'] if testing else []),env=env,stdout=output,stderr=output)
+        server=subprocess.Popen([str(python_bin),'-m','brain.server','--port',str(port),'--logs',str(log_dir)]+(['--allow-control'] if testing else []),env=env,stdout=output,stderr=output)
     deadline=time.monotonic()+20
     while '"ready": true' not in server_log.read_text():
         if server.poll() is not None:raise RuntimeError(server_log.read_text())
         if time.monotonic()>deadline:raise RuntimeError('Beyin 20 saniyede hazır olmadı; log: '+str(server_log))
         time.sleep(.1)
     print('FLYFEAR hazır · localhost · tam MaleCNS grafiği',flush=True)
-    command=[str(ROOT/'tools/Godot.app/Contents/MacOS/Godot'),'--path',str(ROOT/'game')]
+    command=[str(godot_bin),'--path',str(ROOT/'game')]
     if headless:command.append('--headless')
     if args:command+=['--']+[a for a in args if a!='--headless']
     with game_log.open('w') as output:

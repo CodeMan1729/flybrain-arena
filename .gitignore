@@ -6,6 +6,7 @@ data/*.partial
 data/*.npz
 data/*.npy
 game/.godot/
+**/.godot/
 __pycache__/
 logs/
 reports/manual-run.log
@@ -21,3 +22,4 @@ reports/manual-run.log
 build/
 *.tpz
 tools/*.partial
+tools/*.exe

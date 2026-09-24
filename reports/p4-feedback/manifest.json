@@ -1,0 +1,82 @@
+{
+  "game/main.gd": {
+    "original": "1eed87acd67b9dd0615cae1b8099aab5da60fd4c988d5ea23e938539835a11fa",
+    "modified": "b531ddb74ca55ada9c8ffb282bafb79103fc0bd034c7e2192b1150b896c0e20e"
+  },
+  "game/drone.gd": {
+    "original": "b52d5acbcc0d31ac379821d704a4c569ccea761cb637475f3801f67539877adc",
+    "modified": "4d30427f852a762901d57283142b19774392ba2f44c8a848ae38018feb4a5c57"
+  },
+  "game/combat_feedback.gd": {
+    "original": null,
+    "modified": "0e59c28711e31bf7df340118b130e180034f44ff5380e8c1a0258a56888582a1"
+  },
+  "tools/generate_combat_audio.py": {
+    "original": null,
+    "modified": "0037be84e09ba610cbf0f05af6e272e19ffaba928b63d8f3d38a4dfd0668e93a"
+  },
+  "tests/combat_feedback.gd": {
+    "original": null,
+    "modified": "0b05439b49e55f156e59fc50a1f54568e97ce85157abc5602a82da45e85429ec"
+  },
+  "tests/test_combat_audio.py": {
+    "original": null,
+    "modified": "a9c1ecbcf88ec791b944e4cf54012798643272b4ad78600454d970c5707c7a72"
+  },
+  "test.ps1": {
+    "original": "b42aee7b1ca85eb69c44027e79747c38855ccdd4bd69ff2a8c6da092e001483a",
+    "modified": "dfd332414e21c67092d564922e2f92e713a47755394dc3439a3b947e1b7415db"
+  },
+  "STATUS.md": {
+    "original": "8c1f21e20246952eff007e1a9a88b1e512cf763a745f643f7fd9e18a8a80ae27",
+    "modified": "3bf8e142ada217c27d16fe94647b029eed8e887a256d326e1e546eddd713ed13"
+  },
+  "game/audio/shot.wav": {
+    "original": null,
+    "modified": "7d9b44c64a729dafaa12de04d4fb277f44ee13b7e94e3734fff72733623b4b67"
+  },
+  "game/audio/hit.wav": {
+    "original": null,
+    "modified": "fc65aac891c32d1d896ca1a0d900452dbd6c2aae1877204c9f0223d46387ef71"
+  },
+  "game/audio/won.wav": {
+    "original": null,
+    "modified": "7d7758c4231f4772d78b10f08f434b3d0d1f72f0b54cda66ee2a5c5c7552889c"
+  },
+  "game/audio/lost.wav": {
+    "original": null,
+    "modified": "217a6f85e12b045543013012c84f7d181b98a38ecaa3abfb23a1a8b42221122f"
+  },
+  "game/audio/rotor.wav": {
+    "original": null,
+    "modified": "24621b9167ba75a545af1470e4a88c9664185ac457baf929a8cad1a49844c751"
+  },
+  "tests/gameplay.gd": {
+    "original": "425459f35563861f7fdf5762a3003bcf3995e1094816a78f6533070363b6e17c",
+    "modified": "88865b6145e430dfb16be8de344a672d095b27d4de26b041fc22bc7441bd6d84"
+  },
+  "game/audio/shot.wav.import": {
+    "original": null,
+    "modified": "32708594e57fb2183d29b5588bc27fb609f136a6b148f91f64cf4294be8bd79d"
+  },
+  "game/audio/hit.wav.import": {
+    "original": null,
+    "modified": "0221129d4bd2977a8b97a2e9c197b7e239cbb8eb88f55f32c3698105e87d37a5"
+  },
+  "game/audio/won.wav.import": {
+    "original": null,
+    "modified": "ec4e4af3eac4d3fb2481147ebf00d31c4d4fc64e82157a7cea6b84c3bef20eb1"
+  },
+  "game/audio/lost.wav.import": {
+    "original": null,
+    "modified": "7397ff167f59d9dac54ede71d6cf16c51ac34f805ee7c600aaa45deccec5112d"
+  },
+  "game/audio/rotor.wav.import": {
+    "original": null,
+    "modified": "3bbc602c82e4f1c09898c06f8a07a7cc8d35266ec6facf1e0f91b5886932435c"
+  },
+  "docs/ARENA.md": {
+    "original": null,
+    "modified": "dfb3801c3805300068ce4b6ef9e1eaa54dfb7dc9d99d81461e13b4310b8c90b0"
+  }
+}

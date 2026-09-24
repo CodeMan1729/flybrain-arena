@@ -1,0 +1,16 @@
+{
+  "command": [
+    "E:\\FlyBrain\\flyfear\\tools\\Godot_v4.5.2-stable_win64_console.exe",
+    "--path",
+    "game",
+    "--script",
+    "../reports/p2-playtest/preview.gd",
+    "--rendering-method",
+    "gl_compatibility",
+    "--audio-driver",
+    "Dummy"
+  ],
+  "stdout": "Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org\nOpenGL API 3.3.0 NVIDIA 616.92 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU\n\nweapon-idle.png result=0\nweapon-fire.png result=0\nweapon-paused.png result=0\n",
+  "stderr": "",
+  "exit_code": 0
+}

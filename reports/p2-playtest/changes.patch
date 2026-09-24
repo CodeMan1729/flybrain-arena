@@ -1,0 +1,262 @@
+--- a/game/drone.gd
++++ b/game/drone.gd
+@@ -27,6 +27,8 @@
+ var dart_until := 0.0
+ var flight_rng := RandomNumberGenerator.new()
+ const CONTACT_DISTANCE := 0.6
++# Playtest tuning; scales engineering motion, not neural activity.
++@export_range(0.25,1.0,0.05) var flight_speed_scale := 0.8
+ 
+ func mesh(part: Mesh, pos: Vector3, color: Color, parent: Node3D) -> MeshInstance3D:
+ 	var node := MeshInstance3D.new()
+@@ -173,7 +175,7 @@
+ 	desired += gaze.cross(Vector3.UP)*(lateral*0.65+dart.x)+Vector3.UP*(climb+dart.y)+gaze*dart.z+avoided
+ 	if position.y<0.7: desired.y=maxf(desired.y,1.5)
+ 	if position.y>2.7: desired.y=minf(desired.y,-1.5)
+-	velocity=velocity.move_toward(desired.limit_length(8.0),delta*24)
++	velocity=velocity.move_toward(desired.limit_length(8.0)*flight_speed_scale,delta*24*flight_speed_scale)
+ 	move_and_slide()
+ 	# Contact deals full HP for now; per-body-part graded damage is a later extension.
+ 	if player.active and global_position.distance_to(player.global_position+Vector3.UP*1.25)<CONTACT_DISTANCE:
+--- a/game/player.gd
++++ b/game/player.gd
+@@ -5,7 +5,11 @@
+ signal defeated
+ var camera: Camera3D
+ var torch: SpotLight3D
+-var active := false
++var weapon_view: CanvasLayer
++var active := false:
++	set(value):
++		active = value
++		if is_instance_valid(weapon_view): weapon_view.set_active(value)
+ var sensitivity := 0.002
+ var pause_seconds := 0.0
+ var turn_rate := 0.0
+@@ -37,6 +41,7 @@
+ 	touch_axis = Vector2.ZERO
+ 	hp = max_hp
+ 	fire_ready = 0.0
++	if is_instance_valid(weapon_view): weapon_view.reset_view()
+ 	motion_reset.emit()
+ 
+ func take_damage(amount: int) -> void:
+@@ -51,6 +56,7 @@
+ 	var now := Time.get_ticks_msec()/1000.0
+ 	if now < fire_ready: return
+ 	fire_ready = now + fire_cooldown
++	weapon_view.shoot()
+ 	var origin := camera.global_position
+ 	var target := origin - camera.global_basis.z * weapon_range
+ 	var query := PhysicsRayQueryParameters3D.create(origin,target,3)
+@@ -83,6 +89,9 @@
+ 	torch.shadow_enabled = true
+ 	torch.shadow_reverse_cull_face = true # Closed meshes avoid flashlight shadow stripes on Metal.
+ 	camera.add_child(torch)
++	weapon_view = preload("res://weapon_view.gd").new()
++	add_child(weapon_view)
++	weapon_view.set_active(active)
+ 
+ func look(relative: Vector2) -> void:
+ 	rotate_y(-relative.x * sensitivity)
+--- /dev/null
++++ b/game/weapon_view.gd
+@@ -0,0 +1,106 @@
++extends CanvasLayer
++
++# Isolated first-person view: cosmetic only, no colliders or gameplay rays.
++var surface: SubViewportContainer
++var viewport: SubViewport
++var rig: Node3D
++var flash: MeshInstance3D
++var recoil := 0.0
++var flash_left := 0.0
++const REST := Vector3(0.15,-0.20,-0.58)
++
++func part(size: Vector3, at: Vector3, color: Color) -> MeshInstance3D:
++	var node := MeshInstance3D.new()
++	var shape := BoxMesh.new()
++	shape.size = size
++	node.mesh = shape
++	node.position = at
++	var mat := StandardMaterial3D.new()
++	mat.albedo_color = color
++	mat.roughness = 0.5
++	node.material_override = mat
++	rig.add_child(node)
++	return node
++
++func _ready() -> void:
++	layer = 0 # World < weapon < existing HUD (layer 1).
++	surface = SubViewportContainer.new()
++	surface.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
++	surface.mouse_filter = Control.MOUSE_FILTER_IGNORE
++	surface.stretch = true
++	surface.stretch_shrink = 2
++	add_child(surface)
++	viewport = SubViewport.new()
++	viewport.transparent_bg = true
++	viewport.own_world_3d = true
++	viewport.gui_disable_input = true
++	viewport.render_target_update_mode = SubViewport.UPDATE_WHEN_VISIBLE
++	surface.add_child(viewport)
++	var camera := Camera3D.new()
++	camera.fov = 65
++	camera.near = 0.02
++	viewport.add_child(camera)
++	camera.current = true
++	var light := DirectionalLight3D.new()
++	light.rotation_degrees = Vector3(-30,-25,0)
++	light.light_energy = 1.7
++	viewport.add_child(light)
++	var env := WorldEnvironment.new()
++	env.environment = Environment.new()
++	env.environment.background_mode = Environment.BG_CLEAR_COLOR
++	env.environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
++	env.environment.ambient_light_color = Color(0.65,0.74,0.85)
++	env.environment.ambient_light_energy = 0.7
++	viewport.add_child(env)
++	rig = Node3D.new()
++	rig.position = REST
++	rig.scale = Vector3.ONE*0.75
++	# Barrel points slightly inward, leaving the center reticle unobstructed.
++	rig.rotation.y = 0.12
++	viewport.add_child(rig)
++	part(Vector3(0.095,0.095,0.28),Vector3.ZERO,Color(0.13,0.18,0.23)).name = "Receiver"
++	part(Vector3(0.065,0.045,0.32),Vector3(0,0.06,-0.025),Color(0.30,0.37,0.42))
++	part(Vector3(0.042,0.042,0.16),Vector3(0,0.015,-0.21),Color(0.09,0.12,0.15)).name = "Barrel"
++	var grip := part(Vector3(0.065,0.16,0.08),Vector3(0,-0.09,0.07),Color(0.08,0.10,0.12))
++	grip.rotation.x = -0.2
++	part(Vector3(0.068,0.11,0.085),Vector3(0,-0.085,-0.055),Color(0.20,0.25,0.29))
++	part(Vector3(0.012,0.027,0.025),Vector3(0,0.095,-0.14),Color(0.2,0.85,0.95))
++	part(Vector3(0.035,0.012,0.13),Vector3(0.049,0.015,0.005),Color(0.15,0.65,0.8))
++	flash = MeshInstance3D.new()
++	var flame := SphereMesh.new()
++	flame.radius = 0.032
++	flame.height = 0.064
++	flash.mesh = flame
++	flash.position = Vector3(0,0.015,-0.315)
++	flash.scale = Vector3(0.7,0.7,2.0)
++	var glow := StandardMaterial3D.new()
++	glow.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
++	glow.albedo_color = Color(1,0.8,0.35)
++	flash.material_override = glow
++	rig.add_child(flash)
++	reset_view()
++	hide()
++
++func reset_view() -> void:
++	recoil = 0
++	flash_left = 0
++	if is_instance_valid(rig): rig.position = REST
++	if is_instance_valid(flash): flash.hide()
++
++func set_active(value: bool) -> void:
++	visible = value
++	if not value: reset_view()
++
++func shoot() -> void:
++	if not visible: return
++	recoil = 1.0
++	flash_left = 0.055
++	flash.show()
++	rig.position = REST+Vector3(0,0.012,0.035)
++
++func _process(delta: float) -> void:
++	if not visible: return
++	recoil = move_toward(recoil,0,delta*9)
++	flash_left = maxf(0,flash_left-delta)
++	flash.visible = flash_left>0
++	rig.position = REST+Vector3(0,0.012,0.035)*recoil
+--- /dev/null
++++ b/tests/weapon_view.gd
+@@ -0,0 +1,47 @@
++extends SceneTree
++var failures: Array[String] = []
++func verify(ok: bool, label: String) -> void:
++	print(("PASS: " if ok else "FAIL: ")+label)
++	if not ok: failures.append(label)
++func _initialize() -> void:
++	run_checks.call_deferred()
++func run_checks() -> void:
++	var game = load("res://main.tscn").instantiate()
++	game.settings_path = ""
++	root.add_child(game)
++	game.director.set_process(false)
++	game.fly.set_physics_process(false)
++	var view = game.player.get("weapon_view")
++	verify(view != null,"First-person weapon exists")
++	if view != null:
++		view.set_process(false)
++		verify(not view.visible,"Weapon hidden in initial menu")
++		game.start_game()
++		verify(view.visible and view.rig.has_node("Receiver") and view.rig.has_node("Barrel"),"Visible gun on round start")
++		verify(view.viewport.own_world_3d and view.surface.mouse_filter == Control.MOUSE_FILTER_IGNORE,"Separate render world and non-intercepting input")
++		verify(view.viewport.find_children("*","CollisionObject3D",true,false).is_empty(),"Cosmetic gun adds no collision objects")
++		game.player.position = Vector3(0,0,4)
++		game.player.rotation = Vector3.ZERO
++		game.player.camera.rotation = Vector3.ZERO
++		game.fly.position = Vector3(0,1.65,0)
++		await physics_frame
++		await physics_frame
++		game.player.fire()
++		verify(game.fly.hp == 90 and view.recoil == 1 and view.flash.visible,"Hitscan damage plus muzzle flash and recoil")
++		view._process(0.02)
++		var recoil: float = view.recoil
++		game.player.fire()
++		verify(game.fly.hp == 90 and view.recoil == recoil,"Cooldown blocks both damage and new animation")
++		view._process(0.2)
++		verify(view.recoil == 0 and not view.flash.visible and view.rig.position == view.REST,"Recoil and flash decay to rest")
++		game.player.fire_ready = 0
++		game.player.fire()
++		game.pause_game()
++		verify(not view.visible and not view.flash.visible and view.recoil == 0,"Pause hides weapon and clears flash")
++		game.resume_game()
++		verify(view.visible and view.recoil == 0,"Resume shows clean weapon")
++		game.lose_game()
++		verify(not view.visible,"Round end hides gun")
++		game.start_game()
++		verify(view.visible and view.recoil == 0 and not view.flash.visible,"Restart resets view model")
++	await game.quit_game(0 if failures.is_empty() else 1)
+--- a/tests/pursuit.gd
++++ b/tests/pursuit.gd
+@@ -38,7 +38,7 @@
+ 				peak = maxf(peak,game.fly.velocity.length())
+ 				frames += 1
+ 			verify(game.round_outcome == "lost" and game.player.hp == 0,"Default spawn autonomous contact: "+str([drive[0],seed_value]))
+-			verify(peak<=8.01,"Speed bound during pursuit")
++			verify(peak<=6.41,"Speed bound during pursuit")
+ 			print(JSON.stringify({"seed":seed_value,"drive":drive,"frames":frames,"peak_speed":peak}))
+ 	game.playing = false
+ 	game.director.connected = false
+--- a/STATUS.md
++++ b/STATUS.md
+@@ -12,7 +12,7 @@
+ 
+ ## 当前阶段
+ 
+-P0/P1 已完成。**P2 战斗主线、自主贴近、Drone 外观/显示命名已完成并通过真实后端 smoke**：射线击杀 → won；默认出生点自主物理接触 → lost；菜单、重开、结果持久化已接通。P2 尚待人工战斗试玩与难度评估；P3 未开始。先看下面“Drone 外观续作（最新入口）”，历史交接仅供背景参考。
++P0/P1 已完成。**P2 战斗主线、自主贴近、Drone 外观/显示命名已完成并通过真实后端 smoke**：射线击杀 → won；默认出生点自主物理接触 → lost；菜单、重开、结果持久化已接通。首次人工试玩反馈已落实：Drone 降速 20%，新增第一人称枪模与开火动画，等待重启复测和难度确认；P3 未开始。先看下面“试玩反馈：降速和枪模（最新入口）”，历史交接仅供背景参考。
+ 
+ ## 环境（Windows 原生，非 WSL）
+ 
+@@ -69,7 +69,18 @@
+ - 遇到过一次误导性报错：`asyncio.get_running_loop().add_signal_handler` 在 Windows 抛 `NotImplementedError`，但 `server.py:33` 明明已经用 `os.name!='nt'` guard 了。排查后发现是 `brain/__pycache__/server.cpython-312.pyc` 缓存导致（可能是上一次异常终止的进程留下的过期字节码）。删掉 `__pycache__` 重新编译后问题消失，磁盘上的源码从未有 bug。**如果以后再见到"guard 代码明明对，但 traceback 命中被 guard 掉的分支"这种矛盾，先删 `__pycache__` 排查，不要怀疑源码逻辑。**
+ - Godot headless import（`tools/Godot_v4.5.2-stable_win64_console.exe --headless --path game --editor --import --quit`）退出码 0，日志无 error/fail/exception/crash，证明 `game/` 下的 GDScript 没有解析期错误。**这只验证了脚本能被解析加载，不等于游戏逻辑正确/能玩**，完整试玩仍需手动起 server + 起 Godot game 场景。
+ 
+-## 2026-09-23 Drone 外观续作（最新入口）
++## 2026-09-23 试玩反馈：降速和枪模（最新入口）
++
++- 用户首次试玩反馈：Drone 稍快，只有准星、没有枪。`drone.gd` 新增可调 `flight_speed_scale=0.8`，最终期望速度和加速度同比降低 20%；上限由 8 降为 6.4 m/s，加速度 24→19.2 m/s²。神经输出、视线/遮挡、随机扰动和接触判定不变；仍是工程飞行调参，并非 P3 闪避。
++- 新增 `game/weapon_view.gd`：程序化第一人称枪模、短暂枪口闪光和回弹动画。使用独立透明 SubViewport，无碰撞体，不遮挡游戏射线、不接管鼠标；枪模位于世界上方、HUD 下方。暂停/结算隐藏并清理残留动画，恢复/重开显示；准星仍是命中判定基准。伤害 10、冷却 0.35 秒、射程 25 m 保持不变，未新增枪声。
++- `player.gd` 接入 active/reset/fire 的可视反馈；闪光只在通过冷却后触发。已有局部胜负测试验证击杀信号不会留下枪模。已原生渲染检查 `reports/p2-playtest/weapon-idle.png`、`weapon-fire.png`、`weapon-paused.png`，枪模避开右侧脑活动面板，暂停隐藏正常。
++- 新增 `tests/weapon_view.gd` 12 PASS；combat_round 19、pursuit 19、fly 55、gameplay 52、mobile 54、hud 3 PASS，退出均为 0。基线枪模用例失败；加强至 6.4 m/s 的追击限速基线 6 项失败，修改后通过。既有退出资源释放警告仍存在。
++- 用户原来的游戏仍在运行，未关闭其进程；普通 launcher smoke 因单实例锁退出 1。新代码需要退出旧游戏并重新启动才能体验。
++- 随后使用独立端口、临时口令和独立学习/历史目录 `reports/p2-playtest/smoke-session/` 跑真实 MaleCNS smoke：退出 0、passed=true，击杀获胜和默认出生点自主接触失败均通过；未复用或停止用户现有后端。离线 9 组追击中，接触时间由原 31–42 帧变为 36–51 帧（60 Hz），此小幅降速尚不代表难度已平衡。
++- 交付 `reports/p2-playtest/`：original/modified 快照、哈希、changes.patch、verification.json、rollback.py；补丁应用及回滚均在隔离目录验证，只撤销本轮改动。
++- 下一步：用户重启后再次评估速度和枪模手感。P2 仍待难度确认；P3 未开始，旧 Python 测试问题和资源释放警告未处理。未提交 git。
++
++## 2026-09-23 Drone 外观续作（历史入口）
+ 
+ - P2 外观/显示命名已完成：新增 `game/drone.gd`，用程序化四旋翼、护圈、机身和发光前向传感器替换昆虫模型；旋翼反向旋转仅为装饰。碰撞半径 0.1、视觉缩放 0.5、HP、追击、神经门控和接触规则保持不变。原 buzz 音源仍保留，音效重做留给 P4。
+ - `main.gd` 改用 `DroneScript`，运行节点名为 Drone，菜单/窗口显示 FlyBrain Arena。保留 `game.fly` 内部接口及 `fly.gd` 兼容入口；`project.godot` 中旧项目 ID、FLYFEAR 环境变量和存储路径不变，避免丢失原设置或破坏启动协议。

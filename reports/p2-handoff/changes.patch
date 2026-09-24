@@ -1,0 +1,535 @@
+--- a/game/main.gd
++++ b/game/main.gd
+@@ -9,19 +9,12 @@
+ const SCARE_SOUNDS := ["steps", "breath", "creak", "knock"]
+ const MODE_NAMES := ["Rastgele seçim · kontrol", "Sabit bağlantı modeli", "Beyin + öğrenen karar katmanı"]
+ const MODES := ["random", "fixed", "learn"]
+-# ponytail: three hand-checked surfaces; add validated spots when the map grows.
+-const KEY_SPOTS := [Vector3(-7.4,1.04,-9.35), Vector3(-2.8,1.04,-1.65), Vector3(8.3,1.59,-9.7)]
+ 
+ var player: CharacterBody3D
+ var director: Node
+ var fly: CharacterBody3D
+ var brain_view: Control
+ var memory_text: Label
+-var key_object: Node3D
+-var key_rng := RandomNumberGenerator.new()
+-var key_seed := -1
+-var key_slot := -1
+-var door: StaticBody3D
+ var silhouette: Node3D
+ var footsteps: AudioStreamPlayer3D
+ var scare_streams: Array[AudioStreamWAV] = []
+@@ -29,10 +22,9 @@
+ var last_sound := -1
+ var ambience: AudioStreamPlayer
+ var room_lights: Array[OmniLight3D] = []
+-var has_key := false
+-var door_open := false
+ var playing := false
+ var completed := false
++var round_outcome := ""
+ var intensity := 0.65
+ var volume := 0.45
+ var decision_interval := 3.0
+@@ -118,6 +110,8 @@
+ 	fly.director = director
+ 	add_child(fly)
+ 	fly.reset_body()
++	fly.defeated.connect(win_game)
++	player.defeated.connect(lose_game)
+ 	build_ui()
+ 	if touch_mode:
+ 		get_viewport().size_changed.connect(layout_mobile,CONNECT_DEFERRED)
+@@ -366,25 +360,13 @@
+ 	label3("KARANTİNA / 09\nGÖZLEM ODASI",Vector3(3.7,1.88,-5.72),47)
+ 	label3("Ç I K I Ş",Vector3(0,2.77,-14.57),48,Color(0.35,1,0.76))
+ 	label3("01",Vector3(-3,2.65,-5.8),76,Color(0.61,0.42,0.23))
+-	label3("ANAHTAR KAYIP\nODALARI ARA",Vector3(-3,1.85,-5.78),27,Color(0.73,0.60,0.35))
+-	key_object = Node3D.new()
+-	key_object.position = KEY_SPOTS[0]
+-	add_child(key_object)
+-	var ring := MeshInstance3D.new()
+-	var torus := TorusMesh.new()
+-	torus.inner_radius = 0.08
+-	torus.outer_radius = 0.13
+-	ring.mesh = torus
+-	ring.material_override = material(Color(0.94,0.65,0.21),0.6)
+-	key_object.add_child(ring)
+-	box(Vector3(0.17,0,0),Vector3(0.28,0.035,0.055),ring.material_override,false,key_object)
+-	box(Vector3(0.28,0,-0.05),Vector3(0.05,0.035,0.1),ring.material_override,false,key_object)
+-	lamp(Vector3(0,0.46,0),Color(0.95,0.61,0.25),0.35,2.0,false).reparent(key_object,false)
+-	door = box(Vector3(0,1.35,-14.8),Vector3(2.98,2.7,0.18),metal) as StaticBody3D
+-	box(Vector3(0,0.1,0.11),Vector3(0.42,0.2,0.035),brass,false,door)
+-	box(Vector3(0.85,-0.1,0.12),Vector3(0.28,0.07,0.07),brass,false,door)
++	label3("DRONE ARENA\nTEMASTAN KAÇIN",Vector3(-3,1.85,-5.78),27,Color(0.73,0.60,0.35))
++	# Sealed scenery retains the original collision boundary, not an exit mechanic.
++	var exit_panel := box(Vector3(0,1.35,-14.8),Vector3(2.98,2.7,0.18),metal)
++	box(Vector3(0,0.1,0.11),Vector3(0.42,0.2,0.035),brass,false,exit_panel)
++	box(Vector3(0.85,-0.1,0.12),Vector3(0.28,0.07,0.07),brass,false,exit_panel)
+ 	for y in [-0.8,0.7]:
+-		box(Vector3(0,y,0.11),Vector3(2.4,0.07,0.025),dark,false,door)
++		box(Vector3(0,y,0.11),Vector3(2.4,0.07,0.025),dark,false,exit_panel)
+ 	silhouette = Node3D.new()
+ 	add_child(silhouette)
+ 	var body_mesh := MeshInstance3D.new()
+@@ -478,13 +460,13 @@
+ 	hud.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+ 	hud.mouse_filter = Control.MOUSE_FILTER_IGNORE
+ 	root.add_child(hud)
+-	objective = ui_label("01 / ANAHTARI BUL",26,Color(0.88,0.76,0.54))
++	objective = ui_label("DRONE HP 100 / 100",26,Color(0.88,0.76,0.54))
+ 	objective.position = Vector2(52,42)
+ 	hud.add_child(objective)
+ 	badge = ui_label("",18)
+ 	badge.position = Vector2(52,84)
+ 	hud.add_child(badge)
+-	var controls := ui_label("W A S D  Hareket     F  El feneri     E  Etkileşim     B  Beyin     V  Beyni incele     TAB  Ölçümler     ESC  Duraklat",18)
++	var controls := ui_label("W A S D  Hareket     F  El feneri     Sol tık  Ateş     B  Beyin     V  Beyni incele     TAB  Ölçümler     ESC  Duraklat",18)
+ 	controls.position = Vector2(52,1016)
+ 	hud.add_child(controls)
+ 	var cross := ui_label("·",32,Color(0.8,0.86,0.83,0.7))
+@@ -558,7 +540,7 @@
+ 	start_button = button("BAŞLAT", start_game,column)
+ 	button("AYARLAR",toggle_settings,column)
+ 	button("ANA SAYFA" if OS.has_feature("web") else "ÇIKIŞ",quit_game,column)
+-	column.add_child(ui_label("Sol alanda hareket · Sağ alanda bakış\nEtkileşim, fener ve duraklatma ekranda." if touch_mode else "WASD / Fare · E etkileşim · F el feneri",17))
++	column.add_child(ui_label("Sol alanda hareket · Sağ alanda bakış\nFener ve duraklatma ekranda. Ateş: masaüstü fare." if touch_mode else "WASD / Fare · Sol tık ateş · F el feneri",17))
+ 	settings = VBoxContainer.new()
+ 	settings.position = Vector2(850,340)
+ 	settings.custom_minimum_size.x = 560
+@@ -622,7 +604,7 @@
+ 				part.add_theme_font_size_override("font_size",18)
+ 		title.add_theme_font_size_override("font_size",48)
+ 		eyebrow.add_theme_font_size_override("font_size",11)
+-		subtitle.text = "Anahtarı bul. Çıkışa ulaş.\n\nHareketlerin ve değerlendirmen anonim ortak öğrenmeye katılır. Kamera ve mikrofon kullanılmaz." if OS.has_feature("web") else "Anahtarı bul. Çıkışa ulaş."
++		subtitle.text = "Drone’u vur. Temastan kaçın.\n\nHareketlerin ve değerlendirmen anonim ortak öğrenmeye katılır. Kamera ve mikrofon kullanılmaz." if OS.has_feature("web") else "Drone’u vur. Temastan kaçın."
+ 		touch_controls = Control.new()
+ 		touch_controls.set_script(TouchControlsScript)
+ 		touch_controls.game = self
+@@ -683,18 +665,6 @@
+ 	slider.value_changed.connect(func(v): label.text=format % [text,v]; callback.call(v); save_settings())
+ 	settings.add_child(slider)
+ 
+-func place_key() -> void:
+-	# A separate stream keeps layout choices from changing scare-sound randomness.
+-	if key_seed != int(seed_box.value):
+-		key_seed = int(seed_box.value)
+-		key_rng.seed = key_seed
+-		key_slot = -1
+-	var next := key_rng.randi_range(0,KEY_SPOTS.size()-1 if key_slot<0 else KEY_SPOTS.size()-2)
+-	if key_slot>=0 and next>=key_slot: next+=1
+-	key_slot = next
+-	key_object.position = KEY_SPOTS[key_slot]
+-	key_object.visible = true
+-
+ func start_game() -> void:
+ 	if OS.has_feature("web") and not director.connected:
+ 		director.connect_requested = true
+@@ -702,16 +672,13 @@
+ 	if playing and not completed:
+ 		resume_game()
+ 		return
+-	has_key = false
+-	door_open = false
+ 	completed = false
++	round_outcome = ""
+ 	playing = true
+ 	elapsed = 0
+ 	events.clear()
+ 	frame_times.clear()
+ 	brain_view_frame_times.clear()
+-	place_key()
+-	door.position.x = 0
+ 	player.position = Vector3(2,0.05,3.3)
+ 	player.rotation = Vector3(0,0.15,0)
+ 	player.camera.rotation = Vector3.ZERO
+@@ -813,25 +780,8 @@
+ 				else: brain_view.visible = not brain_view.visible
+ 			KEY_V:
+ 				toggle_brain_details()
+-			KEY_E:
+-				if player.active: interact()
+ 			KEY_1, KEY_2, KEY_3:
+ 				if player.active: director.rate_event(event.physical_keycode-KEY_1)
+-
+-func can_interact(target: Vector3) -> bool:
+-	var ray: Vector3 = target-player.camera.global_position
+-	if ray.length() >= 2.5 or ray.normalized().dot(-player.camera.global_basis.z) <= 0.65: return false
+-	var query := PhysicsRayQueryParameters3D.create(player.camera.global_position,target,1)
+-	query.exclude = [player.get_rid()]
+-	return get_world_3d().direct_space_state.intersect_ray(query).is_empty()
+-
+-func interact() -> void:
+-	if not has_key and can_interact(key_object.global_position):
+-		has_key = true
+-		key_object.visible = false
+-	elif can_interact(Vector3(0,1.35,-14.68)) and has_key:
+-		door_open = true
+-		door.position.x = 3.2
+ 
+ func event_allowed(action_name: String) -> bool:
+ 	if action_name not in ACTION_NAMES: return false
+@@ -878,15 +828,29 @@
+ 		director.action = "wait"
+ 		director.reason = "Yerel olay bütçesi / yoğunluk sınırı"
+ 
+-func finish_game() -> void:
++func win_game() -> void:
++	end_round("won")
++
++func lose_game() -> void:
++	end_round("lost")
++
++func end_round(outcome: String) -> void:
++	# Signals and input can arrive in the same frame; finish each round once.
++	var first_completion := not completed
+ 	completed = true
++	if first_completion: round_outcome = outcome
+ 	player.active = false
++	var final_hp: int = player.hp
+ 	player.reset_motion()
++	player.hp = final_hp
++	player.auto_walk = false
+ 	fly.active = false
+-	director.finish_session("won")
++	if first_completion: director.finish_session(outcome)
+ 	clear_effects()
+ 	menu.visible = true
++	menu_title.text = "KAZANDIN · Drone etkisiz." if round_outcome == "won" else "KAYBETTİN · Drone temas etti."
+ 	start_button.text = "YENİ TUR"
++	if touch_mode: mobile_scroll.scroll_vertical = 0
+ 	mode_choice.disabled = false
+ 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+ 	start_button.grab_focus()
+@@ -911,17 +875,13 @@
+ 			var target := base * (1.0-intensity) * 0.12 if elapsed < dark_until else base
+ 			light.light_energy = move_toward(light.light_energy,target,delta*3)
+ 		if elapsed >= silhouette_until: silhouette.visible = false
+-		if has_key and door_open and absf(player.position.x)<1.3 and player.position.z < -15.2 and player.position.z > -16: finish_game()
+ 	ui_clock+=delta
+ 	if ui_clock<0.1: return
+ 	ui_clock=0
+ 	if menu.visible:
+-		menu_title.text = "ÇIKIŞ AÇILDI · Odadan çıktın.  %d sn" % int(elapsed) if completed else ("DURAKLATILDI · Odada zaman bekler." if playing else "Üç odada anahtarı ara. Çıkışa ulaş.")
+-	objective.text = "03 / ÇIKIŞA İLERLE" if door_open else ("02 / KORİDORDAKİ ÇIKIŞI AÇ" if has_key else "01 / ODALARDAKİ ANAHTARI BUL")
+-	prompt.text = ""
+-	if not has_key and can_interact(key_object.global_position): prompt.text = "[ E ]   ANAHTARI AL"
+-	elif can_interact(Vector3(0,1.35,-14.68)):
+-		prompt.text = "[ E ]   ÇIKIŞI AÇ" if has_key else "KİLİTLİ · Odalarda anahtarı ara"
++		menu_title.text = ("KAZANDIN · Drone etkisiz." if round_outcome == "won" else "KAYBETTİN · Drone temas etti.") if completed else ("DURAKLATILDI · Arena bekler." if playing else "Drone'u vur. Temastan kaçın.")
++	objective.text = "DRONE HP %d / %d" % [fly.hp,fly.max_hp]
++	prompt.text = "" if not player.active or touch_mode else "SOL TIK · ATEŞ / TEMAS ÖLDÜRÜR"
+ 	var scope := "TAM GRAF" if not director.info.get("subnetwork",false) else "KÜÇÜLTÜLMÜŞ ALT AĞ"
+ 	var data_ready: bool = not director.info.is_empty()
+ 	badge.text = "%s  /  %s  /  %s" % [MODE_NAMES[mode_choice.selected],scope if data_ready else "VERİ BAĞLI DEĞİL","BAĞLI" if director.connected else "GÜVENLİ BEKLEME"]
+@@ -931,7 +891,6 @@
+ 	if player.active and director.feedback_id >= 0 and director.now() < director.feedback_until:
+ 		feedback_text.text = director.feedback_status if not director.feedback_status.is_empty() else "%s · İstersen değerlendir:  1 Etkilemedi   2 Gerildim   3 Korktum" % ACTION_NAMES.get(director.feedback_action,"")
+ 		if touch_mode and director.feedback_status.is_empty(): feedback_text.text = ACTION_NAMES.get(director.feedback_action,"")+" · İstersen değerlendir"
+-	if touch_mode: prompt.text = prompt.text.replace("[ E ]   ","")
+ 	if memory_text.is_visible_in_tree() and not director.memory.is_empty():
+ 		var saved: Dictionary = director.memory
+ 		memory_text.text = ("ORTAK ÖĞRENME / TÜM OYUNCULAR\n\n%d oyun bölümü · %d öğrenme örneği\n" if OS.has_feature("web") else "KALICI ÖĞRENME / BU MAC\n\n%d kayıtlı tur · %d kişisel öğrenme örneği\n") % [int(saved.get("rounds",0)),int(saved.get("updates",0))]
+@@ -940,7 +899,7 @@
+ 		if not OS.has_feature("web"): memory_text.text += "SON TURLAR\n"
+ 		for item in saved.get("recent",[]).slice(-3):
+ 			var mean_score: float = float(item.get("reward_sum",0))/maxi(1,int(item.get("rewards",0)))
+-			memory_text.text += "%s · %d sn · %d olay · tepki %.2f\n" % [{"won":"Çıkış","quit":"Çıkıldı","connection_lost":"Kesinti","restarted":"Yeniden"}.get(item.get("outcome",""),"Tur"),int(item.get("seconds",0)),int(item.get("events",0)),mean_score]
++			memory_text.text += "%s · %d sn · %d olay · tepki %.2f\n" % [{"won":"Zafer","lost":"Yenilgi","quit":"Çıkıldı","connection_lost":"Kesinti","restarted":"Yeniden"}.get(item.get("outcome",""),"Tur"),int(item.get("seconds",0)),int(item.get("events",0)),mean_score]
+ 		if saved.get("recent",[]).is_empty() and not OS.has_feature("web"): memory_text.text += "Henüz tamamlanmış tur yok.\n"
+ 		var reaction_means: Array = saved.get("mean_reaction",[0,0,0])
+ 		var reaction_counts: Array = saved.get("counts",[0,0,0])
+@@ -973,10 +932,12 @@
+ 	var start := Time.get_ticks_msec()
+ 	while Vector2(player.position.x-target.x,player.position.z-target.z).length() > 0.22:
+ 		await get_tree().physics_frame
+-		if completed and target.z < -15.2:
++		if completed:
+ 			player.auto_walk = false
+-			return true
+-		if Time.get_ticks_msec()-start > 15000: return false
++			return false
++		if Time.get_ticks_msec()-start > 15000:
++			player.auto_walk = false
++			return false
+ 	player.auto_walk = false
+ 	return true
+ 
+@@ -1036,6 +997,7 @@
+ 	if not check(fly_hit!=null and fly.position.x<5.9,"Physical fly collides with room wall"): return
+ 	fly.reset_body()
+ 	fly.active=true
++	fly.set_physics_process(false)
+ 	for key_code in [KEY_W, KEY_A, KEY_S, KEY_D]:
+ 		var before := player.position
+ 		var key_event := InputEventKey.new()
+@@ -1058,41 +1020,11 @@
+ 	player.auto_walk = false
+ 	if not check(player.position.x < 5.7,"Room wall prevents walking through collision"): return
+ 	if not check(await walk_to(Vector3(0,0,0)),"Walk to room center"): return
+-	if key_slot==1:
+-		if not check(await walk_to(Vector3(-2.8,0,-0.2)),"Search observation-room table"): return
+-		await aim_at(key_object.global_position)
+-		interact()
+-		if not check(await walk_to(Vector3(0,0,0)),"Return from observation table"): return
+-	if not check(await walk_to(Vector3(0,0,-12.7)),"Navigate corridor with collisions"): return
+-	await aim_at(Vector3(0,1.35,-14.68))
+-	if not has_key:
+-		interact()
+-		if not check(not door_open,"Exit stays locked without key"): return
+-	if not check(await walk_to(Vector3(0,0,-9)),"Return to side-room junction"): return
++	if not check(await walk_to(Vector3(0,0,-9)),"Navigate corridor with collisions"): return
+ 	if not check(await walk_to(Vector3(6,0,-9)),"Enter machine room through side doorway"): return
+-	if key_slot==2:
+-		if not check(await walk_to(Vector3(7,0,-9.7)),"Search machine-room cabinet"): return
+-		await aim_at(key_object.global_position)
+-		interact()
+-		if not check(await walk_to(Vector3(6,0,-9)),"Return from machine cabinet"): return
+-	if DisplayServer.get_name() != "headless":
+-		await aim_at(Vector3(9,1.4,-11.5))
+-		await RenderingServer.frame_post_draw
+-		get_viewport().get_texture().get_image().save_png(evidence_dir+"/machine-room-1080p.png")
+-	if not check(await walk_to(Vector3(6,0,-18.5)),"Walk from machine room into rear service corridor"): return
+-	if not check(await walk_to(Vector3(0,0,-18.5)),"Reach rear passage behind sealed exit"): return
+-	if DisplayServer.get_name() != "headless":
+-		await aim_at(Vector3(-6,1.5,-18.5))
+-		await RenderingServer.frame_post_draw
+-		get_viewport().get_texture().get_image().save_png(evidence_dir+"/service-corridor-1080p.png")
++	if not check(await walk_to(Vector3(6,0,-18.5)),"Reach rear service corridor"): return
+ 	if not check(await walk_to(Vector3(-6,0,-18.5)),"Cross rear corridor with collisions"): return
+-	if not check(await walk_to(Vector3(-6,0,-12)),"Enter archive through rear doorway"): return
+-	if not check(await walk_to(Vector3(-5.5,0,-7.9)),"Navigate archive aisle around furniture"): return
+-	if not check(await walk_to(Vector3(-7.4,0,-7.9)) and player.is_on_floor(),"Reach archive key table on continuous floor"): return
+-	if key_slot==0:
+-		await aim_at(key_object.global_position)
+-		interact()
+-	if not check(has_key and not key_object.visible,"E interaction collects key"): return
++	if not check(await walk_to(Vector3(-6,0,-9)),"Enter archive through rear doorway"): return
+ 	# Exercise every original effect through the production dispatch and local gate.
+ 	for effect in ["lights","steps","silhouette"]:
+ 		events.clear()
+@@ -1133,20 +1065,40 @@
+ 	if DisplayServer.get_name() != "headless":
+ 		await RenderingServer.frame_post_draw
+ 		get_viewport().get_texture().get_image().save_png(evidence_dir+"/game-1080p.png")
+-	if not check(await walk_to(Vector3(-3.3,0,-7.9)),"Leave archive key table"): return
+-	if not check(await walk_to(Vector3(-3.3,0,-9)),"Reach archive side doorway"): return
+-	if not check(await walk_to(Vector3(0,0,-9)),"Return from archive to exit corridor"): return
+-	if not check(await walk_to(Vector3(0,0,-12.7)),"Reach exit with key"): return
+-	await aim_at(Vector3(0,1.35,-14.68))
+-	interact()
+-	if not check(door_open,"E interaction opens exit with key"): return
+-	if not check(await walk_to(Vector3(0,0,-15.6)),"Walk through open exit"): return
+-	await get_tree().process_frame
+-	if not check(completed,"Playable route reaches victory"): return
+-	start=Time.get_ticks_msec()
+-	while director.ending and Time.get_ticks_msec()-start<2000: await get_tree().process_frame
+-	if not check(not director.ending and not director.memory.get("recent",[]).is_empty(),"Victory persists round history and acknowledges save"): return
+-	if not check(not director.neural.is_empty(),"Input to actual neural output to game decision"): return
++	if not check(await walk_to(Vector3(0,0,-9)),"Return to arena corridor"): return
++	if not check(await walk_to(Vector3(0,0,3)),"Walk into firing position"): return
++	fly.position = Vector3(0,1.65,0)
++	await aim_at(fly.position)
++	await get_tree().physics_frame
++	var initial_hp: int = fly.hp
++	player.fire()
++	if not check(fly.hp == initial_hp-player.weapon_damage,"Real hitscan reduces drone HP"): return
++	while not completed and fly.hp > 0:
++		await get_tree().create_timer(player.fire_cooldown+0.05).timeout
++		player.fire()
++	if not check(completed and round_outcome == "won" and fly.hp == 0 and menu.visible,"Hitscan defeat signal returns to victory menu"): return
++	start = Time.get_ticks_msec()
++	while director.ending and Time.get_ticks_msec()-start<4000: await get_tree().process_frame
++	var recent: Array = director.memory.get("recent",[])
++	if not check(not director.ending and not recent.is_empty() and recent[-1].get("outcome","") == "won","Victory persists and acknowledges won outcome"): return
++	start_game()
++	if not check(player.hp == player.max_hp and fly.hp == fly.max_hp and not completed,"New round resets both HP pools and outcome"): return
++	start = Time.get_ticks_msec()
++	while director.neural.is_empty() and Time.get_ticks_msec()-start<10000: await get_tree().process_frame
++	if not check(not director.neural.is_empty(),"New round receives actual neural output"): return
++	# Arrange an approaching contact, then let the real physics step cross the threshold.
++	# This checks contact settlement, not autonomous pursuit from the default spawn.
++	fly.position = player.position+Vector3(0,1.25,-0.65)
++	fly.velocity = Vector3(0,0,4)
++	fly.gaze = Vector3.BACK
++	fly.set_physics_process(true)
++	start = Time.get_ticks_msec()
++	while not completed and Time.get_ticks_msec()-start<4000: await get_tree().physics_frame
++	if not check(completed and round_outcome == "lost" and player.hp == 0 and menu.visible,"Physical drone contact returns to defeat menu"): return
++	start = Time.get_ticks_msec()
++	while director.ending and Time.get_ticks_msec()-start<4000: await get_tree().process_frame
++	recent = director.memory.get("recent",[])
++	if not check(not director.ending and not recent.is_empty() and recent[-1].get("outcome","") == "lost","Defeat persists and acknowledges lost outcome"): return
+ 	write_report(true,"")
+ 	await quit_game()
+ 
+@@ -1156,7 +1108,7 @@
+ 	var sum := 0.0
+ 	for v in sorted: sum+=v
+ 	var result := {"passed":passed,"failure":failure,"checks":smoke_checks,"renderer":RenderingServer.get_video_adapter_name(),"display":DisplayServer.get_name(),"viewport":str(get_viewport().get_visible_rect().size),"frames":sorted.size(),"elapsed_seconds":elapsed,"mean_fps":1000.0/(sum/maxi(1,sorted.size())),"godot_version":Engine.get_version_info(),"last_neural":director.neural,"mode":director.mode,"headless":DisplayServer.get_name()=="headless"}
+-	result["key_slot"] = key_slot
++	result["round_outcome"] = round_outcome
+ 	if not sorted.is_empty():
+ 		result["frame_ms_p50"] = sorted[int(sorted.size()*0.5)]
+ 		result["frame_ms_p95"] = sorted[int(sorted.size()*0.95)]
+--- a/game/touch_controls.gd
++++ b/game/touch_controls.gd
+@@ -12,7 +12,6 @@
+ 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+ 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+ 	add_button("DURAKLAT",game.pause_game,Vector2(88,48))
+-	add_button("ETKİLEŞ",game.interact,Vector2(88,56))
+ 	add_button("FENER",func(): game.player.torch.visible = not game.player.torch.visible,Vector2(88,48))
+ 	add_button("BEYİN",game.toggle_brain_details,Vector2(68,48))
+ 	for rating in 3:
+@@ -54,9 +53,8 @@
+ func layout() -> void:
+ 	if buttons.is_empty(): return
+ 	buttons[0].position = Vector2(size.x-60,38)
+-	buttons[1].position = Vector2(size.x-64,size.y-110)
+-	buttons[2].position = Vector2(size.x-64,size.y-48)
+-	buttons[3].position = Vector2(size.x-60,94)
++	buttons[1].position = Vector2(size.x-64,size.y-48)
++	buttons[2].position = Vector2(size.x-60,94)
+ 	for i in ratings.size(): ratings[i].position = Vector2(size.x/2+(i-1)*100,164)
+ 	reset()
+ 
+--- a/STATUS.md
++++ b/STATUS.md
+@@ -12,7 +12,7 @@
+ 
+ ## 当前阶段
+ 
+-P0/P1 已完成。P2（Drone 改造+武器+HP+win/lose）**测试已写好、部分底层接口已实现，主体游戏逻辑（main.gd）留给下一个 AI 实现**，见下方"P2 交接说明"。
++P0/P1 已完成。**P2 的 main.gd 战斗主线已完成并通过真实后端 smoke**：射线击杀 → won；物理接触 → lost；菜单、重开、结果持久化已接通。P2 尚未整体收尾：Drone 外观/命名、默认出生点自主贴近行为和人工试玩仍待处理；P3 未开始。先看下面“2026-09-23 本轮结果”，历史交接仅供背景参考。
+ 
+ ## 环境（Windows 原生，非 WSL）
+ 
+@@ -69,7 +69,20 @@
+ - 遇到过一次误导性报错：`asyncio.get_running_loop().add_signal_handler` 在 Windows 抛 `NotImplementedError`，但 `server.py:33` 明明已经用 `os.name!='nt'` guard 了。排查后发现是 `brain/__pycache__/server.cpython-312.pyc` 缓存导致（可能是上一次异常终止的进程留下的过期字节码）。删掉 `__pycache__` 重新编译后问题消失，磁盘上的源码从未有 bug。**如果以后再见到"guard 代码明明对，但 traceback 命中被 guard 掉的分支"这种矛盾，先删 `__pycache__` 排查，不要怀疑源码逻辑。**
+ - Godot headless import（`tools/Godot_v4.5.2-stable_win64_console.exe --headless --path game --editor --import --quit`）退出码 0，日志无 error/fail/exception/crash，证明 `game/` 下的 GDScript 没有解析期错误。**这只验证了脚本能被解析加载，不等于游戏逻辑正确/能玩**，完整试玩仍需手动起 server + 起 Godot game 场景。
+ 
+-## P2 交接说明（给下一个实现 main.gd 的 AI）
++## 2026-09-23 本轮结果（最新入口）
++
++- `game/main.gd`：删除钥匙/开门状态、E 交互和旧胜利条件；接通 `fly.defeated → win_game()`、`player.defeated → lose_game()`，共享 `end_round()`。新增 `round_outcome`，结算重复调用不覆盖首个结果或重复发送 finish。清运动、音效、特效后回菜单；死亡 HP 保持 0，新回合恢复双方 HP。
++- `brain/server.py`：finish 消息白名单补入 `lost`。之前仅接受 `won/quit`，单改 main.gd 会导致失败结果保存被拒。
++- `game/touch_controls.gd`：移除引用已删除 `interact` 的旧按钮；相应更新 `tests/mobile.gd` 的手电按钮索引。没有新增触屏开火。
++- `tests/hud.gd`：旧钥匙菜单期望替换为战斗文案，并分别覆盖 won/lost。新增 `tests/combat_round.gd`，覆盖连续十枪、信号结算、重复结果保护、死亡 HP、胜负后重开。
++- `automated_run()`：保留实际神经数据、4096 样本、移动/墙体、音效、暂停、断线重连验证；改为真实 hitscan 减血击杀和真实物理接触死亡，检查后端 ACK 与最近历史中的 won/lost。结果 `reports/game-smoke.json` 为 passed=true，启动器退出 0，日志在 `logs/validation/20260923-121418/`。
++- **smoke 边界**：射击部分固定 Drone 位置并暂停其物理更新，仍走真实物理射线；死亡部分把 Drone 放到接触阈值外 0.65 m、赋接近速度，再恢复物理更新跨入接触阈值。神经输出来自真实全图，未替换为假数据。此验证不代表默认出生点可自主追上玩家。
++- **下一步重点**：`fly.gd` 仍有旧版 `relative.length()-2.3` 保持距离规则，近距离会后退；接触阈值为 0.6 m。需在后续 P2 飞行行为改造中验证/修正自主贴近，同时保留视线遮挡、速度界限及为 P3 预留接口。本轮按交接保留既有 fly/player 接口，没有调这些参数，也没有替换苍蝇外观。
++- 验证记录：`reports/p2-handoff/` 保存基线和修改后的完整命令、输出、退出码。gameplay 52 PASS；mobile 54 PASS；settings 17 PASS；hud 3 PASS；brain_view 24 PASS；新增 combat_round 19 PASS，以上退出码均为 0。fly 使用 `--fixed-fps 60` 跑完整套得到 55 PASS、退出 0，但退出阶段仍有 ObjectDB/resource 泄漏告警（待查）；前一次带 `--quit-after 36000` 仅跑到 49 条即自动退出，不能视为完整通过，该记录另存 fly-truncated.json。settings 中两条 ERROR 是故意损坏配置/备份失败用例；headless 鼠标捕获检查为 SKIP，尚未做窗口试玩。
++- Python 全套：13 项，10 通过、1 失败、2 错误，退出 1。`test_client.py:25` 和 `test_socket.py:107` 硬编码 macOS Godot 路径导致 Windows FileNotFoundError；`test_public.py:250` 断连历史计数期望 2、实际 1，原因尚待调查。不要引用 `test.ps1` 的末行文案作为全套通过证据，该脚本尚未对原生命令退出码逐条 fail-fast。
++- 本轮尚未提交 git；进入时已有的 fly/player、数据映射、Windows 工具等改动全部保留。下方交接中的“main.gd 尚未实现”是历史状态，勿重复执行。
++
++## P2 历史交接说明（main.gd 已完成，以本轮结果为准）
+ 
+ **范围确认**（已跟用户逐条确认，不要重新讨论）：
+ - 完全替换成战斗，不保留"找钥匙开门逃出房间"这条主线。房间/门/钥匙的**视觉网格**可以留着当装饰，但 `has_key`/`door_open`/`place_key()`/`key_object`/`door`/`KEY_SPOTS`/`key_slot`/`key_rng`/`can_interact()`/`interact()` 这些游戏状态和函数要整个删除，不需要"等价替换"。
+--- a/tests/mobile.gd
++++ b/tests/mobile.gd
+@@ -123,8 +123,8 @@
+ 	verify(game.player.position.distance_to(position)>0.4 and absf(game.player.rotation.y-yaw)>0.2,"Two fingers move and aim together")
+ 	verify(game.player.telemetry().speed<=3.21,"Touch movement respects the existing speed limit")
+ 	var torch: bool=game.player.torch.visible
+-	touch(2,controls.buttons[2].position,true)
+-	touch(2,controls.buttons[2].position,false)
++	touch(2,controls.buttons[1].position,true)
++	touch(2,controls.buttons[1].position,false)
+ 	verify(game.player.torch.visible!=torch and controls.move_finger==0 and controls.look_finger==1,"Third finger toggles torch without stealing either gesture")
+ 	touch(0,Vector2(90,650),false)
+ 	await create_timer(0.1).timeout
+--- a/brain/server.py
++++ b/brain/server.py
+@@ -173,7 +173,7 @@
+                         enabled=True;last_decision=now;record('resumed')
+                     elif kind=='finish':
+                         outcome=msg.get('outcome')
+-                        if outcome not in ('won','quit'):raise ValueError('Invalid outcome')
++                        if outcome not in ('won','lost','quit'):raise ValueError('Invalid outcome')
+                         finish(outcome)
+                         await send({'type':'finished','memory':memory()})
+                     elif kind in ('save','reset'):
+--- a/tests/hud.gd
++++ b/tests/hud.gd
+@@ -58,18 +58,19 @@
+     memory_ok=memory_ok and '28 kişisel öğrenme örneği' in game.memory_text.text and not 'Son alınan kayıt' in game.memory_text.text
+     print(('PASS: ' if memory_ok else 'FAIL: ')+'Learning display distinguishes unavailable, real zero, retained offline and refreshed data')
+     var menu_ok := true
+-    for phase in ['initial','paused','completed']:
++    for phase in ['initial','paused','won','lost']:
+         game.playing=phase!='initial'
+-        game.completed=phase=='completed'
++        game.completed=phase in ['won','lost']
++        game.round_outcome=phase if game.completed else ''
+         game.elapsed=42
+-        game.start_button.text={'initial':'BAŞLAT','paused':'DEVAM ET','completed':'YENİ TUR'}[phase]
++        game.start_button.text={'initial':'BAŞLAT','paused':'DEVAM ET','won':'YENİ TUR','lost':'YENİ TUR'}[phase]
+         # Reproduce the stale title observed after a web reconnect; game state and connection are current.
+         game.menu_title.text="Beyne bağlanılıyor… Hazır olunca Başlat'a bas."
+         for connected in [false,true]:
+             game.director.connected=connected
+             game.director.reason='Gerçek bağlantı verisi hazır' if connected else 'Bağlantı kesildi · güvenli bekleme'
+             game._process(0.1)
+-            var expected: String={'initial':'Üç odada anahtarı ara. Çıkışa ulaş.','paused':'DURAKLATILDI · Odada zaman bekler.','completed':'ÇIKIŞ AÇILDI · Odadan çıktın.  42 sn'}[phase]
++            var expected: String={"initial":"Drone'u vur. Temastan kaçın.",'paused':'DURAKLATILDI · Arena bekler.','won':'KAZANDIN · Drone etkisiz.','lost':'KAYBETTİN · Drone temas etti.' }[phase]
+             menu_ok=menu_ok and game.menu_title.text==expected and game.director.reason in game.notice.text
+             menu_ok=menu_ok and not game.player.active and not game.director.running and game.menu.visible
+     print(('PASS: ' if menu_ok else 'FAIL: ')+'Menu title follows game phase, connection status refreshes separately, and reconnect never resumes play')
+--- /dev/null
++++ b/tests/combat_round.gd
+@@ -0,0 +1,52 @@
++extends SceneTree
++
++# Offline physics fixture, not a neural measurement. Full graph coverage is in smoke.
++var failures: Array[String] = []
++
++func verify(condition: bool, description: String) -> void:
++	print(("PASS: " if condition else "FAIL: ")+description)
++	if not condition: failures.append(description)
++
++func _initialize() -> void:
++	run_checks.call_deferred()
++
++func run_checks() -> void:
++	var game = load("res://main.tscn").instantiate()
++	game.settings_path = ""
++	root.add_child(game)
++	game.director.set_process(false)
++	game.fly.set_physics_process(false)
++	game.start_game()
++	game.player.position = Vector3(0,0,4)
++	game.player.rotation = Vector3.ZERO
++	game.player.camera.rotation = Vector3.ZERO
++	game.fly.position = Vector3(0,1.65,0)
++	await physics_frame
++	await physics_frame
++	for shot in 10:
++		game.player.fire_ready = 0 # Cooldown is separately covered in gameplay.gd.
++		game.player.fire()
++		verify(game.fly.hp == 100-(shot+1)*10,"Hitscan HP step "+str(shot+1))
++	verify(game.completed and game.round_outcome == "won" and game.menu.visible,"Defeated signal settles a win")
++	verify(not game.player.active and not game.fly.active and not game.director.running,"Win stops both bodies and decisions")
++	verify(not game.fly.buzz.playing and not game.footsteps.playing,"Win clears audio")
++	game.lose_game()
++	verify(game.round_outcome == "won","Late loss does not overwrite a settled win")
++	game.start_game()
++	verify(not game.completed and game.round_outcome.is_empty() and game.player.hp == 100 and game.fly.hp == 100,"Restart resets HP and result")
++	game.director.has_round = false # Offline fixture has no WebSocket session to finish.
++	game.director.connected = true
++	game.director.neural = {"output":[0.001,0,0,0]}
++	game.director.last_neural_time = game.director.now()
++	game.player.position = Vector3(0,0,0)
++	game.fly.position = Vector3(0,1.25,0.2)
++	await physics_frame
++	game.fly._physics_process(0.001)
++	verify(game.completed and game.round_outcome == "lost" and game.player.hp == 0,"Contact signal settles defeat without restoring dead HP")
++	verify(game.menu.visible and not game.player.active and not game.fly.active and not game.director.running,"Defeat freezes round and returns to menu")
++	game.win_game()
++	verify(game.round_outcome == "lost" and game.player.hp == 0,"Late win preserves defeat and zero HP")
++	game.director.connected = false
++	game.start_game()
++	verify(game.player.hp == 100 and game.fly.hp == 100 and game.player.active,"Restart after defeat is playable")
++	await game.quit_game(0 if failures.is_empty() else 1)

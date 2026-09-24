@@ -1,0 +1,11 @@
+{
+  "cwd": "E:\\FlyBrain\\flyfear",
+  "command": [
+    ".venv/Scripts/python.exe",
+    "reports/p2-pursuit/rollback.py"
+  ],
+  "inputs": "repository scene + test-defined inputs",
+  "stdout": "Verified modified files and original hashes\n",
+  "stderr": "",
+  "exit_code": 0
+}

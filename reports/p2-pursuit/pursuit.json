@@ -1,0 +1,17 @@
+{
+  "cwd": "E:\\FlyBrain\\flyfear",
+  "command": [
+    "tools/Godot_v4.5.2-stable_win64_console.exe",
+    "--headless",
+    "--path",
+    "game",
+    "--fixed-fps",
+    "60",
+    "--script",
+    "../tests/pursuit.gd"
+  ],
+  "inputs": "repository scene + test-defined inputs",
+  "stdout": "Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org\n\nPASS: Default spawn autonomous contact: [0.16, 3]\nPASS: Speed bound during pursuit\n{\"drive\":[0.16,0.06,0.08,0.04],\"frames\":38,\"peak_speed\":6.8798394203186,\"seed\":3}\nPASS: Default spawn autonomous contact: [0.16, 17]\nPASS: Speed bound during pursuit\n{\"drive\":[0.16,0.06,0.08,0.04],\"frames\":35,\"peak_speed\":7.05355262756348,\"seed\":17}\nPASS: Default spawn autonomous contact: [0.16, 42]\nPASS: Speed bound during pursuit\n{\"drive\":[0.16,0.06,0.08,0.04],\"frames\":32,\"peak_speed\":7.15220069885254,\"seed\":42}\nPASS: Default spawn autonomous contact: [-0.05011754855514, 3]\nPASS: Speed bound during pursuit\n{\"drive\":[-0.0501175485551357,-0.035813182592392,-0.0153126399964094,0.0140054617077112],\"frames\":42,\"peak_speed\":5.19527769088745,\"seed\":3}\nPASS: Default spawn autonomous contact: [-0.05011754855514, 17]\nPASS: Speed bound during pursuit\n{\"drive\":[-0.0501175485551357,-0.035813182592392,-0.0153126399964094,0.0140054617077112],\"frames\":40,\"peak_speed\":6.13664770126343,\"seed\":17}\nPASS: Default spawn autonomous contact: [-0.05011754855514, 42]\nPASS: Speed bound during pursuit\n{\"drive\":[-0.0501175485551357,-0.035813182592392,-0.0153126399964094,0.0140054617077112],\"frames\":38,\"peak_speed\":6.1521167755127,\"seed\":42}\nPASS: Default spawn autonomous contact: [-0.19101500511169, 3]\nPASS: Speed bound during pursuit\n{\"drive\":[-0.191015005111694,-0.141165092587471,-0.0650838315486908,0.0531451068818569],\"frames\":31,\"peak_speed\":7.89085149765015,\"seed\":3}\nPASS: Default spawn autonomous contact: [-0.19101500511169, 17]\nPASS: Speed bound during pursuit\n{\"drive\":[-0.191015005111694,-0.141165092587471,-0.0650838315486908,0.0531451068818569],\"frames\":31,\"peak_speed\":8.0,\"seed\":17}\nPASS: Default spawn autonomous contact: [-0.19101500511169, 42]\nPASS: Speed bound during pursuit\n{\"drive\":[-0.191015005111694,-0.141165092587471,-0.0650838315486908,0.0531451068818569],\"frames\":31,\"peak_speed\":8.0,\"seed\":42}\nPASS: Wall blocks close-range contact and telemetry\n",
+  "stderr": "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n   at: cleanup (core/object/object.cpp:2514)\nERROR: 2 resources still in use at exit (run with --verbose for details).\n   at: clear (core/io/resource.cpp:804)\n",
+  "exit_code": 0
+}

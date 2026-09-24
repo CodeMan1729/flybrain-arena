@@ -1,0 +1,15 @@
+{
+  "command": [
+    "E:\\FlyBrain\\flyfear\\tools\\Godot_v4.5.2-stable_win64_console.exe",
+    "--headless",
+    "--path",
+    "game",
+    "--script",
+    "../tests/gameplay.gd"
+  ],
+  "cwd": "E:\\FlyBrain\\flyfear",
+  "inputs": "15 damage; seven-shot kill; cooldown and wall blocking regression",
+  "stdout": "Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org\n\nPASS: HUD text is reused between 10 Hz updates\nPASS: HUD refreshes changed gameplay state at the next update\nPASS: Hidden debug text does not rebuild every update\nPASS: Fly fits through side-room doorway: -1\nPASS: Fly fits through rear service doorway: -1\nPASS: Fly fits through side-room doorway: 1\nPASS: Fly fits through rear service doorway: 1\nPASS: Rear wall contains fly\nPASS: Rear wall contains player\nPASS: Rear passage cannot bypass sealed exit wall\nPASS: Direct hit on drone deals weapon_damage\nPASS: Fire cooldown blocks an immediate second shot\nPASS: Solid obstacle blocks the hitscan ray from reaching the drone\nPASS: Draining drone HP to zero deactivates it\nPASS: Drone HP reaching zero emits defeated\nPASS: Drone contact drains player HP to zero\nPASS: Player HP reaching zero emits defeated\nPASS: Fly buzz is silent before play\nPASS: Actual mixed fly buzz grows louder near the listener\nPASS: Actual mixed fly buzz follows left and right position\nPASS: Fly buzz is inaudible beyond its range\nPASS: Pause stops fly buzz immediately\nPASS: Resume restarts looping fly buzz\nPASS: Pause releases a held movement key even when its key-up event never arrives\nPASS: Fresh movement input still works after resuming\nPASS: Zero volume mutes every game sound\nPASS: Volume restores bounded game audio\nPASS: Round completion stops fly buzz\nPASS: Four scare clips produce actual mixed audio at the player\nPASS: Sound variation never repeats the same clip back to back\nPASS: Scare audio stays behind the player, gain-limited and shorter than the reaction window\nPASS: Rejected sound consumes neither event budget nor random sequence\nPASS: Same seed reproduces sound, position and pitch\nPASS: Pause immediately cancels scare audio\nPASS: Resume does not replay a cancelled scare\nPASS: Zero effect intensity disables all scare variants\nPASS: Wait never starts a scare sound\nPASS: Master mute covers the scare player's output bus\nPASS: Completing the round stops scare audio\nPASS: Fast turn survives until 10 Hz telemetry sample\nPASS: Old turn expires instead of producing repeated reactions\nPASS: Fly searches even when neural lateral drive cancels old search turn\nPASS: Lost brain connection stops physical fly without stale drift\nPASS: Rating key reaches the learning feedback route\nPASS: Expired event cannot receive a rating\nPASS: Window focus loss pauses player, fly and event decisions\nPASS: Focus loss also stops fly buzz\nPASS: Focus loss also cancels scare audio\nPASS: Menu key without key-up cannot leak into new round\nPASS: Fresh input works after menu entry: new round\nPASS: Menu key without key-up cannot leak into resume\nPASS: Fresh input works after menu entry: resume\n",
+  "stderr": "",
+  "exit_code": 0
+}

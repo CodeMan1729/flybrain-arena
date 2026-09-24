@@ -1,0 +1,11 @@
+{
+  "command": [
+    ".venv/Scripts/python.exe",
+    "tools/launch.py",
+    "--headless",
+    "--smoke"
+  ],
+  "exit_status": 0,
+  "stdout": "FLYFEAR hazır · localhost · tam MaleCNS grafiği\r\nOyun günlüğü: E:\\FlyBrain\\flyfear\\logs\\validation\\20260923-121418\\20260923-121418-game.log\r\n",
+  "stderr": ""
+}

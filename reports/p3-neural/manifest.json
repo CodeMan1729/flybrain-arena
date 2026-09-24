@@ -1,0 +1,98 @@
+{
+  "brain/connectome.py": {
+    "original": "52f225d56982109f22375d480cd3d72050123103c55e5bee3fa4d43a99eb32dd",
+    "modified": "e9c1959de80ed799b09d1b16186cd72ec774a442f7a6cf47b198a919fba5e737"
+  },
+  "brain/server.py": {
+    "original": "5c9f3faa9b4786418bda6e2e84b7a093613acd528a77b1662d7f57ffa0af7770",
+    "modified": "fadd0939c3344e404fcdb903b40692f9ca87ce2ca67e9a6f47b9e7e199e9bb6d"
+  },
+  "game/director.gd": {
+    "original": "a57c65ed053386107629593e7a6e53dda6bfb142f06226656f646076ae49be77",
+    "modified": "728dad9ffecb8c4439872e2ee64f499506797cf3c21f0f8abe6952e59a2ede6b"
+  },
+  "game/drone.gd": {
+    "original": "edfa593de52f9b567ae26839da89100b9cffb02f71ab1adee1727f8135a040d0",
+    "modified": "b52d5acbcc0d31ac379821d704a4c569ccea761cb637475f3801f67539877adc"
+  },
+  "game/player.gd": {
+    "original": "39f81f10e317d5a810123b84bea7f3df005d50a3ed7d2fe4165f6ec2672cf68b",
+    "modified": "15bf778149d59b4e11c7c2e011219ef31e251316d1ff6a65f1da236016bef189"
+  },
+  "game/main.gd": {
+    "original": "6673acfae49d25fd622db4135c55c3414e0d600dbe2f9b0f0dc731f980a18bad",
+    "modified": "1eed87acd67b9dd0615cae1b8099aab5da60fd4c988d5ea23e938539835a11fa"
+  },
+  "STATUS.md": {
+    "original": "5a30fb22b54f6c37674b85efdf91910ec70d48754b118327412365688a50a918",
+    "modified": "8c1f21e20246952eff007e1a9a88b1e512cf763a745f643f7fd9e18a8a80ae27"
+  },
+  "docs/ARCHITECTURE_NOTES.md": {
+    "original": "2d1e3144653e23f48dcb296117963edfb94203d843f91ab8e5c37dab78e3edc4",
+    "modified": "9e00a50a06a6edd3772bcaa155822711210a78b3fa56315e3fd7e8c55de3e6af"
+  },
+  "brain/escape.py": {
+    "original": null,
+    "modified": "8fce3c6c68c6d390c1bc46b266bac3fe8407a38812fc6038fe73bfb22cd6eda9"
+  },
+  "tests/test_escape.py": {
+    "original": null,
+    "modified": "80432634dda4b27ed8303080b43cd278985ceb118e4452d038a7bbfeb8218ad7"
+  },
+  "tests/escape.gd": {
+    "original": null,
+    "modified": "bd51d73ddea4be2ad93cbb4b96cf6cfdc490970ddcc092dee53e893ba20507e3"
+  },
+  "tests/test_escape_socket.py": {
+    "original": null,
+    "modified": "ab339e3998570d3b5a2f65c2305fb967f15fec74a0e433034e24bb02676b647c"
+  },
+  "game/threat_sensor.gd": {
+    "original": null,
+    "modified": "0aa7d0518512983c1093d267cf9252773a61e7f4b22410191db29e8254df6f7c"
+  },
+  "tests/escape_live.gd": {
+    "original": null,
+    "modified": "e9bfb650127d4ceb2f50dfdfe8917e461d85ebc2b2d4c72028e26b0e92bb2870"
+  },
+  "tests/escape_deadline.gd": {
+    "original": null,
+    "modified": "950d3715c5a5c608e14337e4d41b307b085aa4726553c61bd6759185472b2729"
+  },
+  "tools/godot_path.py": {
+    "original": null,
+    "modified": "54b482fb0d458fd59a4ddfa8db3808eb642e66c7ed61e1d2a3edf68c251ed006"
+  },
+  "tests/test_client.py": {
+    "original": "677650540988bdc0ddd38fd023b5307da7938b6f23fdb83e577162c2c81d9785",
+    "modified": "377af0d7cfc6cc4f5fe4a98aca2cab83f0c8c599314a7139a928e7e17b74f1da"
+  },
+  "tests/test_socket.py": {
+    "original": "5f6f9f2b01aa66305c2745519565995859ec58d0377923d20aa73bf20de6d283",
+    "modified": "18c80acc41eb4f72c0dcfc4b95c25b3dd5cfbd10249169461639b602ed5b021a"
+  },
+  "tests/test_public.py": {
+    "original": "58852fffc8efd2fdbfc7aee348551f82a2558313297b585c66c6e396822bf177",
+    "modified": "d6768a221516aa9b92d8cbda375704b06c50da8033377325a23f382529d114da"
+  },
+  "test.ps1": {
+    "original": "9a4a1d387b420bb063db575a775d8e922d5d6f0f1c41c5da15088cdc8d27b91e",
+    "modified": "b42aee7b1ca85eb69c44027e79747c38855ccdd4bd69ff2a8c6da092e001483a"
+  },
+  "tests/feedback.gd": {
+    "original": "397d8eb95baa34239389d12ba257488033b80452013652f45abde15005304a53",
+    "modified": "49b349e643c69b0afdd94efde493fcbc86782d7afca7f729c15f695ae155d5a1"
+  },
+  "tests/mobile.gd": {
+    "original": "f69b6312012c120ce3c0b33b4e3813a4c0047ab9e96d7c67443ffebb277491e4",
+    "modified": "65a97f03c3db7b5442f8b2696d7df8dd082b4aecb7482bc02890b8050aedcd59"
+  },
+  "game/touch_controls.gd": {
+    "original": "b1acf45cb07597e267e216419349276704f9159c49ab4d0c89bcc01e037f49fd",
+    "modified": "3530e8d9adda9cf01219cc522e9c34d553dad2429e5d25ca4a279206647cc275"
+  },
+  "tests/report.gd": {
+    "original": null,
+    "modified": "80b390315cc00ec71f5ea3976b47c19d76e2e4b15c15812fabdb4e13300c68ee"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "command": [
+    "E:\\FlyBrain\\flyfear\\tools\\Godot_v4.5.2-stable_win64_console.exe",
+    "--headless",
+    "--path",
+    "E:\\FlyBrain\\flyfear\\reports\\p2-playtest\\baseline\\game",
+    "--script",
+    "../tests/weapon_view.gd",
+    "--fixed-fps",
+    "60"
+  ],
+  "cwd": "E:\\FlyBrain\\flyfear",
+  "inputs": "offline scene fixtures / recorded neural outputs",
+  "stdout": "Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org\n\nFAIL: First-person weapon exists\n",
+  "stderr": "",
+  "exit_code": 1
+}

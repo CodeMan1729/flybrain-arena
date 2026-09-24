@@ -1,0 +1,17 @@
+{
+  "command": [
+    "tools/Godot_v4.5.2-stable_win64_console.exe",
+    "--path",
+    "game",
+    "--rendering-method",
+    "gl_compatibility",
+    "--position",
+    "-2000,-2000",
+    "--script",
+    "../reports/p4-feedback/preview.gd"
+  ],
+  "cwd": "E:\\FlyBrain\\flyfear",
+  "stdout": "Godot Engine v4.5.2.stable.official.6ce3de25a - https://godotengine.org\nOpenGL API 3.3.0 NVIDIA 616.92 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU\n\narena-ready.png result=0\narena-hit.png result=0\narena-paused.png result=0\nVictory fixture: outcome=won hp=0 menu=true title=YOU WON \u00b7 Drone disabled.\narena-won.png result=0\n",
+  "stderr": "",
+  "exit_code": 0
+}

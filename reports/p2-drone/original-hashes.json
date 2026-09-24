@@ -1,0 +1,9 @@
+{
+  "game/fly.gd": "cdbef77e9ab60414ffbaf8bd23a5780fc55f87b1deab7550dd5e37322ead0232",
+  "game/drone.gd": null,
+  "game/main.gd": "cfb52b5b17494e090974b82134904dc3730836905f5c44043a4587f387016bc0",
+  "game/main.tscn": "39aed578b4ea0a36177f1d80d5204fa088ba24ab33449f26de9bed1bfe54b03e",
+  "tests/fly.gd": "a4f0f083ad6201fb942151f69ccb2f3aeae00fca65c52c68bb44bb322ce41e14",
+  "tests/drone_visual.gd": null,
+  "STATUS.md": "716cb907bca0ea2cc4c1fa06b06176748a0ad1addb84a56f4a7d5bbb500db5fd"
+}

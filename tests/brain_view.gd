@@ -32,7 +32,7 @@ func checks() -> void:
     game.director.neural={'view_activity':[0.1,-0.9,0.4,0.2],'output':[0.1,-0.2,0.1,0.01],'mean_abs':0.02}
     game.director.last_neural_time=game.director.now()
     panel._process(0.1)
-    verify(panel.history.size()==1 and 'CANLI' in panel.status_text(),'New measured sample updates history and live status')
+    verify(panel.history.size()==1 and 'LIVE' in panel.status_text(),'New measured sample updates history and live status')
     panel._process(0.1)
     verify(panel.history.size()==1,'Rendering does not invent neural samples')
     await process_frame
@@ -49,7 +49,7 @@ func checks() -> void:
     game.toggle_brain_details()
     game.director.connected=true
     verify(panel.expanded and not game.player.active and not game.director.running and not game.menu.visible,'V opens an interactive paused inspector')
-    verify('DURAKLATILDI' in panel.status_text() and panel.snapshot.view_activity[1]==-0.9 and panel.measured_action=='lights','Paused view explicitly keeps the last measured activity and action')
+    verify('PAUSED' in panel.status_text() and panel.snapshot.view_activity[1]==-0.9 and panel.measured_action=='lights','Paused view explicitly keeps the last measured activity and action')
     await process_frame
     await process_frame
     rendered=network_draws[0]
@@ -86,7 +86,7 @@ func checks() -> void:
     panel.reset_view()
     verify(panel.zoom==1 and is_equal_approx(panel.yaw,0.18),'Reset restores the initial camera')
     game.director.connected=false
-    verify('BAĞLANTI YOK' in panel.status_text(),'Disconnect never presents retained samples as live')
+    verify('NO CONNECTION' in panel.status_text(),'Disconnect never presents retained samples as live')
     game.toggle_brain_details()
     verify(not panel.expanded and game.player.active and game.director.running and panel.points==before,'V returns to the original play state and compact projection')
     game.pause_game()
