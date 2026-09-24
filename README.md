@@ -1,323 +1,118 @@
-# FLYFEAR
+# FlyBrain Arena
 
-**[Tarayıcıda oyna → furkancakir.dev/flyfear/](https://furkancakir.dev/flyfear/)**
+A first-person combat prototype for Windows, forked from [FLYFEAR](https://github.com/furkancak1r/flyfear). You fight a drone whose dodge behavior is driven by a real fly connectome: your threats propagate through actual MaleCNS neurons and out through real anatomical escape pathways, not a scripted dodge routine.
 
-Tarayıcıda ve macOS ARM64 üzerinde çalışan birinci şahıs korku oyunu prototipi. İnsan anahtarı bulup koridordaki kilitli çıkışı açar. **Odada fiziksel bir sinek uçar, oyuncuyu görüş alanıyla izler; gerçek bağlantı verisinden türetilen simülasyon uçuşunu etkiler ve korku olaylarını seçer.** Normal oyunda öğrenme her zaman açıktır. Web oyuncuları sunucudaki ortak karar katmanını günceller; masaüstü sürümü deneyimlerini kendi Mac’inde saklar.
+**This is a fork, not the original game.** FLYFEAR was a horror prototype about finding a key and escaping a room while a connectome-driven fly stalked you. FlyBrain Arena replaces that with combat: shoot the drone before it reaches you, and its evasive flight comes out of the same real connectome, now routed through neurons anatomically linked to escape behavior. The upstream project's README, web deployment, and macOS/uv toolchain do not describe this fork; see below for what changed and why.
 
-Bu klasörde çalıştırılmış bir Godot oyunu, gerçek veri, ayrı Python simülasyonu, testler ve ölçüm raporları vardır. Ekran görüntüsü: [1080p oyun](reports/game-1080p.png). Güncel öğrenme: [v3 eğitim ve doğrulama raporu](reports/learning-v3/README.md). Önceki ölçümler: [performans raporu](reports/PERFORMANCE.md).
-
-| Proje özeti | Durum |
+| Summary | Status |
 |---|---|
-| Platform | WebGL 2 tarayıcı + dokunmatik veya klavye/fare; ayrıca macOS ARM64 |
-| Oyun motoru | Godot 4.5.2, hafif 3B, birinci şahıs |
-| Beyin verisi | MaleCNS v1.0; 166.700 nöron, 25.582.938 yönlü bağlantı |
-| Öğrenme | Sinir çıktılarından olay seçen, ödülle güncellenen dış karar katmanı v3 |
-| Ön eğitim | 48 yapay oyuncu, 576 tur, 8.640 ödüllü olay |
-| Kişiselleşme | Oyun içi hareketler ve isteğe bağlı 1 / 2 / 3 değerlendirmeleri |
-| Çalışma biçimi | Web: HTTPS/WSS ve sunucuda CPU; masaüstü: yalnızca localhost |
-| Son doğrulama | 12 Python/sunucu testi, 17 ayar kontrolü, 112 ses/oynanış ve anahtar arama, 24 beyin görünümü ve 48 tam tur kontrolü geçti |
+| Platform | Windows native (Godot 4.5.2 win64); not tested on macOS/web for this fork |
+| Combat | Raycast hitscan, 15 damage/hit, 100 HP drone (7 hits to down), 0.35 s cooldown, 25 m range |
+| Player | 100 HP, contact with the drone is instant death, not gradual damage |
+| Drone dodge | Real MaleCNS connectome: threat signal → LC4/LPLC2 neurons → full 166,700-neuron graph → DNp01/DNp03 readout → dodge direction |
+| Drone chase | Engineered controller (fixed speed/accel caps) modulated by the same neural output that drove FLYFEAR's scare events |
+| Brain data | MaleCNS v1.0; 166,700 neurons, 25,582,938 directed connections (unchanged from upstream) |
+| Latest validation | Full regression + real hitscan/physics smoke test passed at P4; see `STATUS.md` for exact counts |
 
-Son [genel performans optimizasyonu](reports/optimization/README.md): daha hızlı
-beyin yükleme, daha düşük bellek, değişiklik olduğunda yenilenen ağ çizimi ve
-daha küçük sinir ölçümü mesajları. Tam grafiğin dinamiği ve öğrenme korunur.
+![FlyBrain Arena: the drone in the room with the live neural activity panel](reports/learning-v3/feedback-open.png)
 
-![FLYFEAR: odadaki sinek, gerçek sinir etkinliği paneli ve olay değerlendirmesi](reports/learning-v3/feedback-open.png)
+## Why this fork exists
 
-## Web sürümü
+FLYFEAR already had a real, computed connectome driving a fly's behavior — but only for picking horror sound/light events, never for movement itself. The fly's flight was a hand-written chase rule that read four neuron-group averages as tuning knobs. This fork keeps the real connectome and the honest "what's real vs. what's engineered" discipline from upstream, but asks a different question: can a player's *combat actions* — aiming at the drone, opening fire — become a real sensory input that propagates through actual escape-pathway neurons and comes back out as a dodge?
 
-Kurulumsuz oyun: **[furkancakir.dev/flyfear](https://furkancakir.dev/flyfear/)**. Güncel, WebGL 2 destekleyen bir tarayıcı gerekir. Telefonda sol alanda sürükleyerek hareket et, sağ alanda sürükleyerek bak; etkileşim, fener, duraklatma, beyin ve değerlendirme düğmeleri ekrandadır. Dikey/yatay menüler kaydırılabilir; ekran dönüşü ve dokunma iptali oyunu duraklatır. Masaüstünde klavye/fare kontrolleri sürer. İlk sıkıştırılmış indirme yaklaşık 9 MiB. İnternet bağlantısı oyun boyunca gereklidir. [Mobil doğrulama ve cihaz sınırları](reports/web/mobile-check.json).
+The answer, verified against the raw connection data rather than assumed: yes, partially. `LC4 → DNp01`, `LC4 → DNp03`, and `LPLC2 → DNp01` are real, weighted, direct anatomical connections in MaleCNS v1.0 (see `docs/ARCHITECTURE_NOTES.md` for the exact edge counts). `LPLC2 → DNp03` is real but negligible. There is no direct connection from the visual input neurons (R1-R6) to LC4/LPLC2, so this fork injects the threat signal directly at LC4/LPLC2 rather than pretending a fabricated visual pathway exists — that's disclosed as an engineering choice, not a rediscovered biological circuit.
 
-166.700 nöronun tamamı sunucuda hesaplanır. Oyuncular aynı bağlantı grafiğini kullanır fakat her birinin sinir durumu ayrıdır; geçerli hareket tepkileri ve isteğe bağlı değerlendirmeler aynı kalıcı karar katmanını günceller. Yeniden bağlantı, yeni ziyaretçi ve hizmet yeniden başlatması ortak modeli silmez. Öğrenmenin ilerlemesi her turda daha güçlü korku garantisi değildir.
+## Controls
 
-Başlatmadan önce veri kullanımı açıklanır. Ham hareket akışı, IP, e-posta veya tarayıcı kimliği oyun günlüğüne yazılmaz; kamera ve mikrofon kullanılmaz. Ayrıntılı olay kayıtları yaklaşık 20 MB ile sınırlıdır; öğrenilmiş model korunur. [Veri kullanımı](https://furkancakir.dev/flyfear/privacy.html), [web kurulumu ve sınırlar](web/README.md), [yayın doğrulaması](reports/web/README.md).
-
-## Yerel başlatma
-
-macOS ARM64 üzerinde ilk kurulum için terminalde:
-
-```sh
-git clone https://github.com/furkancak1r/flyfear.git
-cd flyfear
-./setup.sh
-./run.sh
-```
-
-Sonraki açılışlarda proje klasöründe `./run.sh` yeterlidir; eksik kurulum varsa başlatıcı `./setup.sh` çağırır. Kurulum macOS ARM64 ve [uv](https://docs.astral.sh/uv/getting-started/installation/) gerektirir. Doğrulanan uv: **0.9.15**. Python 3.12.12 uv ile kurulur; mevcut sistem Python'u değiştirilmez. Proje `.venv` kullanır. Godot yalnızca `tools/Godot.app` içine indirilir; `/Applications` değiştirilmez.
-
-İlk indirme yaklaşık **1,11 GB veri + 162 MB Godot arşivi + Python paketleri**; kurulu klasör yaklaşık 1,9 GB. Yeniden kurulum mevcut ham veriyi silmez, SHA256 denetler. Tam grafiğin hazırlanması bu makinede yaklaşık 41 saniye sürdü. Kurulumda internet gerekir; **yerel sürümde oyun sırasında ağ hedefi yalnızca `127.0.0.1`**. API hesabı, ücretli hizmet, CUDA, LLM veya bulut hesaplama gerekmez.
-
-`run.sh` tek beyin ve tek Godot süreci başlatır. İkinci başlatmayı dosya kilidiyle engeller. Boş localhost portu ve her çalıştırmaya özel rastgele erişim anahtarı üretir; anahtar günlükte tutulmaz. Oyun kapanınca yalnızca başlattığı alt süreçleri temizler. Veri/model yüklenmezse nedenini yazıp durur; gerçek entegrasyon yerine gizli rastgele ağ çalıştırmaz.
-
-Normal menüde yalnızca öğrenen oyun vardır; eski sabit/rastgele tercihi de öğrenen moda geçirilir. Kontrol koşulları yalnızca yerel araştırma testlerinde açılır:
-
-```sh
-./run.sh                            # Her turda öğrenen normal oyun
-./run.sh --benchmark --mode=fixed    # Araştırma kontrolü
-./run.sh --benchmark --mode=random   # Araştırma kontrolü
-```
-
-## Oynanış ve Türkçe arayüz
-
-1. **Başlat**’a bas. Her tur **Beyin + öğrenen karar katmanı** ile oynanır ve kayıtlı öğrenmeyi kullanır.
-2. **Gözlem odasındaki masa, arşiv masası ve makine odasındaki dolabın üstünü ara.** Anahtar bu üç konumdan birindedir. Yaklaşıp anahtara bak ve **E** ile al. Anahtar/kapı etkileşiminde arada katı engel bulunmaması gerekir.
-3. Ana koridora dön, sondaki çıkış kapısına yaklaş, **E** ile aç ve dışarı yürü. Sağdaki makine odası ile arka servis koridoru, arşive ikinci bir yol sağlar.
-
-| Tuş | İşlev |
+| Key | Function |
 |---|---|
-| W A S D / fare | Hareket / bakış; gerçek `CharacterBody3D` çarpışmaları |
-| F | El fenerini aç/kapat |
-| E | Anahtar al / çıkış kapısını aç |
-| 1 / 2 / 3 | Öğrenen modda son olayı değerlendir: Etkilemedi / Gerildim / Korktum; 8 saniye içinde, isteğe bağlı |
-| B | Sağ alt köşedeki gerçek nöron etkinliği görünümünü aç/kapat; başlangıçta açık |
-| V | Büyük beyin görünümünü aç/kapat; incelerken oyun duraklar |
-| TAB | Son sinir ölçümü, eylem, puanın kaynağı, FPS ve bellek paneli |
-| ESC | Duraklat / devam; menüde çıkış |
+| WASD / mouse | Move / look; real `CharacterBody3D` collision |
+| Left mouse button | Fire (raycast hitscan; blocked by walls) |
+| F | Toggle flashlight |
+| B | Toggle the small live neuron-activity panel (bottom right); on by default |
+| V | Toggle the large brain view; pauses the game while open |
+| TAB | Latest neural measurement, action, FPS, and memory panel |
+| ESC | Pause / resume; quit from the menu |
 
-**Değişken anahtar araması:** aynı tohumla oynanan yeni turlarda anahtarın yeri art arda tekrarlanmaz. Aynı tohum aynı konum dizisini üretir; uygulamayı yeniden açmak veya yeni turda farklı tohum kullanmak diziyi baştan başlatır. Duraklama, devam ve beyin bağlantısının yenilenmesi mevcut anahtarın yerini değiştirmez. Anahtarın sıcak renkli küçük ışığı onu takip eder ve alındığında söner. Olay sesleri ayrı rastgele sayı akışını kullanır. Üç yerleşimin de gerçek fizik üzerinden oynanıp bitirildiği [doğrulama raporu](reports/KEY-SEARCH.md).
+Win by bringing the drone's HP to 0 (7 hits at 15 damage each). Lose if the drone reaches you — contact is instant, not a health drain. There is no key, no door, and no exploration objective; the map is the original three-room FLYFEAR layout reused as an arena, not as a puzzle to solve.
 
-**Sineği eğitmek için:** normal oyunu oyna. Bir olay seni etkilediğinde veya etkilemediğinde 1 / 2 / 3 ile değerlendirebilirsin. Değerlendirme vermediğinde hareket tepkisi otomatik kullanılır. Her geçerli örnek web’de ortak sunucu belleğine, masaüstünde yerel belleğe kaydedilir; oyunu kapatıp açmak öğrenmeyi silmez. Ana menüdeki kişisel örnek sayısı ile 8.640 yapay ön eğitim olayı ayrı gösterilir. Ön eğitim, senin gerçek korkularının önceden bilindiği anlamına gelmez.
+## Combat and feedback
 
-Ayarlar: ses, efekt yoğunluğu, fare hassasiyeti, 2–5 saniye karar aralığı, tohum, tam ekran/pencere; masaüstünde kişisel karar parametrelerini kaydet/sıfırla. Web oyuncuları ortak modeli sıfırlayamaz. Tohum ve karar aralığı yeni turda uygulanır. Varsayılan karar aralığı **3 saniye**. Yoğunluk 0 iken korku olayları uygulanmaz. Menüdeki sayılayıcılar klavyeyle de kullanılabilir; odak görünürdür.
+Firing is a real raycast against the world collision layer (mask includes walls and the drone); a wall between you and the drone blocks the hit, there's no lock-on or damage falloff. A hit shows a brief (0.14 s) marker around the crosshair; a miss shows nothing. Shot, hit, win, and lose each play an independent short original sound; the drone itself uses a mechanical rotor loop instead of the original insect buzz. All of it respects the existing master volume and mute settings, and pauses/clears cleanly on round reset. None of this changes damage, cooldown, speed, or the neural model — `game/combat_feedback.gd` is presentation only.
 
-**Ayarlar otomatik saklanır:** ses, efekt yoğunluğu, fare hassasiyeti, karar aralığı, mod, tohum ve tam ekran tercihi değiştirildiğinde yerel `user://settings.cfg` dosyasına yazılır. macOS üzerinde bu dosya `~/Library/Application Support/Godot/app_userdata/FLYFEAR/settings.cfg` içindedir; proje ve kişisel öğrenme belleğinden ayrıdır. Yeniden açılışta sessizlik tercihi sesler başlamadan uygulanır. Araştırma testlerindeki `--mode=` o açılışın kontrol koşulunu belirler; yalnızca oyunu açmak kayıtlı ayarları değiştirmez.
+## How the drone dodges: real neurons, not a script
 
-[Godot ConfigFile](https://docs.godotengine.org/en/4.5/classes/class_configfile.html) kullanılır; yeni bağımlılık yoktur. Kayıt önce aynı klasörde geçici dosyaya yazılıp yeniden adlandırılır. Bozuk dosya değiştirilmeden önce `.broken-<zaman>` yedeği alınır; yedeklenemiyorsa üzerine yazılmaz. Sayısal değerler güvenli sınırlarda tutulur, yanlış türler ve NaN/sonsuz değerler varsayılana döner. Okuma/yazma sorunu menüde görünür; oyun mevcut oturum ayarlarıyla devam eder. Bu kayıt yöntemi dosya değiştirme sırasında önceki kaydı korur; güç kesintisine karşı fiziksel diske yazım garantisi verilmez.
+The drone's chase behavior (`game/drone.gd`) is the same kind of engineered controller FLYFEAR always used for the fly: a fixed pursuit rule (6.4 m/s speed cap, 19.2 m/s² acceleration, both scaled down 20% from upstream's fly tuning) modulated by real neural output. What's new is the *dodge* on top of that chase.
 
-**Üç oda ve bağlantılı koridorlar:** gözlem odası, raflı arşiv, jeneratörlü makine odası, ana çıkış koridoru ve iki yan odayı arkadan bağlayan servis geçidi. Anahtar üç odadaki önceden doğrulanmış yüzeylerden birindedir; oda tabelaları ve acil aydınlatma rotayı gösterir. Çıkış arka geçitten duvarla ayrıdır; zafer yalnızca anahtarla açılan kapının hemen ardında tetiklenir. Oyuncu ve sinek aynı katı geometride hareket eder. Prosedürel duvar/zemin malzemeleri, temel geometriden özgün mobilya, anahtar ve siluet kullanılır. [Yeni harita, görüntüler ve ölçüm](reports/expanded-map/README.md). Harici ücretli varlık yok.
+`game/threat_sensor.gd` builds a threat signal from whether you're aiming near the drone, how close your aim ray passes, and whether anything occludes it — accepted shots count, blocked/behind/out-of-range aim doesn't. This is a **predictive** threat signal: it reacts to aim and sustained fire, not to a simulated bullet already in flight, so there's no "undo the hit" mechanic and no invincibility frames hiding behind it.
 
- `tools/generate_audio.py` altı özgün PCM sesi yeniden üretir: oda uğultusu, ayak sesleri, sineğin kesintisiz vızıltısı, boğuk nefes, gıcırtı ve düzensiz tok vuruşlar. İnsan sesi kaydı veya hazır ses örneği kullanılmaz. Vızıltı sineğin fiziksel konumundan gelir; [Godot'un 3B sesi](https://docs.godotengine.org/en/4.5/classes/class_audiostreamplayer3d.html) yön ve uzaklığa göre duyulur, 12 metre dışında susar. Uçuş hızına göre tonu hafifçe değişir; duraklatma, pencere odağı kaybı ve tur sonunda kesilir. Ambiyansa küçük hoparlörlerde de duyulabilen üst harmonikler eklendi. Ayarlar → Ses tüm sesleri birlikte kontrol eder; 0 tam sessizdir. Ses örnekleri ±0,18 tam ölçekle sınırlandırılır; ana ses ve kaynak kazançları da sınırlıdır. Bu yazılım kazancı sınırıdır, donanımdaki kulaklık/speaker ses basıncı ölçülmedi. Işık olayı odanın ana aydınlatmasını yumuşakça kısar; el feneri oyuncunun kontrolünde, koridorun acil ışıkları açık kalır.
+That signal drives `brain/escape.py`, which injects directly into the real body IDs for LC4 (126 neurons) and LPLC2 (185 neurons) — using the dataset's actual annotated IDs, not placeholders. This shares the *same* `Connectome.step()` call every decision tick already makes for the scare-event system (no second matrix multiply per frame); the escape readout just reads a different pair of output groups from the same propagation. After the standard 24-iteration signed-activity update propagates through the full 166,700-neuron / 25,582,938-edge graph, the readout takes the real activity at DNp01 and DNp03 (2 neurons each side) and turns left/right activity difference into dodge direction, front/back difference into a vertical component.
 
-**Korku sesleri:** beyin `steps` işitsel olayını seçtiğinde ayak sesi, nefes, gıcırtı veya tok vuruş çalar. Aynı klip art arda seçilmez; klip, ±0,7 birim yan konum ve küçük ton değişimi turun tohumu ile tekrar üretilebilir. Kaynak oyuncunun 2,3 birim arkasındadır; ayak sesi zemin, diğerleri gövde yüksekliğinden gelir. Tek ses oynatıcısı kullanılır; olaylar üst üste yığılmaz. Tüm varyasyonlar aynı 5/60 saniye bütçesine ve 16 saniye tekrar sınırına tabidir. Yoğunluk 0 iken çalmaz; duraklatma, odak kaybı ve tur sonu sesi keser, devam ederken yarım ses yeniden başlamaz. Klipler ton değişimi dahil 2 saniyelik tepki penceresinden kısadır. [Nefes → gıcırtı → vuruş önizlemesi](reports/scare-sounds-preview.wav).
+What's genuinely computed on real data: the connectivity itself, which neurons exist, the sparse matrix-vector propagation, and the DN activity that comes out of it. Zeroing out the LC4/LPLC2 → DNp01/DNp03 edges in a controlled test drops escape strength from 1.0 to 0.088 — the pathway is doing real work, not just passing noise through. What's engineered: the decision to inject at LC4/LPLC2 instead of a real visual pathway (because no such direct connection exists), the threat-sensor math, and the mapping from DN activity to a movement vector. This is not a claim of biological looming detection, calibrated escape-reflex timing, or insect flight dynamics — same disclosure standard upstream held for the fly's original chase behavior.
 
-Öğrenme katmanında üç olay ailesi korunur; yeni sesler `steps` ailesinin varyasyonlarıdır. Hangi klibin daha etkili olduğu ayrı bir politika olarak öğrenilmez. Önceki sentetik ön eğitim, bu yeni seslerin insanlardaki etkisini ölçmemiştir. Uygulanan varyasyon adı yerel `applied.sound_variant` günlüğüne yazılır; seçim bütçe tarafından reddedildiğinde ses rastgeleliği ilerlemez.
+Escape requests run on their own channel, separate from and non-blocking with the original 2–5 second scare-event decision cadence: a client can have at most one escape request in flight, spaced at least 0.65 s apart, each with an 0.85 s validity window after which a late reply is discarded and the drone defaults to no added dodge. Escape doesn't consume the scare-event budget or affect its learning — the two systems read the same brain, but don't interfere with each other.
 
-### Odadaki sinek ve canlı beyin görünümü
+## Local setup (Windows)
 
-Sinek, özgün geometriden gövde/baş/göz/altı bacak/iki kanat ve `CharacterBody3D` çarpışmasına sahiptir. Gövde, kanatlar ve çarpışma yarıçapı önceki sürümün yarısıdır; çarpışma yarıçapı 0,1 oyun birimidir. Duvar ve mobilyalara çarpar; yeni turda odadaki başlangıç noktasına döner. ESC uçuşu ve kanat animasyonunu durdurur. Normal oyunda pencere odağı kaybolunca da otomatik duraklama uygulanır; devam etmek oyuncuya bırakılır. Beyin bağlantısı veya güncel ölçüm yoksa güvenli biçimde yerinde kalır.
+This fork targets Windows native (not WSL, not macOS). Godot binaries, the Python venv, and connectome data all live inside the project folder — nothing is installed to `C:\` or `/Applications`.
 
-Görüş mesafesi 18 oyun birimi; ileri vektörle noktasal çarpım >−0,8 ve duvar/mobilya raycast'inin açık olması gerekir. Görüyorsa oyuncunun sineğe göre konumu, bakışı ve hareketi sekiz duyusal gruba gider. Görmüyorsa güncel oyuncu telemetrisi gizlenir; sinek üç saniye boyunca yalnızca son gördüğü konuma yönelir. Sonra en az 1,8 rad/sn hızla arama dönüşüne geçer. Bu bir RGB retina modeli değildir; görünür oyuncunun hareket bilgisine erişen mühendislik sensörüdür. Tepki ödülü ayrıca gerçek oyuncu hareketinden hesaplanır.
-
-Uçuş gövdesi mühendislik kontrolüdür: görünür oyuncudan yaklaşık 2,3 birim mesafeyi amaçlar; görüş kaybında kapı köşesinde uzakta beklememek için son görülen konuma kadar yaklaşır; yaklaşma sürüşü 4,8–8 birim/sn, toplam hız en fazla 8 birim/sn ve ivmelenme 24 birim/sn² olur. Böylece 3,2 birim/sn yürüyen oyuncuya yetişebilir. L1−L2 yana uçuşu, |L1| yaklaşma hızını, L3+Mi1 yüksekliği etkiler. Tohumla tekrarlanabilen 0,18–0,42 saniyelik kısa yön değişimleri oyuncunun çevresinde hareketli uçuş oluşturur. Çarpışma normalleri engelden uzaklaşmayı sağlar; vızıltının tonu hızı takip eder. Güncel sinir çıktısı yoksa veya bütün çıktılar sıfırsa uçuş durur. Bu, biyolojik böcek aerodinamiği veya öğrenilmiş navigasyon iddiası değildir. **Öğrenilen davranış korku olayı tercihidir; uçuş kontrol kuralı sabittir.** Kanat çırpması ve kısa uçuş varyasyonları mühendislik animasyonudur.
-
-Sağ altta `somaLocation` alanından alınan **4.096 gerçek hücre konumu** çizilir. Örnek içindeki en güçlü **6.000 gerçek işaretli bağlantı** taşınır; küçük panel bunların 1.000 çizgisini, büyük görünüm filtre ve kadraja girenlerini çizer. Bu gösterim örneklemesidir; hesaplamada **166.700 nöronluk tam beyin + VNC grafiği** çalışır. Koordinatı bulunan optik lob içi, merkezi beyin içi, görsel projeksiyon ve görsel duyu hücreleri biyolojik ID sırasından deterministik örneklenir. Kaynak eksen oranları korunur; görünümdeki döndürme anatomik yön adı atamaz.
-
-**V ile büyük görünüm:** fareyle sürükle veya ok tuşlarıyla döndür; tekerlek / +/- ile yakınlaştır; Home ile görünümü sıfırla. Nörona tıkla veya N / “En etkin nöron” ile ölçülen |a| değeri en yüksek hücreyi seç. Yan bölümde biyolojik ID, hücre tipi, kaynak sınıfı/tarafı/koordinatı, tam graftaki giriş–çıkış bağlantı sayısı ve son etkinliği görünür. Seçilen hücrenin görünür örnek bağlantılarında mavi oklar girişi, turuncu oklar çıkışı gösterir. Hücre grubu filtresi ve etkinlik / hücre grubu renk seçimi vardır.
-
-V ile açılış oyunu ve beyin kararlarını duraklatır. V ile geri dönüş önceki oynama/duraklama durumunu ve küçük panelin görünürlüğünü korur; ESC duraklama menüsüne döner. İnceleme sırasında görünen etkinlik **son ölçümdür**, yeni ölçüm gibi sunulmaz. Küçük paneldeki L1/L2/L3/Mi1 sayıları ham grup ortalamalarıdır; çubuk ölçeği ±0,2 olarak yazılır. Zaman grafiği son 32 gerçek örnekte tüm ağın ortalama |a| değerini, gerçek örnek zamanları ve belirtilen tepe ölçeğiyle gösterir. Yeni turda eski grafik temizlenir; bağlantı kaybında son örnek açıkça eski olarak işaretlenir.
-
-Nokta renkleri ölçülen model etkinliğini veya kaynak hücre gruplarını gösterir; nöron dalları/zar yüzeyi çizilmez ve biyolojik kayıt iddiası yoktur. Yeni ölçüm 2–5 saniyede bir gelir; örnekler arasında sahte ateşleme animasyonu üretilmez. Godot MultiMesh ve toplu çizgi çizimi kullanılır. Ağın çizim komutları yalnızca yeni ölçüm, görünüm/renk/seçim veya canlı/eski durum değişiminde yenilenir; yaş etiketleri 10 Hz güncellenir. Diğer HUD metinleri de 10 Hz yenilenir; hareket, fizik, telemetri ve olay denetimi kendi hızlarında çalışır. [Görseller ve etkileşimler](reports/brain-view/README.md) · [Güncel optimizasyon ölçümü](reports/optimization/README.md).
-
-## Mimari ve güvenli bekleme
-
-```text
-Godot: fizik / çizim / fare (bağımsız kare döngüsü)
-  └─ Sinek gövdesi/görüşü + 10 Hz hareket telemetrisi + 2–5 sn karar isteği
-        localhost WebSocket, tek istemci, origin reddi + oturum anahtarı
-  └─ Python: tek Connectome, SciPy CSR matris-vektör işlemleri (CPU)
-        gerçek sinir çıktısı → uçuş modülasyonu + rastgele / sabit / öğrenen karar katmanı
-        uygun eylem bütçesi → olay önerisi → Godot uygulama onayı
-        2 sn hareket penceresi veya doğrudan oyuncu değerlendirmesi
-          → dış karar katmanı güncellemesi / aynı örneği düzeltme → atomik kayıt
+```powershell
+git clone https://github.com/CodeMan1729/flybrain-arena.git
+cd flybrain-arena
+powershell -ExecutionPolicy Bypass -File .\setup.ps1
+powershell -ExecutionPolicy Bypass -File .\run.ps1
 ```
 
-Godot WebSocket'i her karede `poll()` ile işler; simülasyon için bekleyen çağrı yapmaz. Python sayısal adımı `asyncio.to_thread` içinde hesaplar, tek model durumu korunur. Sunucu bir bağlantı dışında tüm istemcileri reddeder. 8 KiB mesaj sınırı, sınırlı kuyruk, sayısal giriş doğrulaması vardır.
+`setup.ps1` finds a Python 3.12 install, creates `.venv`, downloads Godot 4.5.2 win64 into `tools/`, and downloads + prepares the ~1.1 GB MaleCNS v1.0 connectome (hash-verified against `research/source.lock.json`). `run.ps1` calls `setup.ps1` automatically if anything's missing, then launches the game with a random per-run access key and a free local port; a file lock prevents a second instance. See `research/source.lock.json` for the exact pinned MaleCNS file hashes and sizes.
 
-**1,5 saniye** içinde gelmeyen yanıt atılır. Eski istek kimliği, duraklatılmış oyun veya kopmuş bağlantının yanıtı uygulanmaz. Varsayılan eylem `wait`tir. Bağlantı 3 saniyede bir yeniden denenir. Yeniden bağlanınca sinir durumu sıfırlanır; öğrenen mod kalıcı dış katmanla devam eder. Aynı oyun turunun kimliği korunur; duraklatılmışken yeniden bağlantı oyunu başlatmaz. Oyun tarafındaki olay bütçesi bağlantı kopmasıyla sıfırlanmaz. Duraklatma aktif efektleri durdurur ve eksik tepki penceresini iptal eder.
+The in-game UI text is Turkish, inherited unchanged from upstream FLYFEAR — this fork did not translate or replace it.
 
-**Her üç mod için aynı kısıtlar:** 60 saniyelik kayan pencerede en fazla 5 korku olayı; olaylar arası en az 8 saniye; aynı olay için en az 16 saniye. `wait` bütçe tüketmez. Sunucu bütçeyi yalnızca uygulanmış olay onayından sonra işler; Godot aynı kısıtları ayrıca kontrol eder. Oyun duraklatılırsa yerel oyun saati durur; yerel kontrol sunucuya göre daha kısıtlayıcı olabilir.
+## Validation and tests
 
-## Gerçek verinin kapsamı
-
-**MaleCNS v1.0**, erişim ve lisans kontrolü: **10 Eylül 2026**. Kaynak: [MaleCNS resmi indirme sayfası](https://male-cns.janelia.org/download/). Veri [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) kapsamında. Katkı: MaleCNS işbirliği, FlyEM / HHMI Janelia, Cambridge Zoology, MRC LMB ve Google Research; yayının tüm yazarları ve veri katkıcıları. [Özgün yayın](https://doi.org/10.1016/j.cell.2026.08.015), [Google Research açıklaması](https://research.google/blog/a-connectomics-milestone-mapping-the-complete-male-fruit-fly-brain/).
-
-Yerel model **166.700 tanımlı nöron**, **25.582.938 yönlü kenar**, **124.177.617 sinaptik temas** içerir. Kenar ve sinaps aynı şey değildir: bir kenarın ağırlığı temas sayısıdır. Beyin ve ventral sinir kordonu birlikte kapsanır. Ek ağırlık eşiği uygulanmaz; kendine bağlantılar korunur.
-
-Ham dosya 151.856.684 segment bağlantısı içerir. `superclass` atanmış, `status != Glia` kayıtlar nöron olarak tutulur; bu kayıtların dışındaki segmentlere giden/gelen 126.273.746 kenar modele girmez. Bu, veri temizliği ve nöron tanımıdır; RAM kazanmak için seçilmiş devre alt ağı değildir. **Alt ağ küçültmesi yapılmadı.** Ekrandaki TAM GRAF bu tanımlı nöron grafiğini ifade eder; tüm ham segmentleri veya canlı bir beynin her bilinmeyen özelliğini ifade etmez.
-
-### Doğrudan indirme ve yeniden hazırlama
-
-`research/source.lock.json`, DOOMFLY'nin aşağıda sabitlenen sürümündeki URL, bayt ve SHA256 kayıtlarını içerir. İndirici resmi kaynağa gider, kısmi dosyayı `.partial` tutar, hash doğrulamadan asıl ada taşımaz. Kısmi bozuk indirme otomatik olarak başka veriyle değiştirilmez; hatalı `.partial` dosyasını inceleyip kaldırdıktan sonra tekrar denenebilir.
-
-| Dosya | Bayt | Resmi URL |
-|---|---:|---|
-| `annotations.feather` | 14.483.314 | [Nöron açıklamaları](https://storage.googleapis.com/flyem-male-cns/v1.0/connectome-data/flat-connectome/body-annotations-male-cns-v1.0-minconf-0.5.feather) |
-| `neurotransmitters.feather` | 43.282.834 | [Nörotransmiter tahminleri](https://storage.googleapis.com/flyem-male-cns/v1.0/connectome-data/flat-connectome/body-neurotransmitters-male-cns-v1.0.feather) |
-| `edges.feather` | 1.051.241.946 | [Yönlü bağlantı ağırlıkları](https://storage.googleapis.com/flyem-male-cns/v1.0/connectome-data/flat-connectome/connectome-weights-male-cns-v1.0-minconf-0.5.feather) |
-
-```sh
-.venv/bin/python tools/download_data.py
-.venv/bin/python -m brain.connectome prepare
-.venv/bin/python -m brain.connectome benchmark
+```powershell
+powershell -ExecutionPolicy Bypass -File .\test.ps1 -SkipSmoke   # Python + offline Godot checks, no game launch
+powershell -ExecutionPolicy Bypass -File .\test.ps1              # adds a real combat smoke test end-to-end
 ```
 
-Hazırlama, ham dosyaları yeniden SHA256 doğrular; Feather verisini parçalar halinde okur. `counts.npz` özgün temas ağırlıklarını, `weights.npz` dönüştürülmüş sayısal matrisi, `ids.npy` kesin tamsayı biyolojik kimlikleri tutar. `data/manifest.json` kayıpları ve kapsamı, `data/mapping.json` her giriş/çıkışın tam biyolojik ID listesini içerir. Kimlikler JSON'da ondalık metin olarak saklanır; kayan noktadan geçirilmez.
+Coverage includes: real full-graph connectome computation (not mocked), the LC4/LPLC2 → DNp01/DNp03 pathway (including edge-ablation and left/right-input-reversal checks against the real weight matrix), hitscan damage and cooldown against real physics, drone HP reaching 0 triggering win, player contact triggering loss, settings save/reset/corruption recovery, and a full round played through a real Godot client talking to a real WebSocket backend. `docs/ARENA.md` has the current one-page usage summary; `STATUS.md` has the full, dated history of what was built, tested, and rolled back at each stage — read that before assuming any specific behavior is finalized, since P2 (combat numbers) and P3 (dodge pathway) were both tuned across multiple playtest rounds.
 
-## Sayısal model: ne gerçek, ne tasarım?
+## What upstream FLYFEAR had that this fork removed
 
-**Gerçek:** hangi nöronun hangisine bağlandığı, temas sayıları, hücre tipi açıklamaları, kaynak nörotransmiter tahminleri. **Mühendislik tasarımı:** oyun telemetrisinin nöronlara atanması, dinamik denklem, kazanç/sızıntı, çıktı hücrelerinin olaylara atanması, ödül ve karar katmanı.
+The key search across three rooms, the door/exit win condition, the web deployment (`web/`), and the macOS/uv toolchain are **not part of this fork** — `has_key`/`door_open`/`interact()` and the related game state were deleted outright rather than kept as unused compatibility shims. If you're looking for the original horror game, use [upstream](https://github.com/furkancak1r/flyfear) directly; this repository only makes sense as the combat variant.
 
-Bu prototip DOOMFLY LIF çekirdeğini veya Shiu modelini çalıştırmaz. Gerçek bağlantılar üzerinde küçük, denetlenebilir **işaretli etkinlik sapması modeli** çalıştırır. Rakamlar ateşleme frekansı/Hz ya da biyolojik ölçüm değildir. Uygulama içinde gerçekten hesaplanan sayısal nöron etkinliği gösterilir; beyin görünümünde uydurulmuş etkinlik animasyonu kullanılmaz. Sinek gövdesindeki kanat animasyonu ayrı bir görsel efekttir.
+## The numerical model: what's real, what's engineering
 
-`C[post, pre]` temas sayısı; `s(pre)` ACh için +1, GABA/glutamat/histamin için −1; belirsiz ve dopamin/serotonin/oktopamin için 0. Reseptör bağlamı bilinmediği için bu işaretler basitleştirmedir. **3.718 nöronun çıkış işareti 0**; modülasyon dinamiği bu sürümde modellenmez. Topolojik kenarlar saklanır, etkin işaretli kenar sayısı **24.559.135** olur. Bu sınırlama azaltılmış nöron alt ağıyla karıştırılmamalıdır.
+This section is unchanged from upstream's disclosure standard, because the same model underlies both games' neural computation.
+
+`C[post, pre]` is the real contact count between two neurons; `s(pre)` is +1 for ACh, −1 for GABA/glutamate/histamine, 0 for unknown and for dopamine/serotonin/octopamine (a simplification, since receptor context isn't in the dataset). 3,718 neurons have an output sign of 0. The update rule:
 
 ```text
 W[j,i] = C[j,i] * s(i) / max(1, sum_i C[j,i])
 a ← a + 0.35 * (tanh(1.5 * W @ a + drive) - a)
 ```
 
-Her karar için 24 güncelleme yapılır; `a` sonraki karara taşınır. Yeni turda sıfırlanır. Biyolojik zaman karşılığı kalibre edilmemiştir. Modelde rastgele kenar, rastgele iç nöron gürültüsü veya sinaptik öğrenme yoktur. Tüm kayıtlı düğümler hesaplanır; belirsiz işaretler ve izole düğümler sessiz kalabilir.
+runs 24 iterations per decision tick over the real 166,700-neuron, 25,582,938-edge sparse graph (124,177,617 synaptic contacts before edge-weight collapsing). This is not the DOOMFLY LIF core or a reproduction of the Shiu et al. model; it's a small, auditable signed-activity-deviation model with no random edges, no synaptic learning, and no calibrated biological time constant. Full detail — including the input/output neuron ID mapping, why R1-R6 can't reach LC4/LPLC2 directly, and the FLYFEAR-era scare-event budget/learning system this fork left intact — is in `docs/ARCHITECTURE_NOTES.md`.
 
-### Giriş ve çıkış eşlemesi
+## Data and license
 
-`type == R1-R6` olan **3.377** nöron biyolojik ID'ye göre sıralanıp sekiz ardışık gruba bölünür. İlk grup 423, diğerleri 422 hücre. Her grubun tam ID listesi `data/mapping.json → input_body_ids` altındadır. Sıralama uzamsal retina eşlemesi veya doğal duyusal semantik iddiası taşımaz.
+MaleCNS v1.0 connectivity data is unchanged from upstream: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), source at the [MaleCNS download page](https://male-cns.janelia.org/download/), credited to the MaleCNS collaboration (FlyEM/HHMI Janelia, Cambridge Zoology, MRC LMB, Google Research). Raw `.feather` files and derived `.npz`/`.npy` matrices are not in this repo; `setup.ps1` downloads and verifies them against `research/source.lock.json`. See `THIRD_PARTY.md` for full attribution, including DOOMFLY and Shiu et al. reference material this project studied but does not bundle or reproduce code from.
 
-| Giriş | Normalizasyon (sonuç −1…1'e kırpılır) |
+Original FLYFEAR code and FlyBrain Arena's changes are [MIT](LICENSE). This is an unofficial fork; DOOMFLY, the MaleCNS data authors, Godot, and the original FLYFEAR author have not endorsed it.
+
+## Project structure
+
+| Path | Contents |
 |---|---|
-| x | Görünür oyuncunun sineğe göre yatay farkı `/ 6` |
-| z | Görünür oyuncunun sineğe göre derinlik farkı `/ 11`; taşıma alanında `z=fark-5` |
-| look_x, look_z, look_y | Kameranın birim ileri vektörü bileşenleri |
-| speed | `2 * yatay_hız / 3.2 - 1` |
-| pause | `2 * duraksama_saniyesi / 3 - 1` |
-| retreat | `2 * max(0, -hız_vektörü · bakış) / 3.2 - 1` |
-
-Grup sürüşü `0.2 + 0.8 * (girdi + 1) / 2`; diğer hücrelerde doğrudan sürüş 0. Giriş→bağlantılar→çıktı akışı testte gerçek grafikte görülür; aynı girdide kenarlar sıfırlanınca çıkış grupları sessiz kalır.
-
-| Ölçülen grubun ortalama etkinliği | Hücre sayısı | Atanan olay |
-|---|---:|---|
-| L1 | 1.776 | Oda ışığını kıs/söndür |
-| L2 | 1.779 | Oyuncunun arkasına konumlandırılan 3B korku sesi |
-| L3 | 1.772 | Görüş kenarında kısa siluet |
-| Mi1 | 1.773 | Uçuş yüksekliği ve öğrenen katman bağlamı |
-
-`wait`, bütçe veya gecikme gibi güvenlik koşullarında üretilir; ödül almayan dördüncü öğrenme eylemi olarak yarışmaz. Bu hücreler doğal “korkutma nöronları” değildir. Olay anlamları bilinçli arayüz tasarımıdır. Işıklar ve sesler bütçe sınırından geçtikten sonra uygulanır.
-
-**Adaptör:** `brain/connectome.py → Connectome`: `info`, `reset()`, `step(normalized[8])`. Sonuç: `output[4]`, `readout[12]`, `view_activity[4096]`, etkinlik özeti, gecikme ve RSS. `readout` dört tip ortalamasına ek olarak sekiz bağlam grubu okur: her giriş grubundan L1/L2/L3/Mi1 hücrelerine gelen gerçek bağlantı toplamının mutlak değeri en büyük 32 hücre seçilir. Dört tip ortalaması 0,2 ile ölçeklenir; sekiz downstream grup kendi −1…1 etkinlik ölçeğinde okunur. Önceki sürümde bu sekiz grubu da 0,2'ye bölmek çoğu ölçümü −1'e kırpıyor ve bağlam bilgisini siliyordu; v3 bunu düzeltti. Dış katman, sekiz bağlam değerini `clip(3 * (a + 0.3), -1, 1)` ile merkezler ve ölçekler. Seçilen tam ID'ler `info.context_readout_ids` içindedir. Bu gruplar doğrudan oyuncu telemetrisini veya giriş nöronu sürüşünü kopyalamaz; gerçek kenarlar kaldırılıp ağ sıfırlanınca **12 ham sinir ölçümü de sıfırlanır**. Grupların seçimi mühendislik tasarımıdır. Model değiştirirken kayıt sürümünü değiştirin; eski parametreleri uyumluymuş gibi kullanmayın.
-
-## Üç deney modu ve öğrenmenin sınırı
-
-Önce bütçenin izin verdiği olaylar bulunur; hiçbiri uygun değilse `wait`. Böylece tekrar yasağındaki bir olayın seçilip fırsatın boşa harcanması engellenir. Her mod aynı 5/60 sn, 8 sn genel ve 16 sn tekrar sınırlarını kullanır.
-
-- **Rastgele kontrol:** uygun üç korku olayından eşit olasılıklı seçim. Gerçek ağ ve sinek gövdesi çalışır; olay tercihinde öğrenme kullanılmaz.
-- **Sabit model:** L1/L2/L3 ortalama etkinliklerinin büyüklüğü normalize edilir; sabit `softmax(1.2 * etkinlik)` dağılımından uygun olay seçilir.
-- **Öğrenen katman v3:** 12 ölçülen sinir özelliği + bias ile üç doğrusal ödül tahmini. NumPy ridge sistemleri (`λ=0.1`), 0–1 arası tahmin, `0.12 * sqrt(xᵀ A⁻¹ x)` belirsizlik bonusu, `0.01 * prior` sabit sinir önceliği ve %10 keşif kullanılır. Her geçerli ödülde **üç olayın da** A/b bilgisi 0,97 ile yaşlandırılır; yalnızca seçilmiş olayın eskimesinden kaynaklanan eski tercihlere takılma kaldırılır. Etkin unutma yarı ömrü yaklaşık 23 toplam ödül örneğidir. Doğrudan oyuncu değerlendirmesi, gürültülü hareket vekiline göre üç kat eğitim ağırlığı alır. Değerlendirmede güncelleme ve keşif kapatılır. Bu, [LinUCB](https://arxiv.org/abs/1003.0146) esinli bir mühendislik modeli; değişen tercihleri hesaba katma gerekçesi için [durağan olmayan bağlamsal karar problemleri](https://www.microsoft.com/en-us/research/publication/efficient-contextual-bandits-non-stationary-worlds/). Bu makalelerdeki algoritmaların birebir uygulaması veya biyolojik bir sinek modeli değildir.
-
-**Yalnızca dış karar katmanı öğrenir.** Gerçek bağlantı ağırlıkları ve uçuş kontrolü sabittir. Ödülün nöron/sinaps plastisitesiyle öğrenildiği iddiası yoktur. Yeterli ve tutarlı tepkiler varsa olay tercihleri değişebilir; her oyunda gelişme garantisi verilmez.
-
-Tepki vekili, olayın gerçekten uygulandığı andaki hareketi temel alır; yaklaşık 10 Hz örneklenmiş 2 saniyelik pencerede geri çekilme artışı, mutlak dönme hızı artışı ve hareketliyken durma miktarının tepe değerlerini kullanır. Her bileşen 0…1'e kırpılır:
-
-```text
-tepki = 0.40 * geri_çekilme + 0.35 * dönme + 0.25 * durma
-```
-
-Kısa fare dönüşleri, 10 Hz örnekler arasında kaybolmaması için son 120 ms içindeki tepe dönme hızıyla iletilir; eski değerler zamanında silinir, duraklamada ve yeni turda hareket ölçümleri temizlenir.
-
-Ölçekler: 3,2 m/s ve 180 derece/s. Zaten duran oyuncu sırf hareketsiz kaldığı için puan üretmez. Bu vekil isteyerek hareket etme, keşif veya kontrol hatasıyla da artabilir. **Korku, duygu ya da klinik ölçüm değildir.** Beklemeye, reddedilen olaya, yinelenen/gecikmiş onaya veya iptal edilen pencereye öğrenme uygulanmaz. Kamera, mikrofon ve nabız kullanılmaz. İki saniyelik pencerede en az 10 örnek ve aralarda 0,4 saniyeden kısa boşluk gerekir; eksik örnekleme sahte sıfır ödül olarak öğrenilmez.
-
-**Senin geri bildirimin:** öğrenen modda uygulanan olaydan sonra 8 saniye boyunca **1 Etkilemedi / 2 Gerildim / 3 Korktum** yazısı çıkar. Kullanmak isteğe bağlıdır; puanlar 0 / 0,5 / 1. Doğrudan değerlendirme hemen öğrenilir. Hareket ödülü daha önce yazıldıysa aynı örneğin etiketi ve ağırlığı matematiksel olarak düzeltilir; ikinci bir olay/güncelleme eklenmez. Aynı olay için yalnızca bir değerlendirme kabul edilir. Süresi geçmiş, farklı kimlikli, duraklatılmış veya uygulanmamış olaylar değerlendirilmez. Tuş kullanılmazsa 2 saniyelik hareket vekiliyle otomatik öğrenme devam eder. TAB paneli puanın hareketten mi doğrudan değerlendirmeden mi geldiğini belirtir.
-
-**Otomatik bellek:** her geçerli ödül ve değerlendirme düzeltmesinden hemen sonra `logs/sessions/learning-v3.json` yazılır (`schema=3`, `malecns-rate-readout-v3`). Geçici dosya, `flush/fsync` ve atomik yeniden adlandırma kullanılır. Yeni tur ve yeni uygulama bu dosyayı yükler; bozuk dosya açık başlangıç hatası verir. Eski `learning.json` olduğu gibi korunur; değişmiş sinir ölçeğiyle uyumluymuş gibi kullanılmaz. `Ayarlar → Kaydet / Sıfırla` yalnızca öğrenen modda çalışır; sıfırlama için oyun duraklatılır, önce tarihli yedek alınır. Sıfırlama kişisel bilgiyi ve başlangıç ön bilgisini temizler; sıfır model dosyası kaydedildiğinden yeniden açınca eğitim kendiliğinden geri gelmez.
-
-**Ön eğitim:** kişisel v3 dosyası henüz yoksa `data/learning-prior.json` dosyasındaki simülasyonla öğrenilmiş katsayılar düşük ağırlıklı başlangıç bilgisi olarak alınır. Binlerce yapay örnek, binlerce kişisel örnekmiş gibi sayılmaz: kişisel sayaç sıfırdır; ana menü yapay ön eğitim sayısını, hareket örneklerini ve doğrudan değerlendirmeleri ayrı gösterir. Yeni gerçek ödüller ön bilgiyi hızlıca değiştirebilir. **Simülasyon senin neyden korktuğunu bilemez; bu kişiselleşme sen oynarken olur.**
-
-**Tur geçmişi:** `logs/sessions/rounds.json`, başlangıç/bitiş UTC, süre, mod/tohum, uygulanan olay, geçerli ödül sayısı/toplamı, başlangıç/bitiş öğrenme sayacı ve sonucu saklar. Ana menü toplam tur/güncelleme ve son üç turun sonuçlarını gösterir. Bağlantı kesintisi aynı tur kimliğiyle devam eder; yeniden bağlanma fazladan bir oyun sayılmaz. Tamamlanmamış tepki pencereleri iptal sebebiyle loglanır. Ayrıntılı `.jsonl` günlüğü korunur; çöken süreçte yarım kalan turun özetine göre daha güncel olabilir.
-
-Test ve sentetik deney kayıtları ayrı tutulur: görünür/headless tam tur testleri `logs/validation/<zaman>/` altında temiz bellekle başlar. Deney raporları oyuncu belleği olarak yüklenmez. `--smoke` / `--benchmark` ve doğrudan oyun testleri kişisel ayar dosyasını okumaz veya yazmaz; varsayılan tercihleri kullanır. Ayar testi yalnızca kendisine ait geçici dosyalarla çalışır.
-
-### Ardışık eğitim ve bağımsız sınama
-
-```sh
-.venv/bin/python tools/train.py --collect            # 320 eğitim + 160 geliştirme girdisi; gerçek tam graf
-.venv/bin/python tools/train.py                      # 48 yapay oyuncu, 12 tur; 8.640 ödüllü olay
-.venv/bin/python tools/train.py --collect --confirm  # ayrı 160 doğrulama sinir girdisi
-.venv/bin/python tools/train.py --confirm            # ayrı 24 oyuncuda son sınama; ön eğitim dondurulmuş
-```
-
-Tüm işlemler yerel CPU'da ve sırayla yürür. İlk veri toplama bu Mac'te yaklaşık 213 saniye; ek doğrulama verisi ayrı hesaplanır. Gerçek grafikten toplam 640 sinir girdisi ölçülür. Sonraki politika turları bu izleri yeniden kullanır; yüz binlerce tam beyin simülasyonu gibi sunulmaz.
-
-Yapay oyuncuların olay tercihleri, bakış/hız/konum bağlamı, gürültülü etiketleri ve olaylara alışması vardır. Eğitim kişileri 5000–5047, geliştirme kişileri 18000–18023, son doğrulama kişileri 28000–28023 tohumlarıyla üretilir. Son sınamada 12 tur kişiselleşme, tercihler değiştikten sonra 6 tur uyum çalıştırılır. Olay bütçesi bütün koşullarda aynıdır. Eğitim ve değerlendirme girdileri ayrıdır; değerlendirmede ağırlıklar dondurulur ve keşif kapatılır. Eski v2, rastgele/sabit, soğuk/ön eğitimli v3, sıfır/karıştırılmış ödül, yeniden yükleme, sıfırlama ve sinir özelliği ablasyonu karşılaştırılır.
-
-[Son öğrenme raporu](reports/learning-v3/README.md), [bağımsız doğrulama sonuçları](reports/learning-v3/confirmation-summary.json), [öğrenme eğrisi örnekleri](reports/learning-v3/confirmation-curves.jsonl), [gerçek sinir izleri](reports/learning-v3/traces.json). Araç aday eğitimi `reports/learning-v3/candidate-prior.json` içine yazar; kişisel kayıtları veya oyundaki ön eğitimi otomatik değiştirmez. Teslim edilen `data/learning-prior.json` ayrıca doğrulanmış adayın kopyasıdır. Önceki v2 deneyi [tarihsel raporda](reports/PERFORMANCE.md) korunur.
-
-Bu deneyler gürültülü yapay tepki kurallarında öğrenmeyi ölçer. İnsan korkusu, gerçek oyuncunun uzun dönem alışması, yeni oyunlar veya doğal sinek plastisitesi doğrulanmış değildir. Ön eğitim her kişide fayda garantisi vermez; oyunda kişisel öğrenme devam eder.
-
-## Yerel kayıt ve ölçüm
-
-`logs/sessions/<oturum>.jsonl`: UTC zaman damgası, monotonic zaman, oturum, tohum, mod, ham/normalize girdiler, gerçek dört sinir çıktısı, ortalama/tepe etkinlik, etkin nöron sayısı, önerilen/uygulanan eylem, seçim olasılıkları, gecikme, beyin RSS, onay ve tepki örnekleri/ödülü. Pause/reconnect/save/reset olayları da kaydedilir. Öğrenme sayacı görünürdür. Konumlar gerçek dünya konumu değil oyun koordinatıdır. Kayıtlar sunucuya gönderilmez.
-
-TAB panelindeki bellek: beyin **RSS**, oyun ise Godot **heap** sayacıdır; aynı ölçü değildir. Başlatıcı her 0,5 saniyede iki sürecin gerçek RSS değerini de `*-memory.json` içine kaydeder. Kare süreleri testte gerçek `Time.get_ticks_usec()` aralıklarıdır; ilk 2 saniye dışarıda bırakılır. 1080p testi gerçek çizimle ayrı yapılır; headless FPS değeri grafik performansı olarak kullanılmaz.
-
-## Testler
-
-```sh
-./test.sh                           # birim/entegrasyon testleri + baştan sona headless oyun
-./run.sh --benchmark --mode=fixed    # görünür 1920×1080, sabit model, ölçümlü tam tur
-./run.sh --benchmark --mode=learn   # görünür 1920×1080, öğrenen katman, tam tur
-```
-
-`tests/settings.gd` menü sinyalleriyle otomatik kaydı, yeniden açılışta gerçek oyun ayarlarını, sınır/tür doğrulamasını, bozuk dosyanın yedeklenmesini, yazma hatasında önceki kaydın korunmasını ve kişisel ayar izolasyonunu sınar. 15 ayar kontrolü ile mevcut 10 Python/sunucu, 20 ses/oynanış ve 35 tam tur kontrolü geçti. Ayrıca iki ayrı görünür Godot süreciyle gerçek tam ekran, sessizlik ve tüm menü değerlerinin korunduğu doğrulandı. [Son test çıktısı](reports/settings-tests.log), [tam ekran ayarlar görüntüsü](reports/settings-fullscreen.png). Bozuk dosya ve başarısız yedekleme senaryolarında Godot'un iki beklenen `ERROR` satırı görünür; testler dosyanın korunmasını ayrıca doğrular.
-
-Yeni korku sesleriyle **11 Python/sunucu, 15 ayar, 32 ses/oynanış ve 35 tam tur kontrolü** geçti. 32 ses/oynanış kontrolü görünür Godot sürecinde de geçti. Dört korku klibinin gerçek ses karışımında çıktı üretmesi, tekrarsız seçim, tohumla aynı klip/konum/ton, bütçenin reddettiği olayın rastgele diziyi ilerletmemesi, sessiz ses kanalına yönlendirme ve tüm durdurma yolları sınanır. Sunucu testi gerçek sinir çıktısından seçilen `steps` olayı için varyasyon adının günlüğe ulaştığını doğrular. [Ses testi çıktısı](reports/scare-tests.log), [yeni dosyaların PCM ölçümleri](reports/scare-audio-metrics.json). Altı sesin üretimi bayt düzeyinde tekrarlandı; üç eski sesin içeriği değişmedi.
-
-**Genişletilmiş harita:** 11 Python/sunucu, 15 ayar, 42 ses/oynanış ve 43 tam tur kontrolü geçti. Yeni odalara giriş, arka geçit, arşivdeki anahtar ve çıkış rotası gerçek fizik üzerinden yürünür. Sineğin dört yeni kapıdan sığması, dış duvar çarpışmaları, kapalı çıkışın arkadan aşılamaması ve servis koridorunda yanlış zafer tetiklenmemesi ayrıca sınanır. [Harita doğrulama raporu](reports/expanded-map/README.md).
-
-Testler `unittest` ve Godot'un kendisini kullanır; ayrı test çerçevesi yok. `tests/gameplay.gd` gerçek Godot ses karışımından yakın/uzak seviye farkını, sağ/sol yönü ve menzil dışı sessizliği ölçer; vızıltının duraklama/devam/tur sonu/odak kaybı davranışını ve ana sesin tam kapatılmasını da sınar. Ses sürümünün [görünür testi](reports/audio-rendered-tests.log) 18/18 geçti. Güncel v3 [tam testinde](reports/learning-v3/full-tests.log) 10 Python/sunucu testi, 20 Godot ses/oynanış kontrolü ve 35 tam tur kontrolü geçti; görünür gerçek tuş → sunucu geri bildirim yolu [ayrıca doğrulandı](reports/learning-v3/rendered-feedback.log). Kapsam: hash kontrollü gerçek veri hazırlama, nöron/kenar/temas sayıları, tam biyolojik ID eşlemesi, gerçek girdi→sinir çıktısı→eylem, bağlantı ablasyonu, sayısal giriş doğrulama, ödülün sınırı ve başlangıç hareketi, tohum tekrarı, parametre kayıt/sıfırlama/bozuk dosya, aynı bütçe, yetkisiz WebSocket/origin reddi, uygulanmış olay onayı ve yinelenen onay, sunucuyu sonlandırma, yeniden bağlantı, 1,85 saniye geciken yanıtı atan **üretim Godot istemcisi**, kesintide çalışan kare döngüsü.
-
-Oyun turu sineğin uçuşunu, duvar çarpışmasını, açık/kapalı görüşünü, 4.096 ölçümün panele ulaşmasını, duraklamasını ve kalıcı tur kaydını da sınar. Gerçek fizik üzerinden oyuncuyu duvara yürütür, kilitli kapıyı dener, makine odası → arka servis koridoru → arşiv rotasını yürür, o tur seçilen konumdaki anahtarı alır, her efekti ve cooldown'u sınar, duraklatır, socket'i koparır/yeniden bağlar ve anahtarla çıkışı açıp zafer durumuna girer. Efekt zorlamaları yalnızca `--smoke` / `--benchmark` test akışında yapılır ve ödül almamak için geçersiz onay kimliği kullanır. Otomatik rota insan oynanış testi yerine geçmez; temel oyun akışını doğrular.
-
-## Proje yapısı
-
-**Herkese açık depo:** `data/learning-prior.json` içindeki 8.640 yapay olayla öğrenilmiş başlangıç modeli, `reports/learning-v3/` altındaki eğitim/bağımsız doğrulama setleri, 640 gerçek sinir girdisi, aday katsayılar ve sonuçlar dahildir. Kişisel oyun belleği, tur geçmişi ve tüm `logs/` kayıtları Git dışında kalır. Yeni kopya kişisel sayaç sıfırdan ve hazır ön eğitimle başlar.
-
-Ham MaleCNS `.feather` dosyaları ve yeniden üretilebilen `.npz`/`.npy` matrisleri depoya gömülmez; `./setup.sh` resmi kaynaklardan hash denetimiyle indirir ve tam grafiği hazırlar. Manifest, nöron eşlemeleri, kaynak URL'leri ve lisans atıfları depodadır. Yayınlanan test günlüklerinde yerel kullanıcı yolları `<project>/` olarak temizlenmiştir; tarihsel v1 kaynak arşivinden makineye ait metadata ve Python önbelleği çıkarılmıştır.
-
-| Yol | İçerik |
-|---|---|
-| [game/](game/) | Godot sahnesi, oyuncu ve sinek fiziği, Türkçe arayüz, sesler, WebSocket istemcisi |
-| [brain/connectome.py](brain/connectome.py) | Gerçek bağlantı verisini hazırlayan ve sinir etkinliğini hesaplayan adaptör |
-| [brain/director.py](brain/director.py) | Olay bütçesi, hareket puanı, öğrenme ve kalıcı parametreler |
-| [brain/server.py](brain/server.py) | Yerel beyin sunucusu, olay onayı ve oyuncu geri bildirimleri |
-| [data/](data/) | Ham/veriden türetilmiş grafik, eşlemeler, manifest ve doğrulanmış ön eğitim |
-| [tools/train.py](tools/train.py) | Ardışık yapay oyuncu eğitimi ve bağımsız değerlendirme |
-| [tools/generate_audio.py](tools/generate_audio.py) | Altı özgün PCM sesi üreten betik; üç yeni korku sesi dahil |
-| [tests/](tests/) | Python ve gerçek Godot istemcisiyle çalışan kontroller |
-| [reports/learning-v3/](reports/learning-v3/) | Güncel öğrenme sonuçları, eğitim izleri ve test kanıtları |
-| [research/](research/) | Sabitlenmiş özgün kaynaklar, lisanslar ve indirme hash'leri |
-| `logs/sessions/` | Kişisel öğrenme belleği ve gerçek oyun turlarının yerel günlükleri |
-| `logs/validation/` | Otomatik test kayıtları; kişisel oyun belleğinden ayrı tutulur |
-| [setup.sh](setup.sh) / [run.sh](run.sh) / [test.sh](test.sh) | Kurulum / başlatma / doğrulama |
-
-## Sorun giderme
-
-| Belirti | Yapılacak kontrol |
-|---|---|
-| Kurulum `uv gerekli` diyerek duruyor | [uv kurulumunu](https://docs.astral.sh/uv/getting-started/installation/) tamamla, proje klasöründe `./setup.sh` çalıştır. |
-| `FLYFEAR zaten çalışıyor` mesajı | Açık oyun penceresine dön veya oyun menüsünden çık. Başlatıcı aynı anda ikinci oyun açmaz. |
-| Sinek duruyor veya olay seçilmiyor | Oyun duraklatılmış olabilir. Devam et; TAB panelinde bağlantı ve son sinir ölçümünü kontrol et. Beyin hazır değilken oyun güvenli bekler. |
-| Ses duyulmuyor | Ayarlar → Ses değerinin 0 olmadığını ve macOS çıkış sesini kontrol et. Vızıltı yalnızca aktif oyunda ve sineğin menzili içinde çalar. |
-| 1 / 2 / 3 değerlendirmesi görünmüyor | Öğrenen modda, gerçekten uygulanmış bir olaydan sonraki 8 saniye içinde kullanılabilir. Bekleme eylemi değerlendirilmez. |
-| Kişisel öğrenme sayacı artmıyor | Geçerli bir değerlendirme veya yeterli örnek içeren hareket penceresi gerekir. Duraklatılan/eksik pencereler ve reddedilen olaylar yeni örnek sayılmaz. |
-| Öğrenme dosyası bozuk hatası | `logs/sessions/learning-v3.json` dosyasını incele. Sıfırdan başlamak istiyorsan silmeden farklı bir yedek adına taşı; sonraki açılış mevcut ön eğitimle başlar. |
-
-Ayrıntılı hata için ilgili turun `logs/sessions/` altındaki `*-game.log`, `*-brain.log` ve `.jsonl` dosyalarını incele. Öğrenmeyi normal biçimde temizlemek için oyunu duraklatıp **Ayarlar → Öğrenilen karar katmanını sıfırla** kullan; işlem önce yedek alır.
-
-## Doğrulanan özgün kaynaklar / sürümler
-
-| Kaynak | Sabit sürüm / sonuç |
-|---|---|
-| [DOOMFLY](https://github.com/nftechie/doomfly/tree/71ecf53d78eaffaf1a57ed7b0ccf5d458abc9f33) | `71ecf53d78eaffaf1a57ed7b0ccf5d458abc9f33`, özgün kod MIT. MaleCNS veri kaydı ve kaynak hash'leri kullanıldı; çekirdek kodu oyuna alınmadı. |
-| [DOOMFLY canlı deney protokolü](https://github.com/nftechie/doomfly/blob/71ecf53d78eaffaf1a57ed7b0ccf5d458abc9f33/docs/doom-live-training.md) | Kaynak, deneysel plastisiteyi başarılı öğrenme kanıtından ayırır. README v6 adayının görsel, koşullama ve hayatta kalma doğrulama kapılarını geçemediğini bildirir. |
-| [DOOMFLY C++ derleme](https://github.com/nftechie/doomfly/blob/71ecf53d78eaffaf1a57ed7b0ccf5d458abc9f33/doom/build_kernel.py) | Darwin için `.dylib` yolu var. Bu kod düzeyinde macOS desteğidir; DOOMFLY'nin tüm ViZDoom yığını burada kurulup test edilmedi. FLYFEAR kendi daha küçük bağımlılık setiyle ARM64 üzerinde test edildi. |
-| [Shiu ve ark. özgün model](https://github.com/philshiu/Drosophila_brain_model/tree/91bdd1e7dcf193f3e7ca5a8933497fcef63b7960) | `91bdd1e7dcf193f3e7ca5a8933497fcef63b7960`, MIT; README Mac/Windows/Unix ve Brian2/C++ yolunu belirtir. Kaynak v630 varsayılanını ve v783 seçeneğini ayırır. FLYFEAR bu modelin yeniden üretimi değildir. |
-| [Shiu ve ark., Nature 2024](https://doi.org/10.1038/s41586-024-07763-9) | Gerçek bağlantıya dayalı hesaplamalı sensörimotor araştırma; bir oyunda insanı korkutmayı veya kendiliğinden öğrenmeyi doğrulamaz. |
-| [Godot 4.5.2 stable](https://godotengine.org/download/archive/4.5.2-stable/) | `6ce3de25aa58466e14ef354703ba8d9791a417da`; resmi universal macOS ikilisi, SHA512 doğrulandı. ARM64 ve Compatibility renderer kullanıldı. |
-| [Godot WebSocket belgeleri](https://docs.godotengine.org/en/4.5/tutorials/networking/websocket.html) | Yerel istemci `WebSocketPeer` ve sürekli poll. |
-| [SciPy CSR 1.15.3](https://docs.scipy.org/doc/scipy-1.15.3/reference/generated/scipy.sparse.csr_matrix.html) | CPU sparse matris-vektör çarpımı. |
-| [websockets 15.0.1](https://websockets.readthedocs.io/en/15.0.1/reference/asyncio/server.html) | Async localhost sunucusu, origin/mesaj sınırları. |
-
-Python **3.12.12**; NumPy **2.2.6**, SciPy **1.15.3**, PyArrow **20.0.0**, websockets **15.0.1**, psutil **7.0.0**. Kesin paket sürümleri `requirements.txt` içindedir. Godot SHA512 listesi `research/godot-SHA512-SUMS.txt`; DOOMFLY/Shiu lisans ve kaynak inceleme kopyaları `research/` altındadır. Araştırma dosyaları çalıştırılan koddan ayrıdır.
-
-## Sınırlar ve lisans
-
-Bu prototipte alt ağ modu gerekmedi ve eklenmedi; tam grafiğin ölçümü hedef aralığa sığdı. Kalibre LIF dinamiği, reseptör bazlı nöromodülasyon, bilimsel biyolojik doğrulama, insan korku çalışması, uzun süreli dayanıklılık testi, başka Mac modelleri ve dışa aktarılmış/imzalanmış `.app` dağıtımı yapılmadı. Kaynak Godot projesi ve tek komutlu yerel başlatıcı teslim edilir. 1080p/60 FPS hedefi ölçülen bu kısa senaryoda karşılandı; farklı ekran, güç modu, termal yük veya uzun oturum için garanti verilmez.
-
-Özgün FLYFEAR kodu ve prosedürel varlıkları [MIT](LICENSE). MaleCNS verisi ve dönüştürülmüş bağlantı/eşleme çıktıları CC BY 4.0 olarak kaynak atfını korur; FLYFEAR'ın yaptığı filtreleme/normalizasyon/eşleme değişiklikleri yukarıda açıklanmıştır. [Üçüncü taraf bildirimleri](THIRD_PARTY.md). DOOMFLY, veri yazarları veya Godot tarafından onaylanmış bir proje değildir.
+| [game/](game/) | Godot scene: player, drone (`drone.gd`), threat sensor, combat feedback, WebSocket client |
+| [brain/connectome.py](brain/connectome.py) | Real connectome loader and signed-activity propagation |
+| [brain/escape.py](brain/escape.py) | LC4/LPLC2 → DNp01/DNp03 dodge pathway on top of the same connectome |
+| [brain/director.py](brain/director.py) | Scare-event budget/learning system, unchanged from upstream |
+| [brain/server.py](brain/server.py) | Local WebSocket backend serving both scare-event decisions and escape requests |
+| [data/](data/) | Derived connectome graph, neuron ID mappings, manifest (raw `.feather`/`.npz` gitignored) |
+| [tests/](tests/) | Python and real-Godot-client checks, including escape-pathway ablation tests |
+| [docs/ARENA.md](docs/ARENA.md) | Current one-page usage summary |
+| [docs/ARCHITECTURE_NOTES.md](docs/ARCHITECTURE_NOTES.md) | Full data-flow trace and real-vs-engineered breakdown |
+| [research/](research/) | Pinned MaleCNS/DOOMFLY/Shiu source hashes and license snapshots |
+| `logs/`, `reports/` | Local session logs and per-stage validation evidence (gitignored except curated reports) |
+| [setup.ps1](setup.ps1) / [run.ps1](run.ps1) / [test.ps1](test.ps1) | Windows setup / launch / validation |
+| [STATUS.md](STATUS.md) | Dated build/test/rollback history — the authoritative source of current state |
