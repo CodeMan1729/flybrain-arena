@@ -14,6 +14,15 @@
 
 P0/P1/P2 已完成，单发固定 15 点伤害、Drone 0.8 速度倍率保持不变。**P3 真实神经闪避、P4 首版命中标记/战斗音效/机械旋翼声均已完成并通过整套回归及真实 smoke**。当前使用说明见 `docs/ARENA.md`；先看下一节，旧条目仅作历史记录。下一步为人工评估闪避和音效手感，及独立处理快速 headless 退出时的音频资源警告。
 
+## 2026-09-24 README.md 重写为 FlyBrain Arena 现状（英文，已推送 GitHub）
+
+- 上一轮只是把原版土耳其语 README 逐段直译成英文，内容仍是"找钥匙逃出房间"的旧叙事。本轮应用户要求**整篇重写**（不是翻译），删掉了钥匙搜索/三房间探索/开门胜利这套已被 P2 整体替换的旧玩法描述，以及 web 部署、macOS/uv 工具链这些这个 fork 从未验证过的内容；改成准确描述当前战斗玩法：Drone 对战、武器数值（15 伤害/7 枪击倒/100 HP/0.35s 冷却/25m 射程）、玩家被贴到即死、P4 命中标记与音效。
+- 新增一节专讲这个 fork 存在的原因和 P3 神经闲避通路的真实性边界：明确写出 LC4→DNp01/DNp03、LC4→DNp03、LPLC2→DNp01 是真实解剖连接（消融测试后逃逸强度 1.0→0.088 作证据），LPLC2→DNp03 几乎无连接；R1-R6 到 LC4/LPLC2 无直连边，所以威胁信号是直接注入 LC4/LPLC2 而非伪造一条视觉通路，这是工程选择，写清楚不是重新发现了生物学通路。这部分内容对齐 `docs/ARCHITECTURE_NOTES.md` 和上面"P3 关键调研发现"一节，未新增未经验证的结论。
+- 本地环境部分改成 Windows 原生（`setup.ps1`/`run.ps1`/`test.ps1`），删掉了原版 macOS ARM64 + uv 的说明（这个 fork 从未在 macOS 上跑过）。新增"upstream FLYFEAR 删除了什么"一节，明确列出 `has_key`/`door_open`/`interact()` 等已整个删除，不是保留成未用的兼容层，并指向 upstream 仓库给想玩原版的人。
+- 保留了原版就有的"真实 vs 工程"数值模型免责段落（signed-activity-deviation model、166,700 神经元/25,582,938 边等），因为底层 Connectome 计算代码未变。数据/许可证段落同样保留 CC BY 4.0 + MIT 归属,指向 `THIRD_PARTY.md`。
+- 写之前逐条核对过引用的文件路径是否存在（`docs/ARENA.md`、`brain/escape.py`、`research/source.lock.json` 等）和代码里的真实常量（`game/player.gd::weapon_damage=15`、`game/drone.gd::CONTACT_DISTANCE=0.6`/`flight_speed_scale=0.8`、`game/director.gd::ESCAPE_MAX_AGE=0.85`/0.65s 请求间隔），没有凭 STATUS.md 记忆直接抄数字。
+- 未改代码、未跑测试（本轮是纯文档重写，不涉及游戏逻辑）。提交到 `origin`（`https://github.com/CodeMan1729/flybrain-arena.git`）的 `flybrain-arena` 分支，只推了 `README.md` 和 `STATUS.md` 两个文件的改动。
+
 ## 2026-09-24 P4 视听反馈（最新入口，已验证）
 
 - 新增 `game/combat_feedback.gd`：真实命中后显示 0.14 s 准星周围命中标记；接受的开火、命中、won/lost 分别播放独立短音效。冷却拒绝的输入无重复反馈，未命中无命中提示；暂停/重开清空残留，重复结算保留首个结果。全走既有 Master 音量和静音，不改伤害、速度、冷却或神经模型。
